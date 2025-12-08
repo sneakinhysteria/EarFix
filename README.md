@@ -36,7 +36,7 @@ EarFix is a free, open-source audio plugin that applies personalized hearing cor
 See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
 **Quick Install (macOS):**
-1. Download the latest release from [Releases](https://github.com/BrighterRealities/EarFix/releases)
+1. Download the latest release from [Releases](https://github.com/sneakinhysteria/EarFix/releases)
 2. Copy `EarFix.component` to `~/Library/Audio/Plug-Ins/Components/`
 3. Copy `EarFix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
 4. Restart your DAW
@@ -70,7 +70,7 @@ EarFix uses your audiogram data to calculate frequency-specific gain curves:
 ### Build Steps
 ```bash
 # Clone the repository
-git clone https://github.com/BrighterRealities/EarFix.git
+git clone https://github.com/sneakinhysteria/EarFix.git
 cd EarFix
 
 # Open in Projucer and save to generate Xcode project
@@ -105,4 +105,4 @@ EarFix is not a medical device and is not intended to replace professional heari
 
 ---
 
-**Made with care by [BrighterRealities](https://github.com/BrighterRealities)**
+<a href="https://www.buymeacoffee.com/sneakinhysteria" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>

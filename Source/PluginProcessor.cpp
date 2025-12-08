@@ -197,15 +197,23 @@ const juce::String HearingCorrectionAUv2AudioProcessor::getProgramName (int) { r
 void HearingCorrectionAUv2AudioProcessor::changeProgramName (int, const juce::String&) {}
 
 //==============================================================================
-void HearingCorrectionAUv2AudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
+void HearingCorrectionAUv2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
 
     previousGain = juce::Decibels::decibelsToGain (outputGainParam->load());
 
-    // Reset all filter bands (11 with interpolation)
+    // Prepare filter spec for mono processing (each filter handles one channel)
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
+    spec.numChannels = 1;
+
+    // Prepare and reset all filter bands (11 with interpolation)
     for (int i = 0; i < numFilterBands; ++i)
     {
+        leftFilters[i].prepare (spec);
+        rightFilters[i].prepare (spec);
         leftFilters[i].reset();
         rightFilters[i].reset();
         leftFilterGains[i] = 0.0f;
@@ -282,15 +290,18 @@ void HearingCorrectionAUv2AudioProcessor::updateFilterCoefficients()
                 currentSampleRate, freq, filterQ,
                 juce::Decibels::decibelsToGain (rightFilterGains[i]));
 
-            *leftFilters[i].coefficients  = *leftCoeffs;
-            *rightFilters[i].coefficients = *rightCoeffs;
+            // Assign new coefficient objects to ensure left and right filters
+            // have completely independent coefficients
+            leftFilters[i].coefficients  = leftCoeffs;
+            rightFilters[i].coefficients = rightCoeffs;
         }
         else
         {
-            auto bypassCoeffs = juce::dsp::IIR::Coefficients<float>::makeFirstOrderAllPass (
+            // High frequencies above Nyquist - use bypass (separate objects for each filter)
+            leftFilters[i].coefficients = juce::dsp::IIR::Coefficients<float>::makeFirstOrderAllPass (
                 currentSampleRate, 1000.0f);
-            *leftFilters[i].coefficients  = *bypassCoeffs;
-            *rightFilters[i].coefficients = *bypassCoeffs;
+            rightFilters[i].coefficients = juce::dsp::IIR::Coefficients<float>::makeFirstOrderAllPass (
+                currentSampleRate, 1000.0f);
         }
     }
 }

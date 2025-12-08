@@ -176,7 +176,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
 
     // Version text on the right
     g.setFont (juce::FontOptions (10.0f));
-    g.drawText ("v2 Alpha", headerBounds, juce::Justification::centredRight);
+    g.drawText ("v1.0.1", headerBounds, juce::Justification::centredRight);
 
     // Draw machined panel for controls section
     if (!controlPanelBounds.isEmpty())

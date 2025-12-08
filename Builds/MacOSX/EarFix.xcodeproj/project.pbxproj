@@ -1,0 +1,2523 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		4E1269F608526788253EB465 /* EarFix - All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F55E04A321B467C208F1F5CF;
+			buildPhases = (
+			);
+			dependencies = (
+				3E2DBF3B2299F77DA87CC00C,
+				62E13D4D7B7DEF5B907558B4,
+				D1E6872012D60AA6F991FA8B,
+				79A6949ECC723CAF5D9730C3,
+				DA040699EEDBE3116F98EC45,
+				007F2796E3F5B302FFDF6313,
+			);
+			name = "EarFix - All";
+			productName = EarFix;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		07EB34FDF31D72884BDAC3DF /* include_juce_gui_basics.mm */ = {isa = PBXBuildFile; fileRef = 5020C0DC49E6333344E64C18; };
+		0C2AC59EDDD624639E876FB1 /* include_juce_audio_plugin_client_AAX_utils.cpp */ = {isa = PBXBuildFile; fileRef = A313B3701C9C1E7B4FFCFA57; };
+		1163FA8EAE5FD9C1C18C66F6 /* AVFoundation.framework */ = {isa = PBXBuildFile; fileRef = A5D4FC9AAD9996A149682031; };
+		1543201907F061D3BE81472A /* AUv3 AppExtension */ = {isa = PBXBuildFile; fileRef = 5CCE7758AF76E39315E40505; };
+		1F3A0F83678F8ADC8A78FAC3 /* include_juce_audio_devices.mm */ = {isa = PBXBuildFile; fileRef = EC9AEF4A8EB419711D59ACF5; };
+		21F2F176A42ED578D2AA4588 /* Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 0B79CAAE07767BFD60EAF7F7; };
+		26B25D8CBB663DD634044BCA /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = 561067CD8D8A7531B2D337CF; };
+		28089A78F4B40C765336B82D /* include_juce_audio_processors_headless_ara.cpp */ = {isa = PBXBuildFile; fileRef = 6757032CB0595C03A149694D; };
+		298BB1F7736D0A5BFE2D8F33 /* CoreMIDI.framework */ = {isa = PBXBuildFile; fileRef = 33FF77DEC5F4569885F2CCEB; };
+		333668A5160E006343FDC50F /* include_juce_graphics.mm */ = {isa = PBXBuildFile; fileRef = 6D2F46516E54BE9B390AC836; };
+		3573620556753153C09B28F7 /* include_juce_audio_processors.mm */ = {isa = PBXBuildFile; fileRef = 3E554E5EEF8C925B83A0C1D3; };
+		3607EF5F0CDE444C0E74203B /* include_juce_audio_plugin_client_AU_2.mm */ = {isa = PBXBuildFile; fileRef = 22AD3FB5FE6875AC0A121C5C; };
+		36CBFBFF30F76761944ACE4C /* include_juce_audio_utils.mm */ = {isa = PBXBuildFile; fileRef = 53BECF185BE78615EAE0B894; };
+		3835FFE9821D0302F2BD8678 /* include_juce_audio_formats.mm */ = {isa = PBXBuildFile; fileRef = B42023EEA3F44BF70AF1F9D3; };
+		3A4EC22F38D5B52B314D15FE /* AudioUnit.framework */ = {isa = PBXBuildFile; fileRef = 05057469EB16B6075B2073B9; };
+		3EFA8343A69354324267ABB7 /* Accelerate.framework */ = {isa = PBXBuildFile; fileRef = 3352C958C895CEA0DE80EAF0; };
+		43519991B8F18D000F205382 /* include_juce_audio_processors_headless_lv2_libs.cpp */ = {isa = PBXBuildFile; fileRef = F201EE1F0F24530388120452; };
+		46E6BBC01840683AC30A4230 /* include_juce_audio_plugin_client_AU_1.mm */ = {isa = PBXBuildFile; fileRef = B2EA442097B03E8499648C67; };
+		4FA8FB3C36A792BAD4B95D12 /* juce_VST3ManifestHelper.mm */ = {isa = PBXBuildFile; fileRef = 0F67B9D3BF9AEA5AC140128E; settings = { COMPILER_FLAGS = "-w -DJUCE_SKIP_PRECOMPILED_HEADER"; }; };
+		529776BC9CEC7EE9BC035F40 /* PluginProcessor.cpp */ = {isa = PBXBuildFile; fileRef = E004A4BA8CB8CA394C3D7747; };
+		5621AD713234EDF97DC5B7EF /* include_juce_graphics_Harfbuzz.cpp */ = {isa = PBXBuildFile; fileRef = 022E225DA941B489CDE7DE72; };
+		5B827E2A39859BD0B2D6A1D9 /* CoreAudioKit.framework */ = {isa = PBXBuildFile; fileRef = D33E0374BFE23279A11BE8AA; };
+		64678D6D494CA802A5074E67 /* include_juce_audio_processors_headless.mm */ = {isa = PBXBuildFile; fileRef = 875DA91704AA384D528C0C00; };
+		64FBAC1E2A0A26243DFA7FBE /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = 91B8D74F234718BB53C56056; };
+		6744EAEEBF24AF8E51ECC14C /* include_juce_audio_plugin_client_ARA.cpp */ = {isa = PBXBuildFile; fileRef = CCB60AFF28A5FAEAD0D9DCA4; };
+		6AC70B13674EC9A84CA7FC4F /* include_juce_audio_basics.mm */ = {isa = PBXBuildFile; fileRef = 90751111700A6309420D1814; };
+		6B904ECB6834B709FE95567D /* include_juce_audio_plugin_client_AUv3.mm */ = {isa = PBXBuildFile; fileRef = 9A57B04FDAEB9FD812737279; };
+		6DD68AFEAF074BAE3F0A0394 /* include_juce_audio_plugin_client_VST3.mm */ = {isa = PBXBuildFile; fileRef = A9A7D8DC6CC7548086613CB3; };
+		70CF8794618BB0CC0ED55A9B /* include_juce_dsp.mm */ = {isa = PBXBuildFile; fileRef = 51DDAD73EA8A8BFEDB6D9420; };
+		7794A1FA4B47DCAE38DB0345 /* AU */ = {isa = PBXBuildFile; fileRef = 6D1C94BBE03E2564D5854342; };
+		7802CC1EAFB3B3361ED2A2A4 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = 1FA8129FB13DB7E55398CFE3; };
+		7A26BBDE67FDFC939568DB97 /* QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = 6C3FE725E4A003C90AB7361F; };
+		7EF8271AA71C62E4F91D3ACA /* Shared Code */ = {isa = PBXBuildFile; fileRef = FDB9A60A1081E1D2CA975095; };
+		893A3D2E2C9CE9EA7094813C /* AudioToolbox.framework */ = {isa = PBXBuildFile; fileRef = C13CF44F80896DA44C7EA9C6; };
+		8C403E31F1E0F047ED4216F2 /* MetalKit.framework */ = {isa = PBXBuildFile; fileRef = 02A7983715F846DF6928F65A; settings = { ATTRIBUTES = (Weak, ); }; };
+		8D2DF877E30101E5806A4477 /* include_juce_audio_plugin_client_AAX.mm */ = {isa = PBXBuildFile; fileRef = 865C5D49792B9AF0FD58E457; };
+		8E860559526041D854BBDC80 /* include_juce_core_CompilationTime.cpp */ = {isa = PBXBuildFile; fileRef = 228A4570C94968B2B47D914F; };
+		9DD728C4A0187192C612A555 /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = C106E454C61943E3411E92E7; };
+		9F684B5E9A147AA54BC64FD6 /* Security.framework */ = {isa = PBXBuildFile; fileRef = A35194E1D1AD753A1713C4BF; };
+		B7B396DD128B35C0B1FF2397 /* RecentFilesMenuTemplate.nib */ = {isa = PBXBuildFile; fileRef = 0BAD565C20AD495C9E313FDA; };
+		C20CDA7433DC241F33A7C9DA /* include_juce_core.mm */ = {isa = PBXBuildFile; fileRef = 1FBB6DF2F3446CEE48ABCA5E; };
+		C2F60FB9D171A999FDAC7F54 /* AAX */ = {isa = PBXBuildFile; fileRef = ECCDFCDC4FDAB142FF18E611; };
+		D8F3C98B320C87D828DB6164 /* VST3 Manifest Helper */ = {isa = PBXBuildFile; fileRef = 73BE6AA179E05F4F962576FE; };
+		E1326C563854708B2464BA47 /* DiscRecording.framework */ = {isa = PBXBuildFile; fileRef = 0BDC27264108972BC145CCD9; };
+		E1D3C459D0DF13C284EAF0D9 /* include_juce_graphics_Sheenbidi.c */ = {isa = PBXBuildFile; fileRef = 23EFCFCD1DF0D8959EC9E0C9; };
+		E52099CE56E4D1808F2C0385 /* PluginEditor.cpp */ = {isa = PBXBuildFile; fileRef = 0F646FC7A7F0007BF96CBCFF; };
+		E5866C4C3FB821DAB44C749A /* include_juce_gui_extra.mm */ = {isa = PBXBuildFile; fileRef = 443DA40D22730FE179F28275; };
+		E6473DC58AFE850500716E60 /* WebKit.framework */ = {isa = PBXBuildFile; fileRef = 4B1FF97F9143FD036C2A2960; };
+		EAD22A12DED816ACB1C56FF3 /* Metal.framework */ = {isa = PBXBuildFile; fileRef = 59203421F4BC2CD7FFE6DD15; settings = { ATTRIBUTES = (Weak, ); }; };
+		ED3706EDA704274E97D2DD73 /* IOKit.framework */ = {isa = PBXBuildFile; fileRef = ACE62FE16CB9CF85CE1D0917; };
+		F43F5D8B623A12E5F4527A77 /* VST3 */ = {isa = PBXBuildFile; fileRef = B35881612C79B2FD0B1B3EA5; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		022E225DA941B489CDE7DE72 /* include_juce_graphics_Harfbuzz.cpp */ /* include_juce_graphics_Harfbuzz.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_graphics_Harfbuzz.cpp; path = ../../JuceLibraryCode/include_juce_graphics_Harfbuzz.cpp; sourceTree = SOURCE_ROOT; };
+		02A7983715F846DF6928F65A /* MetalKit.framework */ /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		036AEA9F4F48891B220E6A32 /* juce_audio_processors_headless */ /* juce_audio_processors_headless */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_processors_headless; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless; sourceTree = "<absolute>"; };
+		05057469EB16B6075B2073B9 /* AudioUnit.framework */ /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		07A7D29E102B7558B835E3AD /* PluginProcessor.h */ /* PluginProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PluginProcessor.h; path = ../../Source/PluginProcessor.h; sourceTree = SOURCE_ROOT; };
+		0B79CAAE07767BFD60EAF7F7 /* Cocoa.framework */ /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		0BAD565C20AD495C9E313FDA /* RecentFilesMenuTemplate.nib */ /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; name = RecentFilesMenuTemplate.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
+		0BDC27264108972BC145CCD9 /* DiscRecording.framework */ /* DiscRecording.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiscRecording.framework; path = System/Library/Frameworks/DiscRecording.framework; sourceTree = SDKROOT; };
+		0F646FC7A7F0007BF96CBCFF /* PluginEditor.cpp */ /* PluginEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginEditor.cpp; path = ../../Source/PluginEditor.cpp; sourceTree = SOURCE_ROOT; };
+		0F67B9D3BF9AEA5AC140128E /* juce_VST3ManifestHelper.mm */ /* juce_VST3ManifestHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = juce_VST3ManifestHelper.mm; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/VST3/juce_VST3ManifestHelper.mm; sourceTree = "<absolute>"; };
+		104A6DBF0DBE540DAB9A3A6C /* juce_events */ /* juce_events */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_events; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_events; sourceTree = "<absolute>"; };
+		199203D01AA3CF31E1E72A26 /* Info-VST3_Manifest_Helper.plist */ /* Info-VST3_Manifest_Helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-VST3_Manifest_Helper.plist"; path = "Info-VST3_Manifest_Helper.plist"; sourceTree = SOURCE_ROOT; };
+		1996F2DBA38F73C6D4507BDC /* juce_audio_plugin_client */ /* juce_audio_plugin_client */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_plugin_client; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client; sourceTree = "<absolute>"; };
+		1DABDCA5E51DAAC32A2D279A /* Info-VST3.plist */ /* Info-VST3.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-VST3.plist"; path = "Info-VST3.plist"; sourceTree = SOURCE_ROOT; };
+		1FA8129FB13DB7E55398CFE3 /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1FBB6DF2F3446CEE48ABCA5E /* include_juce_core.mm */ /* include_juce_core.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_core.mm; path = ../../JuceLibraryCode/include_juce_core.mm; sourceTree = SOURCE_ROOT; };
+		228A4570C94968B2B47D914F /* include_juce_core_CompilationTime.cpp */ /* include_juce_core_CompilationTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_core_CompilationTime.cpp; path = ../../JuceLibraryCode/include_juce_core_CompilationTime.cpp; sourceTree = SOURCE_ROOT; };
+		22AD3FB5FE6875AC0A121C5C /* include_juce_audio_plugin_client_AU_2.mm */ /* include_juce_audio_plugin_client_AU_2.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AU_2.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AU_2.mm; sourceTree = SOURCE_ROOT; };
+		23EFCFCD1DF0D8959EC9E0C9 /* include_juce_graphics_Sheenbidi.c */ /* include_juce_graphics_Sheenbidi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = include_juce_graphics_Sheenbidi.c; path = ../../JuceLibraryCode/include_juce_graphics_Sheenbidi.c; sourceTree = SOURCE_ROOT; };
+		265ACC7A0857C97F3AC26FEB /* juce_audio_formats */ /* juce_audio_formats */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_formats; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_formats; sourceTree = "<absolute>"; };
+		3352C958C895CEA0DE80EAF0 /* Accelerate.framework */ /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		33FF77DEC5F4569885F2CCEB /* CoreMIDI.framework */ /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		3A4BA4A53A66CCFF91E56BEE /* Info-AUv3_AppExtension.plist */ /* Info-AUv3_AppExtension.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-AUv3_AppExtension.plist"; path = "Info-AUv3_AppExtension.plist"; sourceTree = SOURCE_ROOT; };
+		3E554E5EEF8C925B83A0C1D3 /* include_juce_audio_processors.mm */ /* include_juce_audio_processors.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_processors.mm; path = ../../JuceLibraryCode/include_juce_audio_processors.mm; sourceTree = SOURCE_ROOT; };
+		3FC7ED94AA1C507A7E8A1BE1 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_core; sourceTree = "<absolute>"; };
+		443DA40D22730FE179F28275 /* include_juce_gui_extra.mm */ /* include_juce_gui_extra.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_extra.mm; path = ../../JuceLibraryCode/include_juce_gui_extra.mm; sourceTree = SOURCE_ROOT; };
+		4B1FF97F9143FD036C2A2960 /* WebKit.framework */ /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		5020C0DC49E6333344E64C18 /* include_juce_gui_basics.mm */ /* include_juce_gui_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_basics.mm; path = ../../JuceLibraryCode/include_juce_gui_basics.mm; sourceTree = SOURCE_ROOT; };
+		51DDAD73EA8A8BFEDB6D9420 /* include_juce_dsp.mm */ /* include_juce_dsp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_dsp.mm; path = ../../JuceLibraryCode/include_juce_dsp.mm; sourceTree = SOURCE_ROOT; };
+		51FB8FE748539EAB71B4C50A /* juce_audio_devices */ /* juce_audio_devices */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_devices; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_devices; sourceTree = "<absolute>"; };
+		53166628F7E12EED507BDEC5 /* HalfGainModel.h */ /* HalfGainModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HalfGainModel.h; path = ../../Source/Models/HalfGainModel.h; sourceTree = SOURCE_ROOT; };
+		53BECF185BE78615EAE0B894 /* include_juce_audio_utils.mm */ /* include_juce_audio_utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_utils.mm; path = ../../JuceLibraryCode/include_juce_audio_utils.mm; sourceTree = SOURCE_ROOT; };
+		555372798C4E16CEBE808503 /* Info-AU.plist */ /* Info-AU.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-AU.plist"; path = "Info-AU.plist"; sourceTree = SOURCE_ROOT; };
+		561067CD8D8A7531B2D337CF /* CoreAudio.framework */ /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		58B2688F8DA235C9F73335A7 /* Info-AAX.plist */ /* Info-AAX.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-AAX.plist"; path = "Info-AAX.plist"; sourceTree = SOURCE_ROOT; };
+		59203421F4BC2CD7FFE6DD15 /* Metal.framework */ /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		5B2A896710C7F0C5B3495D5C /* juce_audio_basics */ /* juce_audio_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_basics; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_basics; sourceTree = "<absolute>"; };
+		5CCE7758AF76E39315E40505 /* AUv3 AppExtension */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EarFix.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D66DDAB6DC79342988A334F /* juce_audio_processors */ /* juce_audio_processors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_processors; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors; sourceTree = "<absolute>"; };
+		613015961148E931ADD69E18 /* AUv3_AppExtension.entitlements */ /* AUv3_AppExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = AUv3_AppExtension.entitlements; path = AUv3_AppExtension.entitlements; sourceTree = SOURCE_ROOT; };
+		6757032CB0595C03A149694D /* include_juce_audio_processors_headless_ara.cpp */ /* include_juce_audio_processors_headless_ara.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_processors_headless_ara.cpp; path = ../../JuceLibraryCode/include_juce_audio_processors_headless_ara.cpp; sourceTree = SOURCE_ROOT; };
+		6C3FE725E4A003C90AB7361F /* QuartzCore.framework */ /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		6D1C94BBE03E2564D5854342 /* AU */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarFix.component; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D2F46516E54BE9B390AC836 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
+		73BE6AA179E05F4F962576FE /* VST3 Manifest Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = juce_vst3_helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B9FD7CA453D9659D7E53C98 /* CustomLookAndFeel.h */ /* CustomLookAndFeel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CustomLookAndFeel.h; path = ../../Source/CustomLookAndFeel.h; sourceTree = SOURCE_ROOT; };
+		855C5EF12245C8C87EBAAE4D /* AudiogramComponent.h */ /* AudiogramComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudiogramComponent.h; path = ../../Source/AudiogramComponent.h; sourceTree = SOURCE_ROOT; };
+		865C5D49792B9AF0FD58E457 /* include_juce_audio_plugin_client_AAX.mm */ /* include_juce_audio_plugin_client_AAX.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AAX.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AAX.mm; sourceTree = SOURCE_ROOT; };
+		875DA91704AA384D528C0C00 /* include_juce_audio_processors_headless.mm */ /* include_juce_audio_processors_headless.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_processors_headless.mm; path = ../../JuceLibraryCode/include_juce_audio_processors_headless.mm; sourceTree = SOURCE_ROOT; };
+		90751111700A6309420D1814 /* include_juce_audio_basics.mm */ /* include_juce_audio_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_basics.mm; path = ../../JuceLibraryCode/include_juce_audio_basics.mm; sourceTree = SOURCE_ROOT; };
+		91B8D74F234718BB53C56056 /* include_juce_events.mm */ /* include_juce_events.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_events.mm; path = ../../JuceLibraryCode/include_juce_events.mm; sourceTree = SOURCE_ROOT; };
+		9A57B04FDAEB9FD812737279 /* include_juce_audio_plugin_client_AUv3.mm */ /* include_juce_audio_plugin_client_AUv3.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AUv3.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AUv3.mm; sourceTree = SOURCE_ROOT; };
+		A313B3701C9C1E7B4FFCFA57 /* include_juce_audio_plugin_client_AAX_utils.cpp */ /* include_juce_audio_plugin_client_AAX_utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_plugin_client_AAX_utils.cpp; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AAX_utils.cpp; sourceTree = SOURCE_ROOT; };
+		A35194E1D1AD753A1713C4BF /* Security.framework */ /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		A50A359BC7848BF4F9A565A8 /* CorrectionModel.h */ /* CorrectionModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CorrectionModel.h; path = ../../Source/Models/CorrectionModel.h; sourceTree = SOURCE_ROOT; };
+		A5D4FC9AAD9996A149682031 /* AVFoundation.framework */ /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		A936B6FE6F7241DB1D73B284 /* PluginEditor.h */ /* PluginEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PluginEditor.h; path = ../../Source/PluginEditor.h; sourceTree = SOURCE_ROOT; };
+		A9A7D8DC6CC7548086613CB3 /* include_juce_audio_plugin_client_VST3.mm */ /* include_juce_audio_plugin_client_VST3.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_VST3.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_VST3.mm; sourceTree = SOURCE_ROOT; };
+		ACE62FE16CB9CF85CE1D0917 /* IOKit.framework */ /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		B2EA442097B03E8499648C67 /* include_juce_audio_plugin_client_AU_1.mm */ /* include_juce_audio_plugin_client_AU_1.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AU_1.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AU_1.mm; sourceTree = SOURCE_ROOT; };
+		B35881612C79B2FD0B1B3EA5 /* VST3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarFix.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		B42023EEA3F44BF70AF1F9D3 /* include_juce_audio_formats.mm */ /* include_juce_audio_formats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_formats.mm; path = ../../JuceLibraryCode/include_juce_audio_formats.mm; sourceTree = SOURCE_ROOT; };
+		BEC68EF01FA3050229B2D2BC /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_graphics; sourceTree = "<absolute>"; };
+		BF52A290720CCC2F39865034 /* JuceHeader.h */ /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
+		C106E454C61943E3411E92E7 /* include_juce_data_structures.mm */ /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
+		C13CF44F80896DA44C7EA9C6 /* AudioToolbox.framework */ /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		C4A4A794B767C2660EBD1C56 /* juce_dsp */ /* juce_dsp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_dsp; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_dsp; sourceTree = "<absolute>"; };
+		C567C5216E03481FF9B75982 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_gui_extra; sourceTree = "<absolute>"; };
+		CCB60AFF28A5FAEAD0D9DCA4 /* include_juce_audio_plugin_client_ARA.cpp */ /* include_juce_audio_plugin_client_ARA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_plugin_client_ARA.cpp; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_ARA.cpp; sourceTree = SOURCE_ROOT; };
+		D33E0374BFE23279A11BE8AA /* CoreAudioKit.framework */ /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
+		D4733193D3F7E9C6D7EA6B87 /* juce_data_structures */ /* juce_data_structures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_data_structures; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_data_structures; sourceTree = "<absolute>"; };
+		D73BCC415F618128D6ED0804 /* juce_gui_basics */ /* juce_gui_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_basics; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_gui_basics; sourceTree = "<absolute>"; };
+		E004A4BA8CB8CA394C3D7747 /* PluginProcessor.cpp */ /* PluginProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginProcessor.cpp; path = ../../Source/PluginProcessor.cpp; sourceTree = SOURCE_ROOT; };
+		EC9AEF4A8EB419711D59ACF5 /* include_juce_audio_devices.mm */ /* include_juce_audio_devices.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_devices.mm; path = ../../JuceLibraryCode/include_juce_audio_devices.mm; sourceTree = SOURCE_ROOT; };
+		ECCDFCDC4FDAB142FF18E611 /* AAX */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarFix.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		F04389A0EA7774B53B94A2EB /* juce_audio_utils */ /* juce_audio_utils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_utils; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_utils; sourceTree = "<absolute>"; };
+		F18EEFB88880C86C8CEE68AF /* NALModel.h */ /* NALModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NALModel.h; path = ../../Source/Models/NALModel.h; sourceTree = SOURCE_ROOT; };
+		F201EE1F0F24530388120452 /* include_juce_audio_processors_headless_lv2_libs.cpp */ /* include_juce_audio_processors_headless_lv2_libs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_processors_headless_lv2_libs.cpp; path = ../../JuceLibraryCode/include_juce_audio_processors_headless_lv2_libs.cpp; sourceTree = SOURCE_ROOT; };
+		F7260869E3099C86531597AB /* JucePluginDefines.h */ /* JucePluginDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JucePluginDefines.h; path = ../../JuceLibraryCode/JucePluginDefines.h; sourceTree = SOURCE_ROOT; };
+		FDB9A60A1081E1D2CA975095 /* Shared Code */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libEarFix.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		03430432285026167C994051 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EFA8343A69354324267ABB7,
+				893A3D2E2C9CE9EA7094813C,
+				21F2F176A42ED578D2AA4588,
+				26B25D8CBB663DD634044BCA,
+				5B827E2A39859BD0B2D6A1D9,
+				298BB1F7736D0A5BFE2D8F33,
+				E1326C563854708B2464BA47,
+				7802CC1EAFB3B3361ED2A2A4,
+				ED3706EDA704274E97D2DD73,
+				7A26BBDE67FDFC939568DB97,
+				9F684B5E9A147AA54BC64FD6,
+				E6473DC58AFE850500716E60,
+				EAD22A12DED816ACB1C56FF3,
+				8C403E31F1E0F047ED4216F2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47FD056E21356E9778E53A4F = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EFA8343A69354324267ABB7,
+				893A3D2E2C9CE9EA7094813C,
+				21F2F176A42ED578D2AA4588,
+				26B25D8CBB663DD634044BCA,
+				5B827E2A39859BD0B2D6A1D9,
+				298BB1F7736D0A5BFE2D8F33,
+				E1326C563854708B2464BA47,
+				7802CC1EAFB3B3361ED2A2A4,
+				ED3706EDA704274E97D2DD73,
+				7A26BBDE67FDFC939568DB97,
+				9F684B5E9A147AA54BC64FD6,
+				E6473DC58AFE850500716E60,
+				EAD22A12DED816ACB1C56FF3,
+				8C403E31F1E0F047ED4216F2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F1DE7B9020B00451905AD5 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A4EC22F38D5B52B314D15FE,
+				3EFA8343A69354324267ABB7,
+				893A3D2E2C9CE9EA7094813C,
+				1163FA8EAE5FD9C1C18C66F6,
+				21F2F176A42ED578D2AA4588,
+				26B25D8CBB663DD634044BCA,
+				5B827E2A39859BD0B2D6A1D9,
+				298BB1F7736D0A5BFE2D8F33,
+				E1326C563854708B2464BA47,
+				7802CC1EAFB3B3361ED2A2A4,
+				ED3706EDA704274E97D2DD73,
+				7A26BBDE67FDFC939568DB97,
+				9F684B5E9A147AA54BC64FD6,
+				E6473DC58AFE850500716E60,
+				EAD22A12DED816ACB1C56FF3,
+				8C403E31F1E0F047ED4216F2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79EBC47518210AB0A030E532 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A4EC22F38D5B52B314D15FE,
+				3EFA8343A69354324267ABB7,
+				893A3D2E2C9CE9EA7094813C,
+				21F2F176A42ED578D2AA4588,
+				26B25D8CBB663DD634044BCA,
+				5B827E2A39859BD0B2D6A1D9,
+				298BB1F7736D0A5BFE2D8F33,
+				E1326C563854708B2464BA47,
+				7802CC1EAFB3B3361ED2A2A4,
+				ED3706EDA704274E97D2DD73,
+				7A26BBDE67FDFC939568DB97,
+				9F684B5E9A147AA54BC64FD6,
+				E6473DC58AFE850500716E60,
+				EAD22A12DED816ACB1C56FF3,
+				8C403E31F1E0F047ED4216F2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5C351675090D18AC59E9CA8 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EFA8343A69354324267ABB7,
+				893A3D2E2C9CE9EA7094813C,
+				21F2F176A42ED578D2AA4588,
+				26B25D8CBB663DD634044BCA,
+				5B827E2A39859BD0B2D6A1D9,
+				298BB1F7736D0A5BFE2D8F33,
+				E1326C563854708B2464BA47,
+				7802CC1EAFB3B3361ED2A2A4,
+				ED3706EDA704274E97D2DD73,
+				7A26BBDE67FDFC939568DB97,
+				9F684B5E9A147AA54BC64FD6,
+				E6473DC58AFE850500716E60,
+				EAD22A12DED816ACB1C56FF3,
+				8C403E31F1E0F047ED4216F2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		037D98876BB7491F5CA11348 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E004A4BA8CB8CA394C3D7747,
+				07A7D29E102B7558B835E3AD,
+				0F646FC7A7F0007BF96CBCFF,
+				A936B6FE6F7241DB1D73B284,
+				855C5EF12245C8C87EBAAE4D,
+				7B9FD7CA453D9659D7E53C98,
+				7B71B32C1ED9413AFF513B72,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		0E46BC8C6214770B0CDB9B49 /* JUCE Modules */ = {
+			isa = PBXGroup;
+			children = (
+				5B2A896710C7F0C5B3495D5C,
+				51FB8FE748539EAB71B4C50A,
+				265ACC7A0857C97F3AC26FEB,
+				1996F2DBA38F73C6D4507BDC,
+				5D66DDAB6DC79342988A334F,
+				036AEA9F4F48891B220E6A32,
+				F04389A0EA7774B53B94A2EB,
+				3FC7ED94AA1C507A7E8A1BE1,
+				D4733193D3F7E9C6D7EA6B87,
+				C4A4A794B767C2660EBD1C56,
+				104A6DBF0DBE540DAB9A3A6C,
+				BEC68EF01FA3050229B2D2BC,
+				D73BCC415F618128D6ED0804,
+				C567C5216E03481FF9B75982,
+			);
+			name = "JUCE Modules";
+			sourceTree = "<group>";
+		};
+		18AC052E64E84ECF0DA9760F /* EarFix */ = {
+			isa = PBXGroup;
+			children = (
+				037D98876BB7491F5CA11348,
+			);
+			name = EarFix;
+			sourceTree = "<group>";
+		};
+		19C61D868E405B8517D5EB15 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				18AC052E64E84ECF0DA9760F,
+				0E46BC8C6214770B0CDB9B49,
+				55C0B00AE081A7F35C4C2CDD,
+				68591D8D56C071202C317A69,
+				AA44514735CD47AFEF4EB0CB,
+				67B32B62AD408B67667BE50C,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		55C0B00AE081A7F35C4C2CDD /* JUCE Library Code */ = {
+			isa = PBXGroup;
+			children = (
+				90751111700A6309420D1814,
+				EC9AEF4A8EB419711D59ACF5,
+				B42023EEA3F44BF70AF1F9D3,
+				865C5D49792B9AF0FD58E457,
+				A313B3701C9C1E7B4FFCFA57,
+				CCB60AFF28A5FAEAD0D9DCA4,
+				B2EA442097B03E8499648C67,
+				22AD3FB5FE6875AC0A121C5C,
+				9A57B04FDAEB9FD812737279,
+				A9A7D8DC6CC7548086613CB3,
+				3E554E5EEF8C925B83A0C1D3,
+				875DA91704AA384D528C0C00,
+				6757032CB0595C03A149694D,
+				F201EE1F0F24530388120452,
+				53BECF185BE78615EAE0B894,
+				1FBB6DF2F3446CEE48ABCA5E,
+				228A4570C94968B2B47D914F,
+				C106E454C61943E3411E92E7,
+				51DDAD73EA8A8BFEDB6D9420,
+				91B8D74F234718BB53C56056,
+				6D2F46516E54BE9B390AC836,
+				022E225DA941B489CDE7DE72,
+				23EFCFCD1DF0D8959EC9E0C9,
+				5020C0DC49E6333344E64C18,
+				443DA40D22730FE179F28275,
+				BF52A290720CCC2F39865034,
+				F7260869E3099C86531597AB,
+			);
+			name = "JUCE Library Code";
+			sourceTree = "<group>";
+		};
+		67B32B62AD408B67667BE50C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B35881612C79B2FD0B1B3EA5,
+				ECCDFCDC4FDAB142FF18E611,
+				6D1C94BBE03E2564D5854342,
+				5CCE7758AF76E39315E40505,
+				FDB9A60A1081E1D2CA975095,
+				73BE6AA179E05F4F962576FE,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		68591D8D56C071202C317A69 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1DABDCA5E51DAAC32A2D279A,
+				58B2688F8DA235C9F73335A7,
+				555372798C4E16CEBE808503,
+				3A4BA4A53A66CCFF91E56BEE,
+				199203D01AA3CF31E1E72A26,
+				0BAD565C20AD495C9E313FDA,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		7B71B32C1ED9413AFF513B72 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A50A359BC7848BF4F9A565A8,
+				53166628F7E12EED507BDEC5,
+				F18EEFB88880C86C8CEE68AF,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		AA44514735CD47AFEF4EB0CB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				05057469EB16B6075B2073B9,
+				3352C958C895CEA0DE80EAF0,
+				C13CF44F80896DA44C7EA9C6,
+				A5D4FC9AAD9996A149682031,
+				0B79CAAE07767BFD60EAF7F7,
+				561067CD8D8A7531B2D337CF,
+				D33E0374BFE23279A11BE8AA,
+				33FF77DEC5F4569885F2CCEB,
+				0BDC27264108972BC145CCD9,
+				1FA8129FB13DB7E55398CFE3,
+				ACE62FE16CB9CF85CE1D0917,
+				6C3FE725E4A003C90AB7361F,
+				A35194E1D1AD753A1713C4BF,
+				4B1FF97F9143FD036C2A2960,
+				59203421F4BC2CD7FFE6DD15,
+				02A7983715F846DF6928F65A,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4BD1C74210DC47EB67F7F140 /* EarFix - VST3 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 680464A27608CAC957DDE95C;
+			buildPhases = (
+				8CDE8385F6CC59BB50B33BAE,
+				00F4D1B2D1C283802176F346,
+				03430432285026167C994051,
+				35444FA0744051E7D3A7A086,
+				23FFF533249AF179CC79A284,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D89053D0A4FB89D16C25C40A,
+				093357CF4C853FE3464C8C9D,
+			);
+			name = "EarFix - VST3";
+			productName = EarFix;
+			productReference = B35881612C79B2FD0B1B3EA5;
+			productType = "com.apple.product-type.bundle";
+		};
+		A4124245B446025D8ED3110C /* EarFix - AU */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C6FFA9E4780BE427CD82BE57;
+			buildPhases = (
+				7644ADD165BEF4B23991A405,
+				28DC46518C3FE7757C0EF1C1,
+				79EBC47518210AB0A030E532,
+				D8C3578AFE44F117B050687F,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7E2889D0B31702057EAE5073,
+			);
+			name = "EarFix - AU";
+			productName = EarFix;
+			productReference = 6D1C94BBE03E2564D5854342;
+			productType = "com.apple.product-type.bundle";
+		};
+		A923F8AF14BAC043483BC646 /* EarFix - AUv3 AppExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 948A3C03CAA25442389E5BD3;
+			buildPhases = (
+				9636CE34261E0C462B447F3A,
+				A4C7463BAB2142C230E12807,
+				65F1DE7B9020B00451905AD5,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				03090378F0FF4D146D5E09BF,
+			);
+			name = "EarFix - AUv3 AppExtension";
+			productName = EarFix;
+			productReference = 5CCE7758AF76E39315E40505;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B6FBEB509F4DED1ACD25E44F /* EarFix - Shared Code */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FE572A1603FC1E88AB9112E8;
+			buildPhases = (
+				C7520922DA688658B871E2CF,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "EarFix - Shared Code";
+			productName = EarFix;
+			productReference = FDB9A60A1081E1D2CA975095;
+			productType = "com.apple.product-type.library.static";
+		};
+		DAC2BD5708AAE1C395517AB0 /* EarFix - VST3 Manifest Helper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4485A5953CAC5649D59FC63B;
+			buildPhases = (
+				559962FD0A7F2BACE47D0F8C,
+				47FD056E21356E9778E53A4F,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "EarFix - VST3 Manifest Helper";
+			productName = EarFix;
+			productReference = 73BE6AA179E05F4F962576FE;
+			productType = "com.apple.product-type.tool";
+		};
+		F260E24D0ADC3BDFB07EB423 /* EarFix - AAX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C32884F35B888B11D091EE3C;
+			buildPhases = (
+				180715CEB8415C0AD73AD2B3,
+				CB24F0B1A7EDA58F8438B0BE,
+				D5C351675090D18AC59E9CA8,
+				EB58813ED40B4C09AEF37BB8,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2B7272FAD43119ED5EBD8B7D,
+			);
+			name = "EarFix - AAX";
+			productName = EarFix;
+			productReference = ECCDFCDC4FDAB142FF18E611;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2CD0B5A4DAB5195F2856695D = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1340;
+				ORGANIZATIONNAME = "BrighterRealities";
+				TargetAttributes = {
+					4BD1C74210DC47EB67F7F140 = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+					4E1269F608526788253EB465 = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+					A4124245B446025D8ED3110C = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+					A923F8AF14BAC043483BC646 = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
+					B6FBEB509F4DED1ACD25E44F = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+					DAC2BD5708AAE1C395517AB0 = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+					F260E24D0ADC3BDFB07EB423 = {
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 0;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 9F68C7DD14495FC6B6B545C6;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 19C61D868E405B8517D5EB15;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E1269F608526788253EB465,
+				4BD1C74210DC47EB67F7F140,
+				F260E24D0ADC3BDFB07EB423,
+				A4124245B446025D8ED3110C,
+				A923F8AF14BAC043483BC646,
+				B6FBEB509F4DED1ACD25E44F,
+				DAC2BD5708AAE1C395517AB0,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		180715CEB8415C0AD73AD2B3 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7B396DD128B35C0B1FF2397,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7644ADD165BEF4B23991A405 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7B396DD128B35C0B1FF2397,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8CDE8385F6CC59BB50B33BAE = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7B396DD128B35C0B1FF2397,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9636CE34261E0C462B447F3A = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7B396DD128B35C0B1FF2397,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		23FFF533249AF179CC79A284 /* Plugin Copy Step */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Plugin Copy Step";
+			alwaysOutOfDate = 1;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nif [[ \"${CONFIGURATION}\" == \"Debug\" ]]; then\n  destinationPlugin=\"${HOME}/Library/Audio/Plug-Ins/VST3//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"${HOME}/Library/Audio/Plug-Ins/VST3//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"${HOME}/Library/Audio/Plug-Ins/VST3//${WRAPPER_NAME}\"\n  fi\nfi\n\nif [[ \"${CONFIGURATION}\" == \"Release\" ]]; then\n  destinationPlugin=\"${HOME}/Library/Audio/Plug-Ins/VST3//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"${HOME}/Library/Audio/Plug-Ins/VST3//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"${HOME}/Library/Audio/Plug-Ins/VST3//${WRAPPER_NAME}\"\n  fi\nfi\n";
+		};
+		35444FA0744051E7D3A7A086 /* Update manifest */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Update manifest";
+			alwaysOutOfDate = 1;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\necho Running \\\"${CONFIGURATION_BUILD_DIR}/juce_vst3_helper\\\" \\> \\\"${CONFIGURATION_BUILD_DIR}/${WRAPPER_NAME}/Contents/Resources/moduleinfo.json\\\"\n\"${CONFIGURATION_BUILD_DIR}/juce_vst3_helper\" > \"${CONFIGURATION_BUILD_DIR}/${WRAPPER_NAME}/Contents/Resources/moduleinfo.json\"\n";
+		};
+		D8C3578AFE44F117B050687F /* Plugin Copy Step */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Plugin Copy Step";
+			alwaysOutOfDate = 1;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nif [[ \"${CONFIGURATION}\" == \"Debug\" ]]; then\n  destinationPlugin=\"${HOME}/Library/Audio/Plug-Ins/Components//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"${HOME}/Library/Audio/Plug-Ins/Components//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"${HOME}/Library/Audio/Plug-Ins/Components//${WRAPPER_NAME}\"\n  fi\nfi\n\nif [[ \"${CONFIGURATION}\" == \"Release\" ]]; then\n  destinationPlugin=\"${HOME}/Library/Audio/Plug-Ins/Components//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"${HOME}/Library/Audio/Plug-Ins/Components//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"${HOME}/Library/Audio/Plug-Ins/Components//${WRAPPER_NAME}\"\n  fi\nfi\n";
+		};
+		EB58813ED40B4C09AEF37BB8 /* Plugin Copy Step */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Plugin Copy Step";
+			alwaysOutOfDate = 1;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nif [[ \"${CONFIGURATION}\" == \"Debug\" ]]; then\n  destinationPlugin=\"/Library/Application Support/Avid/Audio/Plug-Ins//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"/Library/Application Support/Avid/Audio/Plug-Ins//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"/Library/Application Support/Avid/Audio/Plug-Ins//${WRAPPER_NAME}\"\n  fi\nfi\n\nif [[ \"${CONFIGURATION}\" == \"Release\" ]]; then\n  destinationPlugin=\"/Library/Application Support/Avid/Audio/Plug-Ins//$(basename \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\")\"\n  echo Running rm -rf \\\"${destinationPlugin}\\\"\n  rm -rf \"${destinationPlugin}\"\n  echo Running ditto \\\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\\\" \\\"${destinationPlugin}\\\"\n  ditto \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${destinationPlugin}\"\n\n  if [[ -n \"${EXPANDED_CODE_SIGN_IDENTITY-}\" ]]; then\n    if [[ -n \"${CODE_SIGN_ENTITLEMENTS-}\" ]]; then\n      entitlementsArg=(--entitlements \"${CODE_SIGN_ENTITLEMENTS}\")\n    fi\n\n    echo Signing Identity: \\\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\\\"\n    echo Running codesign --verbose=4 --force --sign \\\"${EXPANDED_CODE_SIGN_IDENTITY}\\\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \\\"/Library/Application Support/Avid/Audio/Plug-Ins//${WRAPPER_NAME}\\\"\n    codesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" ${entitlementsArg[*]-} ${OTHER_CODE_SIGN_FLAGS-} \"/Library/Application Support/Avid/Audio/Plug-Ins//${WRAPPER_NAME}\"\n  fi\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00F4D1B2D1C283802176F346 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DD68AFEAF074BAE3F0A0394,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		28DC46518C3FE7757C0EF1C1 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46E6BBC01840683AC30A4230,
+				3607EF5F0CDE444C0E74203B,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		559962FD0A7F2BACE47D0F8C = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA8FB3C36A792BAD4B95D12,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4C7463BAB2142C230E12807 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B904ECB6834B709FE95567D,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7520922DA688658B871E2CF = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				529776BC9CEC7EE9BC035F40,
+				E52099CE56E4D1808F2C0385,
+				6AC70B13674EC9A84CA7FC4F,
+				1F3A0F83678F8ADC8A78FAC3,
+				3835FFE9821D0302F2BD8678,
+				6744EAEEBF24AF8E51ECC14C,
+				3573620556753153C09B28F7,
+				64678D6D494CA802A5074E67,
+				28089A78F4B40C765336B82D,
+				43519991B8F18D000F205382,
+				36CBFBFF30F76761944ACE4C,
+				C20CDA7433DC241F33A7C9DA,
+				8E860559526041D854BBDC80,
+				9DD728C4A0187192C612A555,
+				70CF8794618BB0CC0ED55A9B,
+				64FBAC1E2A0A26243DFA7FBE,
+				333668A5160E006343FDC50F,
+				5621AD713234EDF97DC5B7EF,
+				E1D3C459D0DF13C284EAF0D9,
+				07EB34FDF31D72884BDAC3DF,
+				E5866C4C3FB821DAB44C749A,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB24F0B1A7EDA58F8438B0BE = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D2DF877E30101E5806A4477,
+				0C2AC59EDDD624639E876FB1,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		007F2796E3F5B302FFDF6313 = {
+			isa = PBXTargetDependency;
+			target = DAC2BD5708AAE1C395517AB0;
+		};
+		03090378F0FF4D146D5E09BF = {
+			isa = PBXTargetDependency;
+			target = B6FBEB509F4DED1ACD25E44F;
+		};
+		093357CF4C853FE3464C8C9D = {
+			isa = PBXTargetDependency;
+			target = DAC2BD5708AAE1C395517AB0;
+		};
+		2B7272FAD43119ED5EBD8B7D = {
+			isa = PBXTargetDependency;
+			target = B6FBEB509F4DED1ACD25E44F;
+		};
+		3E2DBF3B2299F77DA87CC00C = {
+			isa = PBXTargetDependency;
+			target = 4BD1C74210DC47EB67F7F140;
+		};
+		62E13D4D7B7DEF5B907558B4 = {
+			isa = PBXTargetDependency;
+			target = F260E24D0ADC3BDFB07EB423;
+		};
+		79A6949ECC723CAF5D9730C3 = {
+			isa = PBXTargetDependency;
+			target = A923F8AF14BAC043483BC646;
+		};
+		7E2889D0B31702057EAE5073 = {
+			isa = PBXTargetDependency;
+			target = B6FBEB509F4DED1ACD25E44F;
+		};
+		D1E6872012D60AA6F991FA8B = {
+			isa = PBXTargetDependency;
+			target = A4124245B446025D8ED3110C;
+		};
+		D89053D0A4FB89D16C25C40A = {
+			isa = PBXTargetDependency;
+			target = B6FBEB509F4DED1ACD25E44F;
+		};
+		DA040699EEDBE3116F98EC45 = {
+			isa = PBXTargetDependency;
+			target = B6FBEB509F4DED1ACD25E44F;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0CC838E01D26580034EEF87D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-VST3_Manifest_Helper.plist;
+				INFOPLIST_PREPROCESS = NO;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "juce_vst3_helper";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Release;
+		};
+		15E8EA4D25634311E9CD947F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=1",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AAX.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "/Library/Application Support/Avid/Audio/Plug-Ins/";
+				LIBRARY_STYLE = Bundle;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = aaxplugin;
+			};
+			name = Release;
+		};
+		16D151A292E48FB28AA0C09E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-VST3_Manifest_Helper.plist;
+				INFOPLIST_PREPROCESS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "juce_vst3_helper";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Debug;
+		};
+		16E71A60F17452024A7B1B3D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_ENTITLEMENTS = "AUv3_AppExtension.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=1",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AUv3_AppExtension.plist;
+				INFOPLIST_PREPROCESS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix.EarFixAUv3;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Debug;
+		};
+		4ACFB747DA609CEDD143D877 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=1",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AU.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
+				LIBRARY_STYLE = Bundle;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -d arm64_$arm64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\" -I \"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioUnit.framework/Headers\"";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = component;
+			};
+			name = Release;
+		};
+		4BA30DFB873BBC1F1107CEF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=1",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AU.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
+				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -d arm64_$arm64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\" -I \"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioUnit.framework/Headers\"";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = component;
+			};
+			name = Debug;
+		};
+		563CEDE156544289BE9434A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = NO;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CODE_SIGN_FLAGS = --timestamp;
+				PRODUCT_NAME = "EarFix";
+				SDKROOT = macosx;
+				WARNING_CFLAGS = "-Wreorder";
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		7C13EB4DE088066C10BD153F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=1",
+					"JucePlugin_Build_AU=1",
+					"JucePlugin_Build_AUv3=1",
+					"JucePlugin_Build_AAX=1",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+					"JUCE_SHARED_CODE=1",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Release;
+		};
+		864BEEF57D2CFA30186B9922 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=1",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AAX.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "/Library/Application Support/Avid/Audio/Plug-Ins/";
+				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = aaxplugin;
+			};
+			name = Debug;
+		};
+		9B0FD985AE37E2A30AC40A8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9D0D956E76E560E27927A4F1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = NO;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CODE_SIGN_FLAGS = --timestamp;
+				PRODUCT_NAME = "EarFix";
+				SDKROOT = macosx;
+				WARNING_CFLAGS = "-Wreorder";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		A5473D96EA11216B8AF60EB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=1",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-VST3.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/VST3/";
+				LIBRARY_STYLE = Bundle;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Release;
+		};
+		A5B4724E9B45D76FCCBEE9E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B52EB2C9377603CCC6B75BB5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_ENTITLEMENTS = "AUv3_AppExtension.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				EXCLUDED_ARCHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=0",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=1",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-AUv3_AppExtension.plist;
+				INFOPLIST_PREPROCESS = NO;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix.EarFixAUv3;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Release;
+		};
+		C80FFA92AE16C16A73B19537 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=1",
+					"JucePlugin_Build_AU=0",
+					"JucePlugin_Build_AUv3=0",
+					"JucePlugin_Build_AAX=0",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info-VST3.plist;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/VST3/";
+				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				OTHER_LDFLAGS = "-bundle -lEarFix";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Debug;
+		};
+		DFB170096EBC673CB3F12E05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				EXCLUDED_ARCHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCE_PROJUCER_VERSION=0x8000b",
+					"JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1",
+					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+					"JUCE_MODULE_AVAILABLE_juce_core=1",
+					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
+					"JUCE_MODULE_AVAILABLE_juce_events=1",
+					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+					"JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+					"JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+					"JUCE_VST3_CAN_REPLACE_VST2=0",
+					"JUCE_STRICT_REFCOUNTEDPOINTER=1",
+					"JucePlugin_Build_VST=0",
+					"JucePlugin_Build_VST3=1",
+					"JucePlugin_Build_AU=1",
+					"JucePlugin_Build_AUv3=1",
+					"JucePlugin_Build_AAX=1",
+					"JucePlugin_Build_Standalone=0",
+					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
+					"JucePlugin_Enable_IAA=0",
+					"JucePlugin_Enable_ARA=0",
+					"JucePlugin_Name=\\\"EarFix\\\"",
+					"JucePlugin_Desc=\\\"Hearing\\ loss\\ correction\\ based\\ on\\ audiogram\\\"",
+					"JucePlugin_Manufacturer=\\\"BrighterRealities\\\"",
+					"JucePlugin_ManufacturerWebsite=\\\"www.BrighterRealities.com\\\"",
+					"JucePlugin_ManufacturerEmail=\\\"\\\"",
+					"JucePlugin_ManufacturerCode=0x42727472",
+					"JucePlugin_PluginCode=0x45617278",
+					"JucePlugin_IsSynth=0",
+					"JucePlugin_WantsMidiInput=0",
+					"JucePlugin_ProducesMidiOutput=0",
+					"JucePlugin_IsMidiEffect=0",
+					"JucePlugin_EditorRequiresKeyboardFocus=0",
+					"JucePlugin_Version=1.0.0",
+					"JucePlugin_VersionCode=0x10000",
+					"JucePlugin_VersionString=\\\"1.0.0\\\"",
+					"JucePlugin_VSTUniqueID=JucePlugin_PluginCode",
+					"JucePlugin_VSTCategory=kPlugCategEffect",
+					"JucePlugin_Vst3Category=\\\"Fx|EQ\\\"",
+					"JucePlugin_AUMainType=\\'aufx\\'",
+					"JucePlugin_AUSubType=JucePlugin_PluginCode",
+					"JucePlugin_AUExportPrefix=EarFixAU",
+					"JucePlugin_AUExportPrefixQuoted=\\\"EarFixAU\\\"",
+					"JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_CFBundleIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXIdentifier=com.BrighterRealities.EarFix",
+					"JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode",
+					"JucePlugin_AAXProductId=JucePlugin_PluginCode",
+					"JucePlugin_AAXCategory=8192",
+					"JucePlugin_AAXDisableBypass=0",
+					"JucePlugin_AAXDisableMultiMono=0",
+					"JucePlugin_IAAType=0x61757278",
+					"JucePlugin_IAASubType=JucePlugin_PluginCode",
+					"JucePlugin_IAAName=\\\"BrighterRealities:\\ EarFix\\\"",
+					"JucePlugin_VSTNumMidiInputs=16",
+					"JucePlugin_VSTNumMidiOutputs=16",
+					"JucePlugin_ARAContentTypes=0",
+					"JucePlugin_ARATransformationFlags=0",
+					"JucePlugin_ARAFactoryID=\\\"com.BrighterRealities.EarFix.factory\\\"",
+					"JucePlugin_ARADocumentArchiveID=\\\"com.BrighterRealities.EarFix.aradocumentarchive.1.0.0\\\"",
+					"JucePlugin_ARACompatibleArchiveIDs=\\\"\\\"",
+					"JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000",
+					"JUCE_SHARED_CODE=1",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = (
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK",
+					"$(SRCROOT)/../../JuceLibraryCode",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules",
+					"/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU",
+					"$(inherited)",
+				);
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_HEADER_SEARCH_PATHS = "/Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK $(SRCROOT)/../../JuceLibraryCode /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AAX/SDK/Interfaces/ACF /Users/holgerschueler/Desktop/Dev/JUCE/modules /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_audio_plugin_client/AU";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BrighterRealities.EarFix;
+				PRODUCT_NAME = "EarFix";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				USE_HEADERMAP = NO;
+				VALID_ARCHS = "arm64 arm64e i386 x86_64";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4485A5953CAC5649D59FC63B = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D151A292E48FB28AA0C09E,
+				0CC838E01D26580034EEF87D,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		680464A27608CAC957DDE95C = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C80FFA92AE16C16A73B19537,
+				A5473D96EA11216B8AF60EB1,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		948A3C03CAA25442389E5BD3 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16E71A60F17452024A7B1B3D,
+				B52EB2C9377603CCC6B75BB5,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9F68C7DD14495FC6B6B545C6 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				563CEDE156544289BE9434A5,
+				9D0D956E76E560E27927A4F1,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C32884F35B888B11D091EE3C = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				864BEEF57D2CFA30186B9922,
+				15E8EA4D25634311E9CD947F,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C6FFA9E4780BE427CD82BE57 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4BA30DFB873BBC1F1107CEF7,
+				4ACFB747DA609CEDD143D877,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F55E04A321B467C208F1F5CF = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9B0FD985AE37E2A30AC40A8F,
+				A5B4724E9B45D76FCCBEE9E9,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FE572A1603FC1E88AB9112E8 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DFB170096EBC673CB3F12E05,
+				7C13EB4DE088066C10BD153F,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2CD0B5A4DAB5195F2856695D /* Project object */;
+}

@@ -9,13 +9,16 @@ EarFix is a free, open-source audio plugin that applies personalized hearing cor
 ## Features
 
 - **Personalized Correction**: Enter your audiogram values for 6 standard frequencies (250Hz - 8kHz)
-- **Two Correction Models**:
+- **Three Correction Models**:
   - **Half-Gain**: Simple, transparent correction (applies 50% of hearing loss as gain)
-  - **NAL-NL2**: Clinical-grade algorithm with compression (based on National Acoustic Laboratories formula)
+  - **NAL (Speech)**: Clinical-grade algorithm with compression (based on National Acoustic Laboratories formula)
+  - **MOSL (Music)**: Music-optimized specific loudness restoration with gentle compression and preserved dynamics
+- **Auto-Gain**: Hold the button to automatically match output level to input level
+- **Level Metering**: Stereo input and output meters for visual feedback
 - **Independent Ear Control**: Separate audiograms and enable/disable for left and right ears
 - **Adjustable Strength**: Scale correction from 0-100% to find your comfort level
 - **Output Gain**: Master volume control with +/-24dB range
-- **Premium UI**: Clean, professional interface with interactive audiogram charts
+- **Premium UI**: Clean, professional interface with interactive audiogram charts and signal flow visualization
 
 ## Supported Formats
 
@@ -58,7 +61,9 @@ EarFix uses your audiogram data to calculate frequency-specific gain curves:
 
 - **Half-Gain Rule**: For each frequency, applies gain equal to half your hearing threshold. Simple and effective for mild-moderate hearing loss.
 
-- **NAL-NL2**: Applies the National Acoustic Laboratories' Non-Linear 2 prescription formula, which accounts for loudness recruitment and provides compression for a more natural listening experience.
+- **NAL (Speech)**: Applies the National Acoustic Laboratories' Non-Linear 2 prescription formula, which accounts for loudness recruitment and provides compression for speech intelligibility.
+
+- **MOSL (Music)**: Music-Optimized Specific Loudness model that preserves spectral balance and musical dynamics. Uses gentler compression (max 1.7:1) and slower time constants to avoid "pumping" artifacts common with speech-focused algorithms.
 
 ## Building from Source
 

@@ -150,6 +150,7 @@
 		C567C5216E03481FF9B75982 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_gui_extra; sourceTree = "<absolute>"; };
 		CCB60AFF28A5FAEAD0D9DCA4 /* include_juce_audio_plugin_client_ARA.cpp */ /* include_juce_audio_plugin_client_ARA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_plugin_client_ARA.cpp; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_ARA.cpp; sourceTree = SOURCE_ROOT; };
 		D33E0374BFE23279A11BE8AA /* CoreAudioKit.framework */ /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
+		D3792986B3C2FF7270E20DE8 /* MOSLModel.h */ /* MOSLModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MOSLModel.h; path = ../../Source/Models/MOSLModel.h; sourceTree = SOURCE_ROOT; };
 		D4733193D3F7E9C6D7EA6B87 /* juce_data_structures */ /* juce_data_structures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_data_structures; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_data_structures; sourceTree = "<absolute>"; };
 		D73BCC415F618128D6ED0804 /* juce_gui_basics */ /* juce_gui_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_basics; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_gui_basics; sourceTree = "<absolute>"; };
 		E004A4BA8CB8CA394C3D7747 /* PluginProcessor.cpp */ /* PluginProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginProcessor.cpp; path = ../../Source/PluginProcessor.cpp; sourceTree = SOURCE_ROOT; };
@@ -396,6 +397,7 @@
 				A50A359BC7848BF4F9A565A8,
 				53166628F7E12EED507BDEC5,
 				F18EEFB88880C86C8CEE68AF,
+				D3792986B3C2FF7270E20DE8,
 			);
 			name = Models;
 			sourceTree = "<group>";

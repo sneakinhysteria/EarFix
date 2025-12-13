@@ -41,12 +41,12 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         "Bypass",
         false));
 
-    // Model selection: 0 = Half-Gain, 1 = NAL
+    // Model selection: 0 = Half-Gain, 1 = NAL, 2 = MOSL (Music)
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "modelSelect", 1 },
         "Model",
-        juce::StringArray { "Half-Gain (Simple)", "NAL (Compression)" },
-        0));
+        juce::StringArray { "Half-Gain", "NAL (Speech)", "MOSL (Music)" },
+        2));  // Default to MOSL for music-focused use
 
     // Output gain: -24 to +24 dB
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -153,15 +153,19 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
 {
     int modelIndex = static_cast<int> (modelSelectParam->load());
 
-    if (modelIndex == 0)
-        currentModel = &halfGainModel;
-    else
-        currentModel = &nalModel;
+    switch (modelIndex)
+    {
+        case 0:  currentModel = &halfGainModel; break;
+        case 1:  currentModel = &nalModel; break;
+        case 2:  currentModel = &moslModel; break;
+        default: currentModel = &moslModel; break;
+    }
 
     // Update model-specific settings
     float strength = correctionStrengthParam->load() / 100.0f;
     currentModel->setOverallGainOffset ((strength - 0.5f) * 10.0f);  // -5 to +5 dB based on strength
 
+    // NAL-specific settings
     if (modelIndex == 1)
     {
         bool fastCompression = compressionSpeedParam->load() < 0.5f;
@@ -169,6 +173,19 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
 
         int experienceLevel = static_cast<int> (experienceLevelParam->load());
         nalModel.setExperienceLevel (experienceLevel);
+    }
+
+    // MOSL-specific settings
+    if (modelIndex == 2)
+    {
+        bool fastCompression = compressionSpeedParam->load() < 0.5f;
+        moslModel.setCompressionSpeed (fastCompression);
+
+        // Use experience level to control brightness boost for MOSL
+        // New users might prefer less brightness, experienced users more
+        int experienceLevel = static_cast<int> (experienceLevelParam->load());
+        moslModel.setBrightnessBoost (experienceLevel >= 1);  // Enable for experienced users
+        moslModel.setBassEmphasis (experienceLevel);          // More bass for experienced
     }
 }
 
@@ -328,8 +345,19 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
     for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
         buffer.clear (i, 0, numSamples);
 
+    // Measure input levels
+    if (buffer.getNumChannels() >= 2)
+    {
+        inputLevelLeft.store (buffer.getMagnitude (0, 0, numSamples), std::memory_order_relaxed);
+        inputLevelRight.store (buffer.getMagnitude (1, 0, numSamples), std::memory_order_relaxed);
+    }
+
     if (bypassParam->load() > 0.5f)
+    {
+        outputLevelLeft.store (inputLevelLeft.load (std::memory_order_relaxed), std::memory_order_relaxed);
+        outputLevelRight.store (inputLevelRight.load (std::memory_order_relaxed), std::memory_order_relaxed);
         return;
+    }
 
     // Update model and filters
     updateCurrentModel();
@@ -442,6 +470,13 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
     else
     {
         buffer.applyGain (targetGain);
+    }
+
+    // Measure output levels
+    if (buffer.getNumChannels() >= 2)
+    {
+        outputLevelLeft.store (buffer.getMagnitude (0, 0, numSamples), std::memory_order_relaxed);
+        outputLevelRight.store (buffer.getMagnitude (1, 0, numSamples), std::memory_order_relaxed);
     }
 }
 

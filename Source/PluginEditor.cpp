@@ -24,61 +24,89 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     : AudioProcessorEditor (&p),
       audioProcessor (p)
 {
-    // Apply custom look and feel
     setLookAndFeel (&customLookAndFeel);
 
-    // Output gain slider
-    outputGainSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    outputGainSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 55, 22);
-    outputGainSlider.setTextValueSuffix (" dB");
-    outputGainSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
-    outputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
-    outputGainSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
-    outputGainSlider.setColour (juce::Slider::textBoxHighlightColourId, CustomLookAndFeel::textDark);
-    addAndMakeVisible (outputGainSlider);
-    outputGainLabel.setText ("Output", juce::dontSendNotification);
-    outputGainLabel.setJustificationType (juce::Justification::centredRight);
-    addAndMakeVisible (outputGainLabel);
-
-    // Correction strength slider
-    correctionStrengthSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    correctionStrengthSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 55, 22);
+    // Vertical sliders for Strength and Output
+    correctionStrengthSlider.setSliderStyle (juce::Slider::LinearVertical);
+    correctionStrengthSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 44, 18);
     correctionStrengthSlider.setTextValueSuffix ("%");
     correctionStrengthSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
     correctionStrengthSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
     correctionStrengthSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
-    correctionStrengthSlider.setColour (juce::Slider::textBoxHighlightColourId, CustomLookAndFeel::textDark);
     addAndMakeVisible (correctionStrengthSlider);
-    correctionLabel.setText ("Strength", juce::dontSendNotification);
-    correctionLabel.setJustificationType (juce::Justification::centredRight);
+    correctionLabel.setText ("STRENGTH", juce::dontSendNotification);
+    correctionLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    correctionLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    correctionLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (correctionLabel);
+
+    outputGainSlider.setSliderStyle (juce::Slider::LinearVertical);
+    outputGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 44, 18);
+    outputGainSlider.setTextValueSuffix (" dB");
+    outputGainSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
+    outputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
+    outputGainSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
+    addAndMakeVisible (outputGainSlider);
+    outputGainLabel.setText ("OUTPUT", juce::dontSendNotification);
+    outputGainLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    outputGainLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    outputGainLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (outputGainLabel);
 
     // Model selector
     modelSelector.addItem ("Half-Gain", 1);
-    modelSelector.addItem ("NAL-NL2", 2);
+    modelSelector.addItem ("NAL (Speech)", 2);
+    modelSelector.addItem ("MOSL (Music)", 3);
     addAndMakeVisible (modelSelector);
-    modelLabel.setText ("Model", juce::dontSendNotification);
-    modelLabel.setJustificationType (juce::Justification::centredRight);
+    modelLabel.setText ("MODEL", juce::dontSendNotification);
+    modelLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    modelLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    modelLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (modelLabel);
 
-    // Compression speed selector (only affects NAL model)
+    // Compression speed selector
     compressionSpeedSelector.addItem ("Fast", 1);
     compressionSpeedSelector.addItem ("Slow", 2);
     addAndMakeVisible (compressionSpeedSelector);
-    compressionSpeedLabel.setText ("Speed", juce::dontSendNotification);
-    compressionSpeedLabel.setJustificationType (juce::Justification::centredRight);
+    compressionSpeedLabel.setText ("SPEED", juce::dontSendNotification);
+    compressionSpeedLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    compressionSpeedLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    compressionSpeedLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (compressionSpeedLabel);
 
-    // Experience level selector (only affects NAL model)
+    // Experience level selector
     experienceLevelSelector.addItem ("New", 1);
     experienceLevelSelector.addItem ("Some", 2);
     experienceLevelSelector.addItem ("Experienced", 3);
     addAndMakeVisible (experienceLevelSelector);
-    experienceLevelLabel.setText ("Level", juce::dontSendNotification);
-    experienceLevelLabel.setJustificationType (juce::Justification::centredRight);
+    experienceLevelLabel.setText ("LEVEL", juce::dontSendNotification);
+    experienceLevelLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    experienceLevelLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    experienceLevelLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (experienceLevelLabel);
 
-    // Enable buttons (named for LookAndFeel color detection)
+    // Auto-gain button - styled to match UI
+    autoGainButton.setButtonText ("AUTO\nGAIN");
+    autoGainButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+    autoGainButton.setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
+    autoGainButton.setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+    autoGainButton.setColour (juce::TextButton::textColourOnId, juce::Colours::white);
+    addAndMakeVisible (autoGainButton);
+
+    // Meter labels (same style as fader labels for consistency)
+    inputMeterLabel.setText ("INPUT", juce::dontSendNotification);
+    inputMeterLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    inputMeterLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    inputMeterLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (inputMeterLabel);
+
+    outputMeterLabel.setText ("OUTPUT", juce::dontSendNotification);
+    outputMeterLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    outputMeterLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    outputMeterLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (outputMeterLabel);
+
+    // Enable buttons
     rightEnableButton.setName ("right");
     leftEnableButton.setName ("left");
     addAndMakeVisible (rightEnableButton);
@@ -123,149 +151,277 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     leftEnableAttachment = std::make_unique<ButtonAttachment> (
         audioProcessor.parameters, "leftEnable", leftEnableButton);
 
-    // Listen for model changes to show/hide NAL options
+    // Listen for model changes
     audioProcessor.parameters.addParameterListener ("modelSelect", this);
-
-    // Initial visibility update
     updateNALOptionsVisibility();
 
-    setSize (560, 420);
+    // Start timer for meter updates
+    startTimerHz (30);
+
+    setSize (560, 500);
 }
 
 HearingCorrectionAUv2AudioProcessorEditor::~HearingCorrectionAUv2AudioProcessorEditor()
 {
+    stopTimer();
     audioProcessor.parameters.removeParameterListener ("modelSelect", this);
     setLookAndFeel (nullptr);
 }
 
 //==============================================================================
-void HearingCorrectionAUv2AudioProcessorEditor::parameterChanged (const juce::String& parameterID, float /*newValue*/)
+void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
+{
+    // Smooth meter decay
+    const float decay = 0.8f;
+    const float attack = 0.5f;
+
+    auto updateLevel = [] (float& display, float target, float att, float dec) {
+        display = (target > display) ? (display + att * (target - display))
+                                     : (display * dec);
+    };
+
+    updateLevel (displayInputL, audioProcessor.inputLevelLeft.load (std::memory_order_relaxed), attack, decay);
+    updateLevel (displayInputR, audioProcessor.inputLevelRight.load (std::memory_order_relaxed), attack, decay);
+    updateLevel (displayOutputL, audioProcessor.outputLevelLeft.load (std::memory_order_relaxed), attack, decay);
+    updateLevel (displayOutputR, audioProcessor.outputLevelRight.load (std::memory_order_relaxed), attack, decay);
+
+    // Auto-gain logic
+    if (autoGainButton.isDown())
+    {
+        float inLevel = std::max (displayInputL, displayInputR);
+        float outLevel = std::max (displayOutputL, displayOutputR);
+        if (inLevel > 0.0001f && outLevel > 0.0001f)
+        {
+            float inDb = juce::Decibels::gainToDecibels (inLevel);
+            float outDb = juce::Decibels::gainToDecibels (outLevel);
+            float diff = inDb - outDb;
+            float currentGain = outputGainSlider.getValue();
+            float newGain = juce::jlimit (-24.0f, 24.0f, static_cast<float> (currentGain + diff * 0.1f));
+            outputGainSlider.setValue (newGain, juce::sendNotificationAsync);
+        }
+    }
+
+    repaint();
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::parameterChanged (const juce::String& parameterID, float)
 {
     if (parameterID == "modelSelect")
-    {
         juce::MessageManager::callAsync ([this]() { updateNALOptionsVisibility(); });
-    }
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
 {
     auto* modelParam = audioProcessor.parameters.getRawParameterValue ("modelSelect");
-    bool isNAL = modelParam != nullptr && modelParam->load() > 0.5f;
+    int modelIndex = modelParam != nullptr ? static_cast<int> (modelParam->load()) : 0;
+    bool showCompressionOptions = (modelIndex >= 1);
 
-    compressionSpeedLabel.setVisible (isNAL);
-    compressionSpeedSelector.setVisible (isNAL);
-    experienceLevelLabel.setVisible (isNAL);
-    experienceLevelSelector.setVisible (isNAL);
-
+    compressionSpeedLabel.setVisible (showCompressionOptions);
+    compressionSpeedSelector.setVisible (showCompressionOptions);
+    experienceLevelLabel.setVisible (showCompressionOptions);
+    experienceLevelSelector.setVisible (showCompressionOptions);
     repaint();
 }
 
 //==============================================================================
 void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // Draw aluminum background
     CustomLookAndFeel::drawAluminumBackground (g, getLocalBounds());
 
     auto bounds = getLocalBounds().toFloat();
 
-    // Section header: "Model & Options" with version
+    // Section header
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     auto headerBounds = bounds.removeFromTop (20.0f).reduced (16.0f, 0);
     g.drawText ("MODEL & OPTIONS", headerBounds, juce::Justification::centred);
-
-    // Version text on the right
     g.setFont (juce::FontOptions (10.0f));
-    g.drawText ("v1.0.1", headerBounds, juce::Justification::centredRight);
+    g.drawText ("v1.2.4", headerBounds, juce::Justification::centredRight);
 
-    // Draw machined panel for controls section
+    // Draw control panel
     if (!controlPanelBounds.isEmpty())
     {
         CustomLookAndFeel::drawMachinedPanel (g, controlPanelBounds, 10.0f);
+
+        // Draw divider between dropdowns and meters/faders
+        auto dividerX = controlPanelBounds.getX() + controlPanelBounds.getWidth() * 0.33f;
+        g.setColour (CustomLookAndFeel::borderNeutral);
+        g.drawVerticalLine (static_cast<int> (dividerX),
+                           controlPanelBounds.getY() + 12,
+                           controlPanelBounds.getBottom() - 12);
+
+        // Draw meters using stored bounds from resized()
+        if (!inputMeterBounds.isEmpty())
+        {
+            drawMeter (g, inputMeterBounds.getX(), inputMeterBounds.getY(),
+                      10, inputMeterBounds.getHeight(), displayInputL);
+            drawMeter (g, inputMeterBounds.getX() + 12, inputMeterBounds.getY(),
+                      10, inputMeterBounds.getHeight(), displayInputR);
+        }
+
+        if (!outputMeterBounds.isEmpty())
+        {
+            drawMeter (g, outputMeterBounds.getX(), outputMeterBounds.getY(),
+                      10, outputMeterBounds.getHeight(), displayOutputL);
+            drawMeter (g, outputMeterBounds.getX() + 12, outputMeterBounds.getY(),
+                      10, outputMeterBounds.getHeight(), displayOutputR);
+        }
+
+        // Draw flow arrows centered on meter/fader tracks
+        g.setColour (CustomLookAndFeel::textMuted.withAlpha (0.6f));
+        g.setFont (juce::FontOptions (14.0f));
+        float arrowY = inputMeterBounds.getCentreY() - 7;
+        float arrowX1 = inputMeterBounds.getRight() + 8;
+        float arrowX2 = correctionStrengthSlider.getRight() + 4;
+        float arrowX3 = outputGainSlider.getRight() + 4;
+        g.drawText (juce::String::charToString (0x203A), arrowX1, arrowY, 20, 14, juce::Justification::centred);
+        g.drawText (juce::String::charToString (0x203A), arrowX2, arrowY, 20, 14, juce::Justification::centred);
+        g.drawText (juce::String::charToString (0x203A), arrowX3, arrowY, 20, 14, juce::Justification::centred);
+
+        // Auto-gain hint
+        g.setColour (CustomLookAndFeel::textMuted);
+        g.setFont (juce::FontOptions (8.0f));
+        g.drawText ("hold to", autoGainButton.getBounds().toFloat().getX(),
+                   autoGainButton.getBounds().getBottom() + 2,
+                   autoGainButton.getWidth(), 10, juce::Justification::centred);
+        g.drawText ("match", autoGainButton.getBounds().toFloat().getX(),
+                   autoGainButton.getBounds().getBottom() + 11,
+                   autoGainButton.getWidth(), 10, juce::Justification::centred);
     }
 
-    // Section header: "Audiogram" centered between ear toggles
-    auto audiogramHeaderBounds = getLocalBounds().toFloat();
-    audiogramHeaderBounds.removeFromTop (16.0f + 20.0f + 124.0f + 6.0f); // Adjust based on layout
-    audiogramHeaderBounds = audiogramHeaderBounds.removeFromTop (24.0f).reduced (16.0f, 0);
-
+    // Audiogram header
+    auto audiogramHeaderY = controlPanelBounds.getBottom() + 6;
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    g.drawText ("AUDIOGRAM", audiogramHeaderBounds, juce::Justification::centred);
+    g.drawText ("AUDIOGRAM", 0, audiogramHeaderY, getWidth(), 24, juce::Justification::centred);
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, float x, float y,
+                                                            float w, float h, float level)
+{
+    // Background
+    g.setColour (juce::Colour (0xff333333));
+    g.fillRoundedRectangle (x, y, w, h, 2.0f);
+
+    // Level fill with gradient
+    float fillHeight = h * juce::jlimit (0.0f, 1.0f, level);
+    if (fillHeight > 0)
+    {
+        juce::ColourGradient gradient (
+            CustomLookAndFeel::meterGreen, x, y + h,
+            CustomLookAndFeel::meterRed, x, y,
+            false);
+        gradient.addColour (0.6, CustomLookAndFeel::meterGreen);
+        gradient.addColour (0.8, CustomLookAndFeel::meterYellow);
+
+        g.setGradientFill (gradient);
+        g.fillRoundedRectangle (x, y + h - fillHeight, w, fillHeight, 2.0f);
+    }
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (16);
+    bounds.removeFromTop (20); // Header
 
-    // Section header space
-    bounds.removeFromTop (20);
-
-    // Control panel area (two columns)
-    // Height: 3 rows x 28px + 2 gaps x 8px + 24px padding = 124px
-    controlPanelBounds = bounds.removeFromTop (124).toFloat();
+    // Control panel - same height as audiogram (200px)
+    controlPanelBounds = bounds.removeFromTop (200).toFloat();
     auto controlArea = controlPanelBounds.reduced (12.0f).toNearestInt();
 
-    // Left column for Model + NAL options
-    const int leftColumnWidth = 175;
-    auto leftColumn = controlArea.removeFromLeft (leftColumnWidth);
+    // Left 1/3: Dropdowns
+    auto dropdownSection = controlArea.removeFromLeft (static_cast<int> (controlArea.getWidth() * 0.33f));
+    dropdownSection.removeFromRight (12); // Gap before divider
 
-    // Right column for Output + Strength sliders
-    controlArea.removeFromLeft (16); // Gap between columns
-    auto rightColumn = controlArea;
+    const int dropdownHeight = 28;
+    const int labelHeight = 16;
+    const int gap = 8;
 
-    // Left column rows
-    auto modelRow = leftColumn.removeFromTop (28);
-    modelLabel.setBounds (modelRow.removeFromLeft (55));
-    modelRow.removeFromLeft (8);
-    modelSelector.setBounds (modelRow);
+    // Center dropdowns vertically
+    int totalDropdownHeight = 3 * (labelHeight + dropdownHeight) + 2 * gap;
+    int dropdownY = dropdownSection.getY() + (dropdownSection.getHeight() - totalDropdownHeight) / 2;
 
-    leftColumn.removeFromTop (8);
+    // Model
+    modelLabel.setBounds (dropdownSection.getX(), dropdownY, dropdownSection.getWidth(), labelHeight);
+    modelSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight, dropdownSection.getWidth(), dropdownHeight);
 
-    auto speedRow = leftColumn.removeFromTop (28);
-    compressionSpeedLabel.setBounds (speedRow.removeFromLeft (55));
-    speedRow.removeFromLeft (8);
-    compressionSpeedSelector.setBounds (speedRow);
+    // Speed
+    compressionSpeedLabel.setBounds (dropdownSection.getX(), dropdownY + labelHeight + dropdownHeight + gap,
+                                     dropdownSection.getWidth(), labelHeight);
+    compressionSpeedSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight * 2 + dropdownHeight + gap,
+                                        dropdownSection.getWidth(), dropdownHeight);
 
-    leftColumn.removeFromTop (8);
+    // Level
+    experienceLevelLabel.setBounds (dropdownSection.getX(), dropdownY + (labelHeight + dropdownHeight + gap) * 2,
+                                    dropdownSection.getWidth(), labelHeight);
+    experienceLevelSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight + (labelHeight + dropdownHeight + gap) * 2,
+                                       dropdownSection.getWidth(), dropdownHeight);
 
-    auto levelRow = leftColumn.removeFromTop (28);
-    experienceLevelLabel.setBounds (levelRow.removeFromLeft (55));
-    levelRow.removeFromLeft (8);
-    experienceLevelSelector.setBounds (levelRow);
+    // Right 2/3: Meters, Faders, Auto-gain
+    controlArea.removeFromLeft (12); // Gap after divider
+    auto metersSection = controlArea;
 
-    // Right column rows
-    auto outputRow = rightColumn.removeFromTop (28);
-    outputGainLabel.setBounds (outputRow.removeFromLeft (55));
-    outputRow.removeFromLeft (8);
-    outputGainSlider.setBounds (outputRow);
+    // Layout constants - calculate from available space
+    const int meterLabelHeight = 16;
+    const int meterLabelWidth = 60;  // Wide enough for "OUTPUT" and "STRENGTH"
+    const int textBoxHeight = 20;
+    const int bottomPadding = 8;
 
-    rightColumn.removeFromTop (8);
+    // Calculate meter/fader track height from available space
+    // Total height = label + gap + track + gap + textbox + bottomPadding
+    const int trackHeight = metersSection.getHeight() - meterLabelHeight - 4 - textBoxHeight - bottomPadding;
 
-    auto strengthRow = rightColumn.removeFromTop (28);
-    correctionLabel.setBounds (strengthRow.removeFromLeft (55));
-    strengthRow.removeFromLeft (8);
-    correctionStrengthSlider.setBounds (strengthRow);
+    // For sliders: track = bounds - 14px internal padding
+    const int faderBoundsHeight = trackHeight + 14;
+    const int faderWidth = 44;
+
+    // Calculate strip positions (5 elements: input, strength, output fader, output meter, autogain)
+    const float stripWidth = (metersSection.getWidth() - 60) / 4.5f; // Leave room for auto-gain
+
+    int trackTop = metersSection.getY() + meterLabelHeight + 4;
+    int textBoxTop = trackTop + trackHeight + 4;
+
+    // === INPUT METERS ===
+    int inputX = metersSection.getX() + 4;
+    inputMeterLabel.setBounds (inputX, metersSection.getY(), meterLabelWidth, meterLabelHeight);
+    inputMeterBounds = juce::Rectangle<float> (inputX + 6, trackTop, 22, trackHeight);
+
+    // === STRENGTH FADER ===
+    int strengthX = inputX + static_cast<int> (stripWidth);
+    correctionLabel.setBounds (strengthX - 6, metersSection.getY(), meterLabelWidth + 16, meterLabelHeight);
+    // Slider bounds: position so track aligns with meters, text box goes below
+    correctionStrengthSlider.setBounds (strengthX, trackTop - 7, faderWidth, faderBoundsHeight + textBoxHeight);
+
+    // === OUTPUT FADER ===
+    int outputFaderX = strengthX + static_cast<int> (stripWidth);
+    outputGainLabel.setBounds (outputFaderX - 4, metersSection.getY(), meterLabelWidth, meterLabelHeight);
+    outputGainSlider.setBounds (outputFaderX, trackTop - 7, faderWidth, faderBoundsHeight + textBoxHeight);
+
+    // === OUTPUT METERS ===
+    int outputMeterX = outputFaderX + static_cast<int> (stripWidth);
+    outputMeterLabel.setBounds (outputMeterX, metersSection.getY(), meterLabelWidth, meterLabelHeight);
+    outputMeterBounds = juce::Rectangle<float> (outputMeterX + 6, trackTop, 22, trackHeight);
+
+    // === AUTO-GAIN BUTTON === (vertically centered in remaining space)
+    int autoGainX = metersSection.getRight() - 56;
+    int autoGainY = metersSection.getY() + (metersSection.getHeight() - 60) / 2;
+    autoGainButton.setBounds (autoGainX, autoGainY, 52, 44);
 
     bounds.removeFromTop (6);
 
     // Audiogram section
     auto audiogramSection = bounds;
-
-    // Header row with ear toggles
     auto headerRow = audiogramSection.removeFromTop (24);
     const int chartWidth = (audiogramSection.getWidth() - 12) / 2;
 
-    // Right ear toggle + label on left side
+    // Right ear toggle
     auto rightEarArea = headerRow.removeFromLeft (chartWidth);
     rightEnableButton.setBounds (rightEarArea.removeFromLeft (36).reduced (0, 2));
     rightEarArea.removeFromLeft (6);
     rightEarLabel.setBounds (rightEarArea.removeFromLeft (70));
 
-    // Gap for "AUDIOGRAM" title (drawn in paint)
     headerRow.removeFromLeft (12);
 
-    // Left ear label + toggle on right side (reversed order)
+    // Left ear toggle
     auto leftEarArea = headerRow;
     leftEnableButton.setBounds (leftEarArea.removeFromRight (36).reduced (0, 2));
     leftEarArea.removeFromRight (6);

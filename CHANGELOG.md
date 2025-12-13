@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-12-13
+
+### Added
+- **MOSL (Music) correction model**: New music-optimized algorithm based on specific loudness restoration research
+  - Preserves spectral balance rather than reshaping for speech
+  - Gentle compression (max 1.7:1) to preserve musical dynamics
+  - Slower time constants for better sound quality
+  - Optional brightness boost for enhanced high-frequency response
+  - Configurable bass emphasis
+- **Auto-gain feature**: Hold the AUTO GAIN button to automatically match output level to input level
+- **Input/Output level meters**: Stereo VU meters showing signal levels before and after processing
+- **Signal flow visualization**: Visual arrows showing the audio path through the plugin
+
+### Changed
+- Redesigned control panel with improved layout
+  - Left 1/3: Model selection and options
+  - Right 2/3: Signal flow (Input meters → Strength → Output gain → Output meters → Auto-gain)
+  - Vertical faders for finer control
+- MOSL gain factors reduced to align output levels with NAL model
+- All labels now use consistent font styling
+- Improved meter and fader height alignment
+
+### Technical
+- 11-band EQ implementation (6 audiogram frequencies + 5 interpolated bands for smoother response)
+- Timer-based meter updates at 30Hz
+- Atomic level metering for thread-safe UI updates
+
 ## [1.0.0] - 2024-12-08
 
 ### Added
@@ -42,5 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/BrighterRealities/EarFix/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/BrighterRealities/EarFix/releases/tag/v1.0.0
+[Unreleased]: https://github.com/sneakinhysteria/EarFix/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/sneakinhysteria/EarFix/releases/tag/v1.2.0
+[1.0.0]: https://github.com/sneakinhysteria/EarFix/releases/tag/v1.0.0

@@ -24,6 +24,7 @@
               file="Source/Models/CorrectionModel.h"/>
         <FILE id="mdl002" name="HalfGainModel.h" compile="0" resource="0" file="Source/Models/HalfGainModel.h"/>
         <FILE id="mdl003" name="NALModel.h" compile="0" resource="0" file="Source/Models/NALModel.h"/>
+        <FILE id="mdl004" name="MOSLModel.h" compile="0" resource="0" file="Source/Models/MOSLModel.h"/>
       </GROUP>
     </GROUP>
   </MAINGROUP>

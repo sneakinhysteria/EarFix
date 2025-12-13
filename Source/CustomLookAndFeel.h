@@ -27,6 +27,9 @@ public:
     static inline const juce::Colour sliderTrack { 0xffd0d0d0 };
     static inline const juce::Colour sliderFill { 0xff4a90d9 };
     static inline const juce::Colour gridLine { 0xffc8c8c8 };
+    static inline const juce::Colour meterGreen { 0xff4CAF50 };
+    static inline const juce::Colour meterYellow { 0xffFFC107 };
+    static inline const juce::Colour meterRed { 0xfff44336 };
 
     CustomLookAndFeel()
     {
@@ -272,6 +275,33 @@ public:
             tick.lineTo (tickBounds.getRight(), tickBounds.getY() + 2);
             g.strokePath (tick, juce::PathStrokeType (2.0f));
         }
+    }
+
+    //==========================================================================
+    // TextButton (clean button with border)
+    void drawButtonBackground (juce::Graphics& g, juce::Button& button,
+                               const juce::Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+    {
+        auto bounds = button.getLocalBounds().toFloat().reduced (0.5f);
+        float cornerRadius = 6.0f;
+
+        juce::Colour baseColour = backgroundColour;
+        if (shouldDrawButtonAsDown)
+            baseColour = baseColour.darker (0.1f);
+        else if (shouldDrawButtonAsHighlighted)
+            baseColour = baseColour.brighter (0.05f);
+
+        g.setColour (baseColour);
+        g.fillRoundedRectangle (bounds, cornerRadius);
+
+        g.setColour (borderNeutral);
+        g.drawRoundedRectangle (bounds, cornerRadius, 1.0f);
+    }
+
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
+    {
+        return juce::Font (juce::FontOptions (10.0f).withStyle ("Bold"));
     }
 
     //==========================================================================

@@ -15,6 +15,7 @@
 #include "Models/CorrectionModel.h"
 #include "Models/HalfGainModel.h"
 #include "Models/NALModel.h"
+#include "Models/MOSLModel.h"
 
 //==============================================================================
 class HearingCorrectionAUv2AudioProcessor  : public juce::AudioProcessor
@@ -71,6 +72,12 @@ public:
 
     // Processing bands (audiogram + interpolated intermediate bands)
     static constexpr int numFilterBands = 11;
+
+    // Level metering (read by UI)
+    std::atomic<float> inputLevelLeft { 0.0f };
+    std::atomic<float> inputLevelRight { 0.0f };
+    std::atomic<float> outputLevelLeft { 0.0f };
+    std::atomic<float> outputLevelRight { 0.0f };
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
         250.0f,    // Audiogram band 0
         354.0f,    // Interpolated (geometric mean of 250 & 500)
@@ -90,6 +97,7 @@ private:
     // Correction models
     HalfGainModel halfGainModel;
     NALModel nalModel;
+    MOSLModel moslModel;
     CorrectionModel* currentModel = &halfGainModel;
 
     void updateCurrentModel();

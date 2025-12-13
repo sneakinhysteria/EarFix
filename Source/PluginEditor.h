@@ -16,7 +16,8 @@
 
 //==============================================================================
 class HearingCorrectionAUv2AudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                                    private juce::AudioProcessorValueTreeState::Listener
+                                                    private juce::AudioProcessorValueTreeState::Listener,
+                                                    private juce::Timer
 {
 public:
     HearingCorrectionAUv2AudioProcessorEditor (HearingCorrectionAUv2AudioProcessor&);
@@ -25,10 +26,12 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void timerCallback() override;
 
 private:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     void updateNALOptionsVisibility();
+    void drawMeter (juce::Graphics& g, float x, float y, float w, float h, float level);
 
     HearingCorrectionAUv2AudioProcessor& audioProcessor;
     CustomLookAndFeel customLookAndFeel;
@@ -61,8 +64,16 @@ private:
     AudiogramComponent rightAudiogram { AudiogramComponent::Ear::Right, CustomLookAndFeel::accentRed };
     AudiogramComponent leftAudiogram  { AudiogramComponent::Ear::Left, CustomLookAndFeel::accentBlue };
 
+    // Meter labels (as proper Label components for consistent rendering)
+    juce::Label inputMeterLabel;
+    juce::Label outputMeterLabel;
+
     // Control panel bounds (for painting)
     juce::Rectangle<float> controlPanelBounds;
+
+    // Meter bounds (for drawing in paint)
+    juce::Rectangle<float> inputMeterBounds;
+    juce::Rectangle<float> outputMeterBounds;
 
     // APVTS Attachments
     using SliderAttachment   = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -76,6 +87,15 @@ private:
     std::unique_ptr<ComboBoxAttachment> experienceLevelAttachment;
     std::unique_ptr<ButtonAttachment>   rightEnableAttachment;
     std::unique_ptr<ButtonAttachment>   leftEnableAttachment;
+
+    // Auto-gain button
+    juce::TextButton autoGainButton { "AUTO\nGAIN" };
+    bool autoGainActive = false;
+    float autoGainOffset = 0.0f;
+
+    // Smoothed meter levels for display
+    float displayInputL = 0.0f, displayInputR = 0.0f;
+    float displayOutputL = 0.0f, displayOutputR = 0.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HearingCorrectionAUv2AudioProcessorEditor)
 };

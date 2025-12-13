@@ -69,14 +69,17 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 
 ### Controls Panel (Top Section)
 
-**Left Column:**
-- **Model**: Select correction algorithm (Half-Gain or NAL-NL2)
-- **Speed**: Compression speed for NAL model (Fast/Slow)
-- **Level**: Experience level for NAL model (New/Some/Experienced)
+**Left Column (Model & Options):**
+- **Model**: Select correction algorithm (Half-Gain, NAL Speech, or MOSL Music)
+- **Speed**: Compression speed for NAL/MOSL models (Fast/Slow)
+- **Level**: Experience level for NAL/MOSL models (New/Some/Experienced)
 
-**Right Column:**
-- **Output**: Master output gain (-24 to +24 dB)
-- **Strength**: Correction intensity (0-100%)
+**Right Column (Signal Flow):**
+- **Input Meters**: Stereo level meters showing input signal
+- **Strength**: Correction intensity fader (0-100%)
+- **Output**: Master output gain fader (-24 to +24 dB)
+- **Output Meters**: Stereo level meters showing output signal
+- **Auto Gain**: Hold to automatically match output level to input level
 
 ### Audiogram Section (Bottom)
 
@@ -115,10 +118,15 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 - You want transparent, natural sound
 - You're new to hearing correction
 
-**Try NAL-NL2** if:
+**Try NAL (Speech)** if:
 - You have moderate hearing loss (40-70 dB)
-- You want more sophisticated correction
-- Half-Gain doesn't provide enough clarity
+- You're primarily listening to speech/podcasts/audiobooks
+- You want clinically-validated correction
+
+**Try MOSL (Music)** if:
+- You're primarily listening to music
+- You want to preserve musical dynamics
+- NAL sounds too "compressed" or "pumpy" on music
 
 ### Step 3: Adjust Strength
 
@@ -154,7 +162,7 @@ Applies gain equal to half your hearing threshold at each frequency.
 - Linear processing (no compression)
 - Simple and predictable
 
-### NAL-NL2 Model
+### NAL (Speech) Model
 
 **How it works:**
 Based on the National Acoustic Laboratories' Non-Linear 2 prescription formula, which is used clinically for fitting hearing aids.
@@ -163,22 +171,50 @@ Based on the National Acoustic Laboratories' Non-Linear 2 prescription formula, 
 - Frequency-dependent compression
 - Loudness normalization
 - Accounts for "recruitment" (abnormal loudness growth)
+- Optimized for speech intelligibility
 
-**NAL-NL2 Options:**
+**NAL Options:**
 
 **Compression Speed:**
-- **Fast**: Quick response to level changes (better for speech)
-- **Slow**: Smoother response (better for music)
+- **Fast**: Quick response to level changes (5ms attack, 50ms release)
+- **Slow**: Smoother response (10ms attack, 150ms release)
 
 **Experience Level:**
-- **New**: More conservative correction (less gain)
-- **Some**: Moderate correction
-- **Experienced**: Full prescription correction
+- **New**: More conservative correction (70% of prescribed gain)
+- **Some**: Moderate correction (85% of prescribed gain)
+- **Experienced**: Full prescription correction (100%)
 
 **Best for:**
 - Moderate to moderately-severe hearing loss
-- Users who find Half-Gain insufficient
+- Speech, podcasts, audiobooks
 - Those accustomed to hearing aids
+
+### MOSL (Music) Model
+
+**How it works:**
+Music-Optimized Specific Loudness model based on research from Fitz & McKinney (Starkey), Moore & Glasberg (Cambridge), and Chasin's music program optimization guidelines.
+
+**Features:**
+- Preserves spectral balance rather than reshaping for speech
+- Gentle compression (1.0:1 to 1.7:1 maximum)
+- Slower time constants to prevent "pumping" artifacts
+- Optional brightness boost for enhanced high-frequency air
+- Preserved bass foundation for musical enjoyment
+
+**MOSL Options:**
+
+**Compression Speed:**
+- **Fast**: 5ms attack, 150ms release (still slower than NAL)
+- **Slow**: 10ms attack, 300ms release (best for critical listening)
+
+**Experience Level:**
+- **New/Some**: Brightness boost disabled
+- **Experienced**: Brightness boost enabled (subtle HF enhancement)
+
+**Best for:**
+- Music listening and production
+- Users who find NAL too "compressed" sounding
+- Preserving musical dynamics and punch
 
 ---
 
@@ -193,8 +229,10 @@ Based on the National Acoustic Laboratories' Non-Linear 2 prescription formula, 
 
 ### For Music Listening
 
-- Use the **Half-Gain** model for transparency
+- Use the **MOSL (Music)** model for best results
+- Alternatively, **Half-Gain** for maximum transparency
 - Set **Strength** to 50-75%
+- Use **Auto Gain** to quickly match levels
 - Consider using on the master bus or headphone output
 
 ### For Mixing/Mastering
@@ -232,6 +270,14 @@ Yes! Your settings are saved with your DAW project. You can also save the plugin
 ### How accurate is the NAL-NL2 implementation?
 
 EarFix implements a simplified version of the NAL-NL2 formula suitable for audio processing. For clinical accuracy, consult an audiologist.
+
+### What's the difference between NAL and MOSL?
+
+**NAL (Speech)** is optimized for speech intelligibility with faster compression designed to handle the dynamic range of conversation. **MOSL (Music)** uses gentler compression with slower time constants to preserve musical dynamics and avoid the "pumping" effect that can occur with speech-optimized algorithms on music.
+
+### How does Auto Gain work?
+
+Hold the Auto Gain button while audio is playing. EarFix compares the input and output levels and automatically adjusts the output gain to match them. This is useful for A/B comparing corrected vs. uncorrected audio at the same perceived volume.
 
 ### Does EarFix add latency?
 

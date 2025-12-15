@@ -111,6 +111,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [JUCE Framework](https://juce.com/) - Cross-platform audio application framework
 - NAL-NL2 prescription formula by the National Acoustic Laboratories, Australia
+- MOSL model based on research from:
+  - Fitz & McKinney (Starkey) - Specific loudness restoration for music
+  - Moore & Glasberg (Cambridge) - Loudness perception and hearing loss models
+  - Marshall Chasin - Music program optimization guidelines for hearing aids
 - [AutoEQ](https://github.com/jaakkopasanen/AutoEq) by Jaakko Pasanen - Headphone frequency response database and EQ profiles
 - [oratory1990](https://www.reddit.com/r/oratory1990/) - Headphone measurements and EQ presets
 - Inspired by the need for accessible hearing correction tools

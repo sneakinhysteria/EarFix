@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-12-15
+
+### Added
+- **Multiband WDRC compression**: Professional-grade Wide Dynamic Range Compression with 4-band Linkwitz-Riley crossover
+  - Phase-coherent band splitting at 250Hz, 1kHz, and 4kHz (24dB/octave slopes)
+  - Per-band compression with configurable threshold, ratio, attack/release
+  - Soft-knee compression for smoother, more natural gain transitions
+- **Max Boost parameter**: New slider (0-30dB) to limit maximum per-band gain for hearing safety
+- **Headphone EQ module**: Foundation for headphone-specific frequency correction (WIP)
+
+### Changed
+- Replaced 11-band parametric EQ with 4-band Linkwitz-Riley crossover for cleaner frequency separation
+- Improved gain calculation with proper band-specific limiting
+- Updated UI with Max Boost control in the parameter section
+
+### Technical
+- 24dB/octave Linkwitz-Riley filters for phase-coherent crossover
+- Efficient per-sample processing with proper band separation
+- Smooth envelope following for compression
+
 ## [1.2.0] - 2024-12-13
 
 ### Added
@@ -69,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/sneakinhysteria/EarFix/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/sneakinhysteria/EarFix/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/sneakinhysteria/EarFix/releases/tag/v1.3.0
 [1.2.0]: https://github.com/sneakinhysteria/EarFix/releases/tag/v1.2.0
 [1.0.0]: https://github.com/sneakinhysteria/EarFix/releases/tag/v1.0.0

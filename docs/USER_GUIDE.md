@@ -67,7 +67,13 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 
 ## Interface Overview
 
-### Controls Panel (Top Section)
+### Headphone Correction (Top Section)
+
+- **Headphone Selector**: Choose your headphone model from the dropdown (sourced from oratory1990/over-ear database)
+- **Enable Toggle**: Turn headphone EQ correction on/off
+- **Refresh**: Reload the headphone profiles
+
+### Controls Panel (Middle Section)
 
 **Left Column (Model & Options):**
 - **Model**: Select correction algorithm (Half-Gain, NAL Speech, or MOSL Music)
@@ -77,6 +83,7 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 **Right Column (Signal Flow):**
 - **Input Meters**: Stereo level meters showing input signal
 - **Strength**: Correction intensity fader (0-100%)
+- **Max**: Maximum per-band boost limit (0-30 dB) - limits gain in any frequency band for hearing safety
 - **Output**: Master output gain fader (-24 to +24 dB)
 - **Output Meters**: Stereo level meters showing output signal
 - **Auto Gain**: Hold to automatically match output level to input level
@@ -299,8 +306,8 @@ Yes. EarFix stores settings locally in your DAW project. No data is sent to any 
 
 ## Getting Help
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/BrighterRealities/EarFix/issues)
-- **Discussions**: [Ask questions and share tips](https://github.com/BrighterRealities/EarFix/discussions)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/sneakinhysteria/EarFix/issues)
+- **Discussions**: [Ask questions and share tips](https://github.com/sneakinhysteria/EarFix/discussions)
 
 ---
 

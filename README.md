@@ -9,15 +9,18 @@ EarFix is a free, open-source audio plugin that applies personalized hearing cor
 ## Features
 
 - **Personalized Correction**: Enter your audiogram values for 6 standard frequencies (250Hz - 8kHz)
+- **Multiband WDRC**: Professional-grade Wide Dynamic Range Compression with 4-band Linkwitz-Riley crossover (250Hz, 1kHz, 4kHz)
 - **Three Correction Models**:
   - **Half-Gain**: Simple, transparent correction (applies 50% of hearing loss as gain)
   - **NAL (Speech)**: Clinical-grade algorithm with compression (based on National Acoustic Laboratories formula)
   - **MOSL (Music)**: Music-optimized specific loudness restoration with gentle compression and preserved dynamics
+- **Max Boost Control**: Limit per-band gain (0-30dB) for hearing safety
 - **Auto-Gain**: Hold the button to automatically match output level to input level
 - **Level Metering**: Stereo input and output meters for visual feedback
 - **Independent Ear Control**: Separate audiograms and enable/disable for left and right ears
 - **Adjustable Strength**: Scale correction from 0-100% to find your comfort level
 - **Output Gain**: Master volume control with +/-24dB range
+- **Headphone Correction**: Built-in headphone EQ profiles (oratory1990 database)
 - **Premium UI**: Clean, professional interface with interactive audiogram charts and signal flow visualization
 
 ## Supported Formats
@@ -57,13 +60,19 @@ See the [User Guide](docs/USER_GUIDE.md) for complete documentation.
 
 ## How It Works
 
-EarFix uses your audiogram data to calculate frequency-specific gain curves:
+EarFix uses a 4-band Linkwitz-Riley crossover to split audio into frequency bands (Low: <250Hz, Low-Mid: 250Hz-1kHz, High-Mid: 1kHz-4kHz, High: >4kHz), then applies Wide Dynamic Range Compression (WDRC) independently to each band based on your audiogram.
+
+**Correction Models:**
 
 - **Half-Gain Rule**: For each frequency, applies gain equal to half your hearing threshold. Simple and effective for mild-moderate hearing loss.
 
 - **NAL (Speech)**: Applies the National Acoustic Laboratories' Non-Linear 2 prescription formula, which accounts for loudness recruitment and provides compression for speech intelligibility.
 
 - **MOSL (Music)**: Music-Optimized Specific Loudness model that preserves spectral balance and musical dynamics. Uses gentler compression (max 1.7:1) and slower time constants to avoid "pumping" artifacts common with speech-focused algorithms.
+
+**Safety Features:**
+
+The Max Boost control (0-30dB) limits the maximum gain applied in any frequency band, protecting your hearing from excessive amplification.
 
 ## Building from Source
 

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarFix UI Prototype</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a1a;
+            padding: 20px;
+        }
+
+        .plugin-window {
+            width: 560px;
+            background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        :root {
+            --bg-aluminum: #d4d4d4;
+            --panel-white: #fafafa;
+            --border-neutral: #c0c0c0;
+            --text-dark: #2a2a2a;
+            --text-muted: #707070;
+            --accent-blue: #4a90d9;
+            --accent-red: #d94a4a;
+            --slider-track: #d0d0d0;
+            --meter-green: #4CAF50;
+            --meter-yellow: #FFC107;
+            --meter-red: #f44336;
+        }
+
+        .section-header {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .version {
+            font-size: 10px;
+            font-weight: normal;
+            position: absolute;
+            right: 16px;
+        }
+
+        .header-row {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        /* Control Panel - same height as audiogram */
+        .control-panel {
+            background: var(--panel-white);
+            border-radius: 10px;
+            border: 1.5px solid var(--border-neutral);
+            padding: 12px;
+            margin-bottom: 6px;
+            display: flex;
+            height: 200px;
+        }
+
+        /* Left third - dropdowns, all left-aligned */
+        .dropdowns-section {
+            width: 33%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            padding-right: 12px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .control-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        select {
+            width: 100%;
+            height: 28px;
+            border: 1px solid var(--border-neutral);
+            border-radius: 6px;
+            background: var(--panel-white);
+            font-size: 13px;
+            padding: 0 8px;
+        }
+
+        /* Divider */
+        .divider {
+            width: 1px;
+            background: var(--border-neutral);
+            margin: 0 12px;
+        }
+
+        /* Right two-thirds - meters and faders */
+        .meters-faders-section {
+            flex: 1;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            gap: 4px;
+            padding-top: 8px;
+        }
+
+        .channel-strip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .strip-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Meters - taller */
+        .meter-container {
+            display: flex;
+            gap: 2px;
+        }
+
+        .meter {
+            width: 10px;
+            height: 130px;
+            background: #333;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top,
+                var(--meter-green) 0%,
+                var(--meter-green) 60%,
+                var(--meter-yellow) 60%,
+                var(--meter-yellow) 80%,
+                var(--meter-red) 80%,
+                var(--meter-red) 100%);
+        }
+
+        .meter.left .meter-fill {
+            height: 45%;
+        }
+
+        .meter.right .meter-fill {
+            height: 50%;
+        }
+
+        /* Vertical Faders - taller */
+        .fader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fader-track {
+            width: 28px;
+            height: 130px;
+            background: var(--slider-track);
+            border-radius: 4px;
+            position: relative;
+            border: 1px solid var(--border-neutral);
+        }
+
+        .fader-fill {
+            position: absolute;
+            bottom: 0;
+            left: 2px;
+            right: 2px;
+            background: var(--accent-blue);
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        .fader-thumb {
+            position: absolute;
+            left: -2px;
+            right: -2px;
+            height: 16px;
+            background: linear-gradient(180deg, #fff 0%, #e8e8e8 100%);
+            border: 1px solid #b0b0b0;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .fader-thumb::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1px;
+            background: #c0c0c0;
+            box-shadow: 0 2px 0 #c0c0c0, 0 -2px 0 #c0c0c0;
+        }
+
+        .fader-value {
+            font-size: 10px;
+            color: var(--text-dark);
+            background: var(--panel-white);
+            border: 1px solid var(--border-neutral);
+            border-radius: 3px;
+            padding: 2px 6px;
+            min-width: 44px;
+            text-align: center;
+        }
+
+        /* Auto Gain Button - vertically centered */
+        .auto-gain-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            align-self: center;
+        }
+
+        .auto-gain-btn {
+            background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+            border: 1.5px solid var(--border-neutral);
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-dark);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+
+        .auto-gain-btn:hover {
+            background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
+        }
+
+        .auto-gain-btn:active {
+            background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .auto-gain-hint {
+            font-size: 8px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Signal flow arrow - centered to meter/fader tracks only */
+        .flow-arrow {
+            color: var(--text-muted);
+            font-size: 14px;
+            opacity: 0.6;
+            margin-top: 76px; /* label + gap + half of 130px track */
+        }
+
+        /* Audiogram Section */
+        .audiogram-section {
+            margin-bottom: 6px;
+        }
+
+        .audiogram-header {
+            display: flex;
+            align-items: center;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .ear-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ear-toggle.right {
+            justify-content: flex-start;
+        }
+
+        .ear-toggle.left {
+            justify-content: flex-end;
+        }
+
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: #c0c0c0;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.on.right {
+            background: var(--accent-red);
+        }
+
+        .toggle-switch.on.left {
+            background: var(--accent-blue);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(16px);
+        }
+
+        .ear-label {
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+
+        .audiogram-title {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+
+        .audiogram-charts {
+            display: flex;
+            gap: 12px;
+        }
+
+        .audiogram-chart {
+            flex: 1;
+            height: 200px;
+            background: var(--panel-white);
+            border: 1.5px solid var(--border-neutral);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            position: absolute;
+            inset: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Headphone Section */
+        .headphone-panel {
+            background: var(--panel-white);
+            border-radius: 10px;
+            border: 1.5px solid var(--border-neutral);
+            padding: 12px;
+            margin-bottom: 6px;
+        }
+
+        .headphone-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .headphone-icon {
+            font-size: 22px;
+        }
+
+        .headphone-select {
+            flex: 1;
+            height: 28px;
+            border: 1px solid var(--border-neutral);
+            border-radius: 6px;
+            background: var(--panel-white);
+            font-size: 13px;
+            padding: 0 8px;
+        }
+
+        .headphone-toggle {
+            width: 40px;
+            height: 22px;
+            background: #c0c0c0;
+            border-radius: 11px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .headphone-toggle.on {
+            background: #4cd964;
+        }
+
+        .headphone-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .headphone-toggle.on::after {
+            transform: translateX(18px);
+        }
+
+        .refresh-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--border-neutral);
+            border-radius: 6px;
+            background: var(--panel-white);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .refresh-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .headphone-info {
+            margin-top: 8px;
+            font-size: 10px;
+            color: var(--text-muted);
+            padding-left: 32px;
+        }
+
+        /* Ear indicator circles */
+        .ear-circle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .ear-circle.right {
+            background: var(--accent-red);
+        }
+
+        .ear-circle.left {
+            background: var(--accent-blue);
+        }
+
+        /* Version footer */
+        .version-footer {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="plugin-window">
+        <!-- Headphone Section (NEW) -->
+        <div class="header-row">
+            <div class="section-header">HEADPHONE CORRECTION</div>
+        </div>
+        <div class="headphone-panel">
+            <div class="headphone-row">
+                <span class="headphone-icon">🎧</span>
+                <select class="headphone-select">
+                    <option value="">-- None --</option>
+                    <option selected>Sennheiser HD 650</option>
+                    <option>Sennheiser HD 600</option>
+                    <option>Beyerdynamic DT 770 Pro</option>
+                    <option>Sony WH-1000XM4</option>
+                    <option>Apple AirPods Max</option>
+                    <option>Apple AirPods Pro 2</option>
+                </select>
+                <div class="headphone-toggle on" onclick="this.classList.toggle('on')"></div>
+                <button class="refresh-btn" title="Refresh database">↻</button>
+            </div>
+            <div class="headphone-info">oratory1990 · over-ear · 10 filters · -4.2 dB preamp</div>
+        </div>
+
+        <!-- 2. Audiogram Section -->
+        <div class="header-row">
+            <div class="section-header">AUDIOGRAM</div>
+        </div>
+        <div class="audiogram-section">
+            <div class="audiogram-charts">
+                <div class="audiogram-chart">
+                    <div class="ear-header" style="position: absolute; top: 8px; left: 10px; display: flex; align-items: center; gap: 6px;">
+                        <div class="toggle-switch on right" onclick="this.classList.toggle('on')"></div>
+                        <div class="ear-circle right">R</div>
+                        <span style="font-size: 12px; color: var(--text-dark);">Right ear</span>
+                    </div>
+                    <div class="chart-placeholder" style="color: var(--accent-red); padding-top: 20px;">Right Audiogram</div>
+                </div>
+                <div class="audiogram-chart">
+                    <div class="ear-header" style="position: absolute; top: 8px; left: 10px; display: flex; align-items: center; gap: 6px;">
+                        <div class="toggle-switch on left" onclick="this.classList.toggle('on')"></div>
+                        <div class="ear-circle left">L</div>
+                        <span style="font-size: 12px; color: var(--text-dark);">Left ear</span>
+                    </div>
+                    <div class="chart-placeholder" style="color: var(--accent-blue); padding-top: 20px;">Left Audiogram</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Hearing Loss Correction Section -->
+        <div class="header-row">
+            <div class="section-header">HEARING LOSS CORRECTION MODEL & PARAMETERS</div>
+        </div>
+
+        <div class="control-panel">
+            <!-- Left 1/3: Dropdowns, left-aligned -->
+            <div class="dropdowns-section">
+                <div class="control-row">
+                    <span class="control-label">Model</span>
+                    <select>
+                        <option>Half-Gain</option>
+                        <option>NAL (Speech)</option>
+                        <option selected>MOSL (Music)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Speed</span>
+                    <select>
+                        <option selected>Fast</option>
+                        <option>Slow</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Level</span>
+                    <select>
+                        <option>New</option>
+                        <option>Some</option>
+                        <option selected>Experienced</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Right 2/3: Signal flow -->
+            <div class="meters-faders-section">
+                <!-- Input Meter -->
+                <div class="channel-strip">
+                    <span class="strip-label">Input</span>
+                    <div class="meter-container">
+                        <div class="meter left"><div class="meter-fill"></div></div>
+                        <div class="meter right"><div class="meter-fill"></div></div>
+                    </div>
+                </div>
+
+                <span class="flow-arrow">›</span>
+
+                <!-- Strength Fader -->
+                <div class="channel-strip">
+                    <span class="strip-label">Strength</span>
+                    <div class="fader-container">
+                        <div class="fader-track">
+                            <div class="fader-fill" style="height: 50%;"></div>
+                            <div class="fader-thumb" style="bottom: calc(50% - 8px);"></div>
+                        </div>
+                        <span class="fader-value">50%</span>
+                    </div>
+                </div>
+
+                <span class="flow-arrow">›</span>
+
+                <!-- Output Fader -->
+                <div class="channel-strip">
+                    <span class="strip-label">Output</span>
+                    <div class="fader-container">
+                        <div class="fader-track">
+                            <div class="fader-fill" style="height: 50%;"></div>
+                            <div class="fader-thumb" style="bottom: calc(50% - 8px);"></div>
+                        </div>
+                        <span class="fader-value">0 dB</span>
+                    </div>
+                </div>
+
+                <span class="flow-arrow">›</span>
+
+                <!-- Output Meter -->
+                <div class="channel-strip">
+                    <span class="strip-label">Output</span>
+                    <div class="meter-container">
+                        <div class="meter left"><div class="meter-fill" style="height:55%"></div></div>
+                        <div class="meter right"><div class="meter-fill" style="height:60%"></div></div>
+                    </div>
+                </div>
+
+                <!-- Auto Gain - vertically centered -->
+                <div class="auto-gain-section">
+                    <button class="auto-gain-btn">AUTO<br>GAIN</button>
+                    <span class="auto-gain-hint">hold to<br>match</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="version-footer">v1.3.0</div>
+    </div>
+</body>
+</html>

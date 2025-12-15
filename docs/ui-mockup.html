@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarFix UI Mockup - Headphone EQ Integration</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .mockup-label {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .plugin-window {
+            width: 460px;
+            background: #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Title bar */
+        .title-bar {
+            background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #b0b0b0;
+        }
+
+        .window-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .window-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .window-btn.close { background: #ff5f56; }
+        .window-btn.minimize { background: #ffbd2e; }
+        .window-btn.maximize { background: #27ca40; }
+
+        .title-bar-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* Host toolbar */
+        .host-toolbar {
+            background: #f0f0f0;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #ccc;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .host-toolbar select {
+            padding: 2px 6px;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .host-toolbar button {
+            padding: 2px 8px;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #fff;
+        }
+
+        .host-toolbar .spacer { flex: 1; }
+
+        /* Plugin content */
+        .plugin-content {
+            padding: 12px;
+            background: #e8e8e8;
+        }
+
+        /* Section frames */
+        .section-frame {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .section-header {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .version-label {
+            font-size: 9px;
+            color: #999;
+        }
+
+        /* Headphone section */
+        .headphone-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .headphone-icon {
+            font-size: 20px;
+        }
+
+        .headphone-select {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .headphone-toggle {
+            width: 40px;
+            height: 22px;
+            background: #ccc;
+            border-radius: 11px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .headphone-toggle.active {
+            background: #4cd964;
+        }
+
+        .headphone-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .headphone-toggle.active::after {
+            left: 20px;
+        }
+
+        .refresh-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Model & Options section */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .option-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .option-select {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 11px;
+            color: #333;
+        }
+
+        /* Controls row */
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .control-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Meters */
+        .meter-pair {
+            display: flex;
+            gap: 3px;
+        }
+
+        .meter {
+            width: 14px;
+            height: 110px;
+            background: #333;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #ff4444 0%, #ffaa00 15%, #44ff44 100%);
+        }
+
+        /* Faders */
+        .fader-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fader-container {
+            width: 36px;
+            height: 110px;
+            background: #333;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .fader-track {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 90px;
+            top: 10px;
+            background: #555;
+            border-radius: 2px;
+        }
+
+        .fader-knob {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 14px;
+            background: linear-gradient(180deg, #888 0%, #666 100%);
+            border-radius: 3px;
+        }
+
+        .fader-value {
+            font-size: 9px;
+            color: #666;
+        }
+
+        /* Auto-gain button */
+        .auto-gain-btn {
+            padding: 4px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .auto-gain-btn.active {
+            background: #4cd964;
+            border-color: #3cb850;
+            color: #fff;
+        }
+
+        /* Audiogram section */
+        .audiogram-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .ear-frame {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .ear-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ear-toggle {
+            width: 36px;
+            height: 20px;
+            background: #4cd964;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .ear-toggle::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .ear-indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .ear-indicator.right { background: #e74c3c; }
+        .ear-indicator.left { background: #3498db; }
+
+        .ear-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .audiogram-graph {
+            width: 100%;
+            height: 90px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Grid lines */
+        .audiogram-graph::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(to right, #eee 1px, transparent 1px),
+                linear-gradient(to bottom, #eee 1px, transparent 1px);
+            background-size: 20% 20%;
+        }
+
+        .audiogram-line {
+            position: absolute;
+            height: 2px;
+            left: 5%;
+            right: 5%;
+        }
+
+        .audiogram-line.right {
+            background: #e74c3c;
+            top: 25%;
+        }
+
+        .audiogram-line.left {
+            background: #3498db;
+            top: 35%;
+        }
+
+        .audiogram-points {
+            position: absolute;
+            top: 0;
+            left: 5%;
+            right: 5%;
+            height: 100%;
+        }
+
+        .point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .point.right { background: #e74c3c; }
+        .point.left { background: #3498db; }
+
+        /* Footer */
+        .plugin-footer {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 2px;
+        }
+
+        /* Notes */
+        .notes {
+            color: #aaa;
+            max-width: 500px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notes h3 {
+            color: #fff;
+            margin: 20px 0 10px 0;
+        }
+
+        .notes ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>EarFix UI Mockup - Headphone EQ Section Added</h2>
+
+    <div class="mockup-label">New headphone section at top, all existing UI preserved</div>
+
+    <div class="plugin-window">
+        <div class="title-bar">
+            <div class="window-buttons">
+                <div class="window-btn close"></div>
+                <div class="window-btn minimize"></div>
+                <div class="window-btn maximize"></div>
+            </div>
+            <span class="title-bar-title">Stereo Out</span>
+        </div>
+
+        <!-- Host toolbar -->
+        <div class="host-toolbar">
+            <select style="width: 100px;">
+                <option>Holger MOSL</option>
+            </select>
+            <span>&lt;</span>
+            <span>&gt;</span>
+            <button>Compare</button>
+            <button>Undo</button>
+            <button>Redo</button>
+            <span class="spacer"></span>
+            <span>View</span>
+            <span>Editor</span>
+        </div>
+
+        <div class="plugin-content">
+
+            <!-- NEW: Headphone Section -->
+            <div class="section-frame">
+                <div class="section-header-row">
+                    <span class="section-header" style="margin: 0;">Headphone Correction</span>
+                    <span class="version-label">v1.3.0</span>
+                </div>
+                <div class="headphone-row">
+                    <span class="headphone-icon">🎧</span>
+                    <select class="headphone-select">
+                        <option value="">-- None --</option>
+                        <option selected>Sennheiser HD 650</option>
+                        <option>Sennheiser HD 600</option>
+                        <option>Beyerdynamic DT 770 Pro</option>
+                        <option>Sony WH-1000XM4</option>
+                        <option>Apple AirPods Max</option>
+                        <option>Apple AirPods Pro 2</option>
+                    </select>
+                    <div class="headphone-toggle active" onclick="this.classList.toggle('active')"></div>
+                    <button class="refresh-btn" title="Refresh database">↻</button>
+                </div>
+            </div>
+
+            <!-- Model & Options Section (existing) -->
+            <div class="section-frame">
+                <div class="section-header">Model & Options</div>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <div class="option-label">Model</div>
+                        <select class="option-select">
+                            <option>Half-Gain</option>
+                            <option>NAL (Speech)</option>
+                            <option selected>MOSL (Music)</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <div class="option-label">Speed</div>
+                        <select class="option-select">
+                            <option selected>Fast</option>
+                            <option>Slow</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <div class="option-label">Level</div>
+                        <select class="option-select">
+                            <option>New User</option>
+                            <option>Some Experience</option>
+                            <option selected>Experienced</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls row (existing) -->
+            <div class="controls-row">
+                <!-- Input meters -->
+                <div class="control-group">
+                    <div class="control-label">Input</div>
+                    <div class="meter-pair">
+                        <div class="meter"><div class="meter-fill" style="height: 55%"></div></div>
+                        <div class="meter"><div class="meter-fill" style="height: 50%"></div></div>
+                    </div>
+                </div>
+
+                <!-- Strength fader -->
+                <div class="fader-group">
+                    <div class="control-label">Strength</div>
+                    <div class="fader-container">
+                        <div class="fader-track"></div>
+                        <div class="fader-knob" style="top: 45%"></div>
+                    </div>
+                    <div class="fader-value">50%</div>
+                </div>
+
+                <!-- Output fader -->
+                <div class="fader-group">
+                    <div class="control-label">Output</div>
+                    <div class="fader-container">
+                        <div class="fader-track"></div>
+                        <div class="fader-knob" style="top: 50%"></div>
+                    </div>
+                    <div class="fader-value">-24.0 dB</div>
+                    <button class="auto-gain-btn active">Auto Gain</button>
+                </div>
+
+                <!-- Output meters -->
+                <div class="control-group">
+                    <div class="control-label">Output</div>
+                    <div class="meter-pair">
+                        <div class="meter"><div class="meter-fill" style="height: 40%"></div></div>
+                        <div class="meter"><div class="meter-fill" style="height: 38%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audiogram Section (existing) -->
+            <div class="audiogram-row">
+                <!-- Right ear -->
+                <div class="ear-frame">
+                    <div class="ear-header">
+                        <div class="ear-toggle" onclick="this.style.background = this.style.background === 'rgb(204, 204, 204)' ? '#4cd964' : '#ccc'"></div>
+                        <div class="ear-indicator right">R</div>
+                        <div class="ear-title">Right ear</div>
+                    </div>
+                    <div class="audiogram-graph">
+                        <div class="audiogram-points">
+                            <div class="point right" style="left: 0%; top: 20%"></div>
+                            <div class="point right" style="left: 20%; top: 22%"></div>
+                            <div class="point right" style="left: 40%; top: 25%"></div>
+                            <div class="point right" style="left: 60%; top: 35%"></div>
+                            <div class="point right" style="left: 80%; top: 50%"></div>
+                            <div class="point right" style="left: 100%; top: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Left ear -->
+                <div class="ear-frame">
+                    <div class="ear-header">
+                        <div class="ear-toggle"></div>
+                        <div class="ear-indicator left">L</div>
+                        <div class="ear-title">Left ear</div>
+                    </div>
+                    <div class="audiogram-graph">
+                        <div class="audiogram-points">
+                            <div class="point left" style="left: 0%; top: 15%"></div>
+                            <div class="point left" style="left: 20%; top: 18%"></div>
+                            <div class="point left" style="left: 40%; top: 20%"></div>
+                            <div class="point left" style="left: 60%; top: 30%"></div>
+                            <div class="point left" style="left: 80%; top: 45%"></div>
+                            <div class="point left" style="left: 100%; top: 55%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plugin-footer">EarFix</div>
+        </div>
+    </div>
+
+    <div class="notes">
+        <h3>Changes from current UI:</h3>
+        <ul>
+            <li><strong>Added:</strong> New "Headphone Correction" section at top with white frame</li>
+            <li><strong>Moved:</strong> Version label (v1.3.0) moved to top-right of headphone section header</li>
+            <li><strong>Preserved:</strong> All existing UI elements unchanged:
+                <ul>
+                    <li>Model & Options section (Model, Speed, Level dropdowns)</li>
+                    <li>Input meters</li>
+                    <li>Strength fader</li>
+                    <li>Output fader with Auto Gain button</li>
+                    <li>Output meters</li>
+                    <li>R/L ear toggles and audiogram graphs</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Headphone section components:</h3>
+        <ul>
+            <li>🎧 Headphone icon</li>
+            <li>Dropdown with headphone models (populated from database)</li>
+            <li>Toggle switch to enable/disable headphone EQ</li>
+            <li>Refresh button to reload database from disk</li>
+        </ul>
+    </div>
+
+</body>
+</html>

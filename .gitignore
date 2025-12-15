@@ -85,3 +85,4 @@ JuceLibraryCode/
 
 # Don't ignore the main jucer file
 !*.jucer
+CLAUDE.md

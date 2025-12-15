@@ -54,6 +54,10 @@ private:
     juce::ComboBox     experienceLevelSelector;
     juce::Label        experienceLevelLabel;
 
+    // Fader section: Max boost limiter (correction ceiling)
+    juce::Slider       maxBoostSlider;
+    juce::Label        maxBoostLabel;
+
     // Per-ear enable toggles
     juce::ToggleButton rightEnableButton { "right" };
     juce::ToggleButton leftEnableButton { "left" };
@@ -82,6 +86,7 @@ private:
 
     std::unique_ptr<SliderAttachment>   outputGainAttachment;
     std::unique_ptr<SliderAttachment>   correctionStrengthAttachment;
+    std::unique_ptr<SliderAttachment>   maxBoostAttachment;
     std::unique_ptr<ComboBoxAttachment> modelSelectAttachment;
     std::unique_ptr<ComboBoxAttachment> compressionSpeedAttachment;
     std::unique_ptr<ComboBoxAttachment> experienceLevelAttachment;
@@ -92,6 +97,20 @@ private:
     juce::TextButton autoGainButton { "AUTO\nGAIN" };
     bool autoGainActive = false;
     float autoGainOffset = 0.0f;
+
+    // Headphone EQ section
+    juce::ComboBox     headphoneSelector;
+    juce::ToggleButton headphoneEnableButton { "headphoneEQ" };
+    juce::TextButton   headphoneRefreshButton { "Refresh" };  // Text button - icon too small
+    juce::Label        headphoneInfoLabel;
+    std::unique_ptr<ButtonAttachment> headphoneEnableAttachment;
+
+    void populateHeadphoneList();
+    void updateHeadphoneInfo();
+
+    // Section bounds for painting
+    juce::Rectangle<float> headphonePanelBounds;
+    juce::Rectangle<float> audiogramPanelBounds;
 
     // Smoothed meter levels for display
     float displayInputL = 0.0f, displayInputR = 0.0f;

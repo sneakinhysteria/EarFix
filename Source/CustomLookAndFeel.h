@@ -122,17 +122,18 @@ public:
         auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) width, (float) height);
         bool isHorizontal = (style == juce::Slider::LinearHorizontal || style == juce::Slider::LinearBar);
 
-        // Track
+        // Track - taller to match meter height visually
         float trackThickness = 6.0f;
         juce::Rectangle<float> track;
 
         if (isHorizontal)
         {
-            track = bounds.withSizeKeepingCentre (bounds.getWidth() - 14.0f, trackThickness);
+            track = bounds.withSizeKeepingCentre (bounds.getWidth() - 6.0f, trackThickness);
         }
         else
         {
-            track = bounds.withSizeKeepingCentre (trackThickness, bounds.getHeight() - 14.0f);
+            // Track extends nearly full height (thumb still moves within original range)
+            track = bounds.withSizeKeepingCentre (trackThickness, bounds.getHeight() - 6.0f);
         }
 
         // Track background
@@ -301,7 +302,7 @@ public:
 
     juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
     {
-        return juce::Font (juce::FontOptions (10.0f).withStyle ("Bold"));
+        return juce::Font (juce::FontOptions (12.0f).withStyle ("Bold"));
     }
 
     //==========================================================================

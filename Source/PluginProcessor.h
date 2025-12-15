@@ -16,6 +16,7 @@
 #include "Models/HalfGainModel.h"
 #include "Models/NALModel.h"
 #include "Models/MOSLModel.h"
+#include "HeadphoneEQ.h"
 
 //==============================================================================
 class HearingCorrectionAUv2AudioProcessor  : public juce::AudioProcessor
@@ -92,6 +93,22 @@ public:
         8000.0f    // Audiogram band 5
     };
 
+    //==============================================================================
+    // Headphone EQ correction
+    HeadphoneEQ headphoneEQ;
+
+    /** Loads a headphone profile by name. Called when parameter changes. */
+    void loadHeadphoneProfile (const juce::String& name);
+
+    /** Returns list of available headphone names for the UI. */
+    const std::vector<HeadphoneIndexEntry>& getAvailableHeadphones() const { return headphoneEQ.getAvailableHeadphones(); }
+
+    /** Returns currently selected headphone name. */
+    juce::String getCurrentHeadphoneName() const { return headphoneEQ.getCurrentProfileName(); }
+
+    /** Reloads the headphone database (for UI refresh button). */
+    void reloadHeadphoneDatabase() { headphoneEQ.loadDatabase(); }
+
 private:
     //==============================================================================
     // Correction models
@@ -108,10 +125,15 @@ private:
     std::atomic<float>* outputGainParam       = nullptr;
     std::atomic<float>* modelSelectParam      = nullptr;
     std::atomic<float>* correctionStrengthParam = nullptr;
+    std::atomic<float>* maxBoostParam         = nullptr;
     std::atomic<float>* compressionSpeedParam = nullptr;
     std::atomic<float>* experienceLevelParam  = nullptr;
     std::atomic<float>* leftEnableParam       = nullptr;
     std::atomic<float>* rightEnableParam      = nullptr;
+    std::atomic<float>* headphoneEQEnableParam = nullptr;
+
+    // Headphone profile name (stored separately as strings aren't supported in APVTS)
+    juce::String selectedHeadphoneName;
 
     std::array<std::atomic<float>*, numAudiogramBands> leftAudiogramParams;
     std::array<std::atomic<float>*, numAudiogramBands> rightAudiogramParams;
@@ -120,35 +142,43 @@ private:
     float previousGain = 1.0f;
 
     //==============================================================================
-    // Multi-band EQ filters (11 bands with interpolation)
-    static constexpr float filterQ = 1.4f;
-
-    std::array<juce::dsp::IIR::Filter<float>, numFilterBands> leftFilters;
-    std::array<juce::dsp::IIR::Filter<float>, numFilterBands> rightFilters;
-
-    // Interpolated gains for each filter band
-    std::array<float, numFilterBands> leftFilterGains;
-    std::array<float, numFilterBands> rightFilterGains;
-
-    //==============================================================================
-    // WDRC Compressor state per band per ear (only at audiogram frequencies)
-    struct CompressorState
-    {
-        float envelope = 0.0f;
+    // Linkwitz-Riley Multiband Crossover (5 crossovers for 6 bands)
+    // Crossover frequencies at geometric means between audiogram bands
+    static constexpr int numCrossovers = 5;
+    static constexpr std::array<float, numCrossovers> crossoverFrequencies = {
+        354.0f, 707.0f, 1414.0f, 2828.0f, 5657.0f
     };
 
-    std::array<CompressorState, numAudiogramBands> leftCompressors;
-    std::array<CompressorState, numAudiogramBands> rightCompressors;
+    // Per-channel crossover filters (LP and HP pairs)
+    std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> leftLowpass;
+    std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> leftHighpass;
+    std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> rightLowpass;
+    std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> rightHighpass;
+
+    //==============================================================================
+    // True WDRC state per band per ear
+    struct WDRCBandState
+    {
+        float envelope = 0.0f;           // Envelope follower state
+        float smoothedGain = 0.0f;       // Smoothed gain value
+        float targetGainForSoftSounds = 0.0f;  // Max gain (for quiet inputs)
+    };
+
+    std::array<WDRCBandState, numAudiogramBands> leftWDRC;
+    std::array<WDRCBandState, numAudiogramBands> rightWDRC;
 
     float attackCoeff = 0.0f;
     float releaseCoeff = 0.0f;
+    float gainSmoothCoeff = 0.0f;  // For smooth gain transitions
 
-    void updateCompressorCoefficients();
+    void updateWDRCCoefficients();
+    void updateCrossoverCoefficients();
+
+    // Calculate WDRC gain based on input level and hearing loss
+    float calculateWDRCGain (float inputLevelDb, float hearingLossDb, float maxBoostDb) const;
 
     //==============================================================================
     double currentSampleRate = 44100.0;
-
-    void updateFilterCoefficients();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HearingCorrectionAUv2AudioProcessor)
 };

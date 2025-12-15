@@ -64,6 +64,14 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         50.0f,
         juce::AudioParameterFloatAttributes().withLabel ("%")));
 
+    // Max boost: limits per-band gain to prevent distortion with severe losses
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "maxBoost", 1 },
+        "Max Boost",
+        juce::NormalisableRange<float> (10.0f, 40.0f, 1.0f),
+        25.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("dB")));
+
     // Compression speed: 0 = Fast, 1 = Slow (only used by NAL model)
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "compressionSpeed", 1 },
@@ -89,6 +97,12 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         juce::ParameterID { "leftEnable", 1 },
         "Left Enable",
         true));
+
+    // Headphone EQ enable
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "headphoneEQEnable", 1 },
+        "Headphone EQ",
+        false));
 
     // Audiogram values per ear (-20 to 120 dB HL, standard audiometric range)
     // Right ear first (audiological convention)
@@ -134,10 +148,12 @@ HearingCorrectionAUv2AudioProcessor::HearingCorrectionAUv2AudioProcessor()
     modelSelectParam        = parameters.getRawParameterValue ("modelSelect");
     outputGainParam         = parameters.getRawParameterValue ("outputGain");
     correctionStrengthParam = parameters.getRawParameterValue ("correctionStrength");
+    maxBoostParam           = parameters.getRawParameterValue ("maxBoost");
     compressionSpeedParam   = parameters.getRawParameterValue ("compressionSpeed");
     experienceLevelParam    = parameters.getRawParameterValue ("experienceLevel");
     leftEnableParam         = parameters.getRawParameterValue ("leftEnable");
     rightEnableParam        = parameters.getRawParameterValue ("rightEnable");
+    headphoneEQEnableParam  = parameters.getRawParameterValue ("headphoneEQEnable");
 
     for (int i = 0; i < numAudiogramBands; ++i)
     {
@@ -189,17 +205,6 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
     }
 }
 
-void HearingCorrectionAUv2AudioProcessor::updateCompressorCoefficients()
-{
-    bool fastCompression = compressionSpeedParam->load() < 0.5f;
-
-    float attackMs  = fastCompression ? 5.0f : 10.0f;
-    float releaseMs = fastCompression ? 50.0f : 150.0f;
-
-    attackCoeff  = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * attackMs / 1000.0f));
-    releaseCoeff = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * releaseMs / 1000.0f));
-}
-
 //==============================================================================
 const juce::String HearingCorrectionAUv2AudioProcessor::getName() const { return JucePlugin_Name; }
 bool HearingCorrectionAUv2AudioProcessor::acceptsMidi() const { return false; }
@@ -218,46 +223,89 @@ void HearingCorrectionAUv2AudioProcessor::prepareToPlay (double sampleRate, int 
 {
     currentSampleRate = sampleRate;
 
+    // Prepare headphone EQ
+    headphoneEQ.prepare (sampleRate, samplesPerBlock);
+
     previousGain = juce::Decibels::decibelsToGain (outputGainParam->load());
 
-    // Prepare filter spec for mono processing (each filter handles one channel)
+    // Prepare filter spec for mono processing
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
     spec.numChannels = 1;
 
-    // Prepare and reset all filter bands (11 with interpolation)
-    for (int i = 0; i < numFilterBands; ++i)
+    // Prepare Linkwitz-Riley crossover filters (5 crossovers for 6 bands)
+    for (int i = 0; i < numCrossovers; ++i)
     {
-        leftFilters[i].prepare (spec);
-        rightFilters[i].prepare (spec);
-        leftFilters[i].reset();
-        rightFilters[i].reset();
-        leftFilterGains[i] = 0.0f;
-        rightFilterGains[i] = 0.0f;
+        leftLowpass[i].prepare (spec);
+        leftHighpass[i].prepare (spec);
+        rightLowpass[i].prepare (spec);
+        rightHighpass[i].prepare (spec);
+
+        leftLowpass[i].reset();
+        leftHighpass[i].reset();
+        rightLowpass[i].reset();
+        rightHighpass[i].reset();
     }
 
-    // Reset compressors (6 at audiogram frequencies only)
+    // Reset WDRC state for all bands
     for (int i = 0; i < numAudiogramBands; ++i)
     {
-        leftCompressors[i].envelope = 0.0f;
-        rightCompressors[i].envelope = 0.0f;
+        leftWDRC[i].envelope = 0.0f;
+        leftWDRC[i].smoothedGain = 1.0f;
+        rightWDRC[i].envelope = 0.0f;
+        rightWDRC[i].smoothedGain = 1.0f;
     }
 
-    updateCompressorCoefficients();
+    updateWDRCCoefficients();
+    updateCrossoverCoefficients();
     updateCurrentModel();
-    updateFilterCoefficients();
 }
 
 void HearingCorrectionAUv2AudioProcessor::releaseResources() {}
 
-void HearingCorrectionAUv2AudioProcessor::updateFilterCoefficients()
+void HearingCorrectionAUv2AudioProcessor::updateCrossoverCoefficients()
 {
-    const float strength = correctionStrengthParam->load() / 100.0f;
+    // Set up Linkwitz-Riley crossover filters at each crossover frequency
+    for (int i = 0; i < numCrossovers; ++i)
+    {
+        float freq = crossoverFrequencies[i];
 
-    // First, calculate gains at the 6 audiogram frequencies
-    std::array<float, numAudiogramBands> leftAudiogramGains;
-    std::array<float, numAudiogramBands> rightAudiogramGains;
+        // Skip if frequency is too high for current sample rate
+        if (freq >= currentSampleRate * 0.45f)
+            freq = static_cast<float> (currentSampleRate * 0.44f);
+
+        leftLowpass[i].setType (juce::dsp::LinkwitzRileyFilterType::lowpass);
+        leftLowpass[i].setCutoffFrequency (freq);
+
+        leftHighpass[i].setType (juce::dsp::LinkwitzRileyFilterType::highpass);
+        leftHighpass[i].setCutoffFrequency (freq);
+
+        rightLowpass[i].setType (juce::dsp::LinkwitzRileyFilterType::lowpass);
+        rightLowpass[i].setCutoffFrequency (freq);
+
+        rightHighpass[i].setType (juce::dsp::LinkwitzRileyFilterType::highpass);
+        rightHighpass[i].setCutoffFrequency (freq);
+    }
+}
+
+void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
+{
+    bool fastCompression = compressionSpeedParam->load() < 0.5f;
+
+    // Attack/release times for envelope follower
+    float attackMs  = fastCompression ? 5.0f : 10.0f;
+    float releaseMs = fastCompression ? 50.0f : 150.0f;
+
+    attackCoeff  = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * attackMs / 1000.0f));
+    releaseCoeff = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * releaseMs / 1000.0f));
+
+    // Gain smoothing (10ms time constant)
+    gainSmoothCoeff = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * 0.01f));
+
+    // Update target gains for each band based on hearing loss
+    const float strength = correctionStrengthParam->load() / 100.0f;
+    const float maxBoost = maxBoostParam->load();
 
     for (int i = 0; i < numAudiogramBands; ++i)
     {
@@ -265,61 +313,48 @@ void HearingCorrectionAUv2AudioProcessor::updateFilterCoefficients()
         const float leftLoss  = std::max (0.0f, leftAudiogramParams[i]->load());
         const float rightLoss = std::max (0.0f, rightAudiogramParams[i]->load());
 
-        leftAudiogramGains[i]  = currentModel->calculateGain (freq, leftLoss) * strength;
-        rightAudiogramGains[i] = currentModel->calculateGain (freq, rightLoss) * strength;
+        // Calculate target gain for soft sounds (full correction)
+        float leftGain  = currentModel->calculateGain (freq, leftLoss) * strength;
+        float rightGain = currentModel->calculateGain (freq, rightLoss) * strength;
+
+        // Cap to maxBoost
+        leftWDRC[i].targetGainForSoftSounds = std::min (leftGain, maxBoost);
+        rightWDRC[i].targetGainForSoftSounds = std::min (rightGain, maxBoost);
     }
+}
 
-    // Now calculate gains for all 11 filter bands using linear interpolation
-    // Filter bands: 250, 354, 500, 707, 1000, 1414, 2000, 2828, 4000, 5657, 8000
-    // Audiogram indices: 0,   -,   1,   -,    2,     -,    3,     -,    4,     -,    5
-    for (int i = 0; i < numFilterBands; ++i)
+float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,
+                                                               float targetGainDb,
+                                                               float maxBoostDb) const
+{
+    // WDRC: Wide Dynamic Range Compression
+    // Soft sounds get full gain, loud sounds get reduced gain
+
+    // Kneepoint: below this input level, apply full target gain
+    const float kneepoint = -40.0f;  // dB (relative to 0dBFS)
+
+    // Above kneepoint, compression kicks in
+    // Compression ratio increases with target gain (more correction = more compression)
+    float compressionRatio = 1.0f + (targetGainDb / 30.0f);
+    compressionRatio = juce::jlimit (1.5f, 4.0f, compressionRatio);
+
+    if (inputLevelDb <= kneepoint)
     {
-        const float freq = filterFrequencies[i];
+        // Below kneepoint: full target gain
+        return targetGainDb;
+    }
+    else
+    {
+        // Above kneepoint: compress
+        float overKnee = inputLevelDb - kneepoint;
+        float compressedOver = overKnee / compressionRatio;
+        float gainReduction = overKnee - compressedOver;
 
-        // Determine if this is an audiogram band or interpolated band
-        // Even indices (0,2,4,6,8,10) are audiogram bands, odd indices are interpolated
-        if (i % 2 == 0)
-        {
-            // Direct audiogram band
-            int audiogramIdx = i / 2;
-            leftFilterGains[i] = leftAudiogramGains[audiogramIdx];
-            rightFilterGains[i] = rightAudiogramGains[audiogramIdx];
-        }
-        else
-        {
-            // Interpolated band - linear interpolation between adjacent audiogram bands
-            int lowerIdx = i / 2;
-            int upperIdx = lowerIdx + 1;
+        // Reduce target gain based on how much above kneepoint
+        float gain = targetGainDb - gainReduction;
 
-            // Linear interpolation (0.5 blend since we're at geometric midpoint)
-            leftFilterGains[i] = (leftAudiogramGains[lowerIdx] + leftAudiogramGains[upperIdx]) * 0.5f;
-            rightFilterGains[i] = (rightAudiogramGains[lowerIdx] + rightAudiogramGains[upperIdx]) * 0.5f;
-        }
-
-        // Apply filter coefficients
-        if (freq < currentSampleRate * 0.45f)
-        {
-            auto leftCoeffs = juce::dsp::IIR::Coefficients<float>::makePeakFilter (
-                currentSampleRate, freq, filterQ,
-                juce::Decibels::decibelsToGain (leftFilterGains[i]));
-
-            auto rightCoeffs = juce::dsp::IIR::Coefficients<float>::makePeakFilter (
-                currentSampleRate, freq, filterQ,
-                juce::Decibels::decibelsToGain (rightFilterGains[i]));
-
-            // Assign new coefficient objects to ensure left and right filters
-            // have completely independent coefficients
-            leftFilters[i].coefficients  = leftCoeffs;
-            rightFilters[i].coefficients = rightCoeffs;
-        }
-        else
-        {
-            // High frequencies above Nyquist - use bypass (separate objects for each filter)
-            leftFilters[i].coefficients = juce::dsp::IIR::Coefficients<float>::makeFirstOrderAllPass (
-                currentSampleRate, 1000.0f);
-            rightFilters[i].coefficients = juce::dsp::IIR::Coefficients<float>::makeFirstOrderAllPass (
-                currentSampleRate, 1000.0f);
-        }
+        // Never go below 0 dB gain (no attenuation in correction bands)
+        return std::max (0.0f, gain);
     }
 }
 
@@ -359,14 +394,18 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
         return;
     }
 
-    // Update model and filters
+    // Apply headphone EQ correction (flattens headphone response before hearing correction)
+    bool headphoneEQEnabled = headphoneEQEnableParam->load() > 0.5f;
+    headphoneEQ.setEnabled (headphoneEQEnabled);
+    headphoneEQ.process (buffer);
+
+    // Update model and WDRC parameters
     updateCurrentModel();
-    updateCompressorCoefficients();
-    updateFilterCoefficients();
+    updateWDRCCoefficients();
 
     const bool leftEnabled  = leftEnableParam->load() > 0.5f;
     const bool rightEnabled = rightEnableParam->load() > 0.5f;
-    const bool useCompression = currentModel->hasCompression();
+    const float maxBoost = maxBoostParam->load();
 
     if (buffer.getNumChannels() >= 2)
     {
@@ -375,87 +414,94 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
 
         for (int sample = 0; sample < numSamples; ++sample)
         {
-            float leftSample  = leftChannel[sample];
-            float rightSample = rightChannel[sample];
+            float leftIn  = leftChannel[sample];
+            float rightIn = rightChannel[sample];
+            float leftOut = 0.0f;
+            float rightOut = 0.0f;
 
-            // Process left channel
-            if (leftEnabled)
+            // Process through multiband crossover with WDRC
+            // Signal flow: Input -> Split into bands -> WDRC each band -> Sum
+
+            float leftRemaining = leftIn;
+            float rightRemaining = rightIn;
+
+            for (int band = 0; band < numAudiogramBands; ++band)
             {
-                // Apply all 11 EQ filter bands (including interpolated)
-                for (int band = 0; band < numFilterBands; ++band)
-                    leftSample = leftFilters[band].processSample (leftSample);
+                float leftBand, rightBand;
 
-                // Apply compression at 6 audiogram frequencies only
-                if (useCompression)
+                if (band < numCrossovers)
                 {
-                    for (int band = 0; band < numAudiogramBands; ++band)
-                    {
-                        float leftLoss = std::max (0.0f, leftAudiogramParams[band]->load());
-                        auto compParams = currentModel->getCompressionParams (
-                            audiogramFrequencies[band], leftLoss);
+                    // Extract this band using lowpass, pass remainder through highpass
+                    leftBand = leftLowpass[band].processSample (0, leftRemaining);
+                    leftRemaining = leftHighpass[band].processSample (0, leftRemaining);
 
-                        if (compParams.ratio > 1.0f)
-                        {
-                            float inputLevel = std::abs (leftSample);
-                            float& env = leftCompressors[band].envelope;
-
-                            float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
-                            env = env * coeff + inputLevel * (1.0f - coeff);
-
-                            float envDb = juce::Decibels::gainToDecibels (env + 1e-6f);
-
-                            if (envDb > compParams.threshold)
-                            {
-                                float overDb = envDb - compParams.threshold;
-                                float compressedOverDb = overDb / compParams.ratio;
-                                float gainReduction = overDb - compressedOverDb;
-                                leftSample *= juce::Decibels::decibelsToGain (-gainReduction);
-                            }
-                        }
-                    }
+                    rightBand = rightLowpass[band].processSample (0, rightRemaining);
+                    rightRemaining = rightHighpass[band].processSample (0, rightRemaining);
                 }
+                else
+                {
+                    // Last band gets the remainder (highpass only)
+                    leftBand = leftRemaining;
+                    rightBand = rightRemaining;
+                }
+
+                // Apply WDRC to this band if enabled
+                if (leftEnabled && leftWDRC[band].targetGainForSoftSounds > 0.0f)
+                {
+                    // Envelope follower for this band
+                    float inputLevel = std::abs (leftBand);
+                    float& env = leftWDRC[band].envelope;
+                    float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
+                    env = env * coeff + inputLevel * (1.0f - coeff);
+
+                    // Calculate input level in dB
+                    float inputDb = juce::Decibels::gainToDecibels (env + 1e-6f);
+
+                    // Calculate WDRC gain based on input level
+                    float targetGainDb = calculateWDRCGain (inputDb,
+                                                            leftWDRC[band].targetGainForSoftSounds,
+                                                            maxBoost);
+
+                    // Smooth gain changes
+                    float targetGainLinear = juce::Decibels::decibelsToGain (targetGainDb);
+                    leftWDRC[band].smoothedGain = leftWDRC[band].smoothedGain * gainSmoothCoeff
+                                                  + targetGainLinear * (1.0f - gainSmoothCoeff);
+
+                    leftBand *= leftWDRC[band].smoothedGain;
+                }
+
+                if (rightEnabled && rightWDRC[band].targetGainForSoftSounds > 0.0f)
+                {
+                    // Envelope follower for this band
+                    float inputLevel = std::abs (rightBand);
+                    float& env = rightWDRC[band].envelope;
+                    float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
+                    env = env * coeff + inputLevel * (1.0f - coeff);
+
+                    // Calculate input level in dB
+                    float inputDb = juce::Decibels::gainToDecibels (env + 1e-6f);
+
+                    // Calculate WDRC gain based on input level
+                    float targetGainDb = calculateWDRCGain (inputDb,
+                                                            rightWDRC[band].targetGainForSoftSounds,
+                                                            maxBoost);
+
+                    // Smooth gain changes
+                    float targetGainLinear = juce::Decibels::decibelsToGain (targetGainDb);
+                    rightWDRC[band].smoothedGain = rightWDRC[band].smoothedGain * gainSmoothCoeff
+                                                   + targetGainLinear * (1.0f - gainSmoothCoeff);
+
+                    rightBand *= rightWDRC[band].smoothedGain;
+                }
+
+                // Sum this band to output
+                leftOut += leftBand;
+                rightOut += rightBand;
             }
 
-            // Process right channel
-            if (rightEnabled)
-            {
-                // Apply all 11 EQ filter bands (including interpolated)
-                for (int band = 0; band < numFilterBands; ++band)
-                    rightSample = rightFilters[band].processSample (rightSample);
-
-                // Apply compression at 6 audiogram frequencies only
-                if (useCompression)
-                {
-                    for (int band = 0; band < numAudiogramBands; ++band)
-                    {
-                        float rightLoss = std::max (0.0f, rightAudiogramParams[band]->load());
-                        auto compParams = currentModel->getCompressionParams (
-                            audiogramFrequencies[band], rightLoss);
-
-                        if (compParams.ratio > 1.0f)
-                        {
-                            float inputLevel = std::abs (rightSample);
-                            float& env = rightCompressors[band].envelope;
-
-                            float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
-                            env = env * coeff + inputLevel * (1.0f - coeff);
-
-                            float envDb = juce::Decibels::gainToDecibels (env + 1e-6f);
-
-                            if (envDb > compParams.threshold)
-                            {
-                                float overDb = envDb - compParams.threshold;
-                                float compressedOverDb = overDb / compParams.ratio;
-                                float gainReduction = overDb - compressedOverDb;
-                                rightSample *= juce::Decibels::decibelsToGain (-gainReduction);
-                            }
-                        }
-                    }
-                }
-            }
-
-            leftChannel[sample]  = leftSample;
-            rightChannel[sample] = rightSample;
+            // If ear is disabled, pass through original signal
+            leftChannel[sample]  = leftEnabled ? leftOut : leftIn;
+            rightChannel[sample] = rightEnabled ? rightOut : rightIn;
         }
     }
 
@@ -489,9 +535,30 @@ juce::AudioProcessorEditor* HearingCorrectionAUv2AudioProcessor::createEditor()
 }
 
 //==============================================================================
+void HearingCorrectionAUv2AudioProcessor::loadHeadphoneProfile (const juce::String& name)
+{
+    if (name.isEmpty())
+    {
+        headphoneEQ.clearProfile();
+        selectedHeadphoneName.clear();
+    }
+    else
+    {
+        if (headphoneEQ.loadProfile (name))
+            selectedHeadphoneName = name;
+        else
+            selectedHeadphoneName.clear();
+    }
+}
+
+//==============================================================================
 void HearingCorrectionAUv2AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     auto state = parameters.copyState();
+
+    // Add headphone name to state
+    state.setProperty ("headphoneName", selectedHeadphoneName, nullptr);
+
     if (auto xml = state.createXml())
         copyXmlToBinary (*xml, destData);
 }
@@ -501,7 +568,14 @@ void HearingCorrectionAUv2AudioProcessor::setStateInformation (const void* data,
     if (auto xml = getXmlFromBinary (data, sizeInBytes))
     {
         if (xml->hasTagName (parameters.state.getType()))
+        {
             parameters.replaceState (juce::ValueTree::fromXml (*xml));
+
+            // Restore headphone profile
+            auto headphoneName = parameters.state.getProperty ("headphoneName").toString();
+            if (headphoneName.isNotEmpty())
+                loadHeadphoneProfile (headphoneName);
+        }
     }
 }
 

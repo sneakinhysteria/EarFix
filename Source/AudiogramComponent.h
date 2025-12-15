@@ -63,10 +63,7 @@ public:
         const float topMargin = 10.0f;
         const float bottomMargin = 28.0f; // Space for Hz label + freq values
 
-        // Draw machined panel background
-        CustomLookAndFeel::drawMachinedPanel (g, bounds, 10.0f);
-
-        // Chart area
+        // Chart area (panel is drawn by parent)
         auto chartBounds = bounds;
         chartBounds.removeFromLeft (leftMargin);
         chartBounds.removeFromRight (rightMargin);

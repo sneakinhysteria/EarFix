@@ -28,7 +28,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
 
     // Vertical sliders for Strength and Output
     correctionStrengthSlider.setSliderStyle (juce::Slider::LinearVertical);
-    correctionStrengthSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 44, 18);
+    correctionStrengthSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 54, 18);
     correctionStrengthSlider.setTextValueSuffix ("%");
     correctionStrengthSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
     correctionStrengthSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
@@ -41,7 +41,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     addAndMakeVisible (correctionLabel);
 
     outputGainSlider.setSliderStyle (juce::Slider::LinearVertical);
-    outputGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 44, 18);
+    outputGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 54, 18);
     outputGainSlider.setTextValueSuffix (" dB");
     outputGainSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
     outputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
@@ -85,6 +85,20 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     experienceLevelLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (experienceLevelLabel);
 
+    // Max boost slider (vertical fader in control section)
+    maxBoostSlider.setSliderStyle (juce::Slider::LinearVertical);
+    maxBoostSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 54, 18);
+    maxBoostSlider.setTextValueSuffix (" dB");
+    maxBoostSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
+    maxBoostSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
+    maxBoostSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
+    addAndMakeVisible (maxBoostSlider);
+    maxBoostLabel.setText ("MAX", juce::dontSendNotification);  // Short label
+    maxBoostLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    maxBoostLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    maxBoostLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (maxBoostLabel);
+
     // Auto-gain button - styled to match UI
     autoGainButton.setButtonText ("AUTO\nGAIN");
     autoGainButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
@@ -100,7 +114,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     inputMeterLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (inputMeterLabel);
 
-    outputMeterLabel.setText ("OUTPUT", juce::dontSendNotification);
+    outputMeterLabel.setText ("", juce::dontSendNotification);  // No label - flows from OUTPUT fader
     outputMeterLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     outputMeterLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     outputMeterLabel.setJustificationType (juce::Justification::centred);
@@ -112,13 +126,41 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     addAndMakeVisible (rightEnableButton);
     addAndMakeVisible (leftEnableButton);
 
+    // Headphone EQ components
+    headphoneSelector.onChange = [this]() {
+        auto selectedName = headphoneSelector.getText();
+        if (headphoneSelector.getSelectedId() == 1)
+            selectedName = ""; // "-- None --" option
+        audioProcessor.loadHeadphoneProfile (selectedName);
+        updateHeadphoneInfo();
+    };
+    addAndMakeVisible (headphoneSelector);
+    populateHeadphoneList();
+
+    headphoneEnableButton.setName ("headphoneEQ");
+    addAndMakeVisible (headphoneEnableButton);
+
+    headphoneRefreshButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+    headphoneRefreshButton.setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+    headphoneRefreshButton.onClick = [this]() {
+        audioProcessor.reloadHeadphoneDatabase();
+        populateHeadphoneList();
+    };
+    addAndMakeVisible (headphoneRefreshButton);
+
+    headphoneInfoLabel.setFont (juce::FontOptions (10.0f));
+    headphoneInfoLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    headphoneInfoLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (headphoneInfoLabel);
+    updateHeadphoneInfo();
+
     // Ear labels
     rightEarLabel.setText ("Right ear", juce::dontSendNotification);
     rightEarLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (rightEarLabel);
 
     leftEarLabel.setText ("Left ear", juce::dontSendNotification);
-    leftEarLabel.setJustificationType (juce::Justification::centredRight);
+    leftEarLabel.setJustificationType (juce::Justification::centredLeft);  // Same as right ear
     addAndMakeVisible (leftEarLabel);
 
     // Audiogram components
@@ -140,6 +182,8 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
         audioProcessor.parameters, "outputGain", outputGainSlider);
     correctionStrengthAttachment = std::make_unique<SliderAttachment> (
         audioProcessor.parameters, "correctionStrength", correctionStrengthSlider);
+    maxBoostAttachment = std::make_unique<SliderAttachment> (
+        audioProcessor.parameters, "maxBoost", maxBoostSlider);
     modelSelectAttachment = std::make_unique<ComboBoxAttachment> (
         audioProcessor.parameters, "modelSelect", modelSelector);
     compressionSpeedAttachment = std::make_unique<ComboBoxAttachment> (
@@ -150,6 +194,8 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
         audioProcessor.parameters, "rightEnable", rightEnableButton);
     leftEnableAttachment = std::make_unique<ButtonAttachment> (
         audioProcessor.parameters, "leftEnable", leftEnableButton);
+    headphoneEnableAttachment = std::make_unique<ButtonAttachment> (
+        audioProcessor.parameters, "headphoneEQEnable", headphoneEnableButton);
 
     // Listen for model changes
     audioProcessor.parameters.addParameterListener ("modelSelect", this);
@@ -158,7 +204,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     // Start timer for meter updates
     startTimerHz (30);
 
-    setSize (560, 500);
+    setSize (560, 580);  // Compact height - audiograms fill available space
 }
 
 HearingCorrectionAUv2AudioProcessorEditor::~HearingCorrectionAUv2AudioProcessorEditor()
@@ -223,34 +269,149 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
     repaint();
 }
 
+void HearingCorrectionAUv2AudioProcessorEditor::populateHeadphoneList()
+{
+    headphoneSelector.clear();
+    headphoneSelector.addItem ("-- None --", 1);
+
+    const auto& headphones = audioProcessor.getAvailableHeadphones();
+    int itemId = 2;
+    for (const auto& hp : headphones)
+    {
+        headphoneSelector.addItem (hp.name, itemId++);
+    }
+
+    // Select current profile if any
+    auto currentName = audioProcessor.getCurrentHeadphoneName();
+    if (currentName.isEmpty())
+    {
+        headphoneSelector.setSelectedId (1, juce::dontSendNotification);
+    }
+    else
+    {
+        for (int i = 0; i < headphoneSelector.getNumItems(); ++i)
+        {
+            if (headphoneSelector.getItemText (i) == currentName)
+            {
+                headphoneSelector.setSelectedItemIndex (i, juce::dontSendNotification);
+                break;
+            }
+        }
+    }
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::updateHeadphoneInfo()
+{
+    auto currentName = audioProcessor.getCurrentHeadphoneName();
+    if (currentName.isEmpty())
+    {
+        headphoneInfoLabel.setText ("Select headphone model for EQ correction", juce::dontSendNotification);
+        return;
+    }
+
+    // Find the headphone info
+    const auto& headphones = audioProcessor.getAvailableHeadphones();
+    for (const auto& hp : headphones)
+    {
+        if (hp.name == currentName)
+        {
+            // Only show source (type is often unknown)
+            juce::String info = "Source: " + hp.source;
+            headphoneInfoLabel.setText (info, juce::dontSendNotification);
+            return;
+        }
+    }
+
+    headphoneInfoLabel.setText ("", juce::dontSendNotification);
+}
+
 //==============================================================================
 void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
 {
     CustomLookAndFeel::drawAluminumBackground (g, getLocalBounds());
 
-    auto bounds = getLocalBounds().toFloat();
+    // Universal spacing (must match resized())
+    const int MARGIN = 16, HEADER_H = 16, GAP = 6;
+    auto bounds = getLocalBounds().toFloat().reduced (MARGIN);
 
-    // Section header
+    // === HEADPHONE CORRECTION header ===
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    auto headerBounds = bounds.removeFromTop (20.0f).reduced (16.0f, 0);
-    g.drawText ("MODEL & OPTIONS", headerBounds, juce::Justification::centred);
-    g.setFont (juce::FontOptions (10.0f));
-    g.drawText ("v1.2.4", headerBounds, juce::Justification::centredRight);
+    g.drawText ("HEADPHONE CORRECTION", bounds.removeFromTop (HEADER_H), juce::Justification::centred);
+
+    // Draw headphone panel
+    if (!headphonePanelBounds.isEmpty())
+    {
+        const int PAD = 10;  // Must match PANEL_PAD
+        CustomLookAndFeel::drawMachinedPanel (g, headphonePanelBounds, 8.0f);
+
+        // Headphone emoji icon (at top-left with padding)
+        g.setFont (juce::FontOptions (18.0f));
+        g.setColour (CustomLookAndFeel::textDark);
+        g.drawText (juce::String::fromUTF8 ("\xF0\x9F\x8E\xA7"),
+                   headphonePanelBounds.getX() + PAD, headphonePanelBounds.getY() + PAD,
+                   28, 26, juce::Justification::centred);
+    }
+
+    // === AUDIOGRAM header ===
+    float audiogramHeaderY = headphonePanelBounds.getBottom() + GAP;
+    g.setColour (CustomLookAndFeel::textMuted);
+    g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    g.drawText ("AUDIOGRAM", MARGIN, audiogramHeaderY, getWidth() - 2 * MARGIN, HEADER_H, juce::Justification::centred);
+
+    // Draw audiogram panels with R/L indicators
+    if (!audiogramPanelBounds.isEmpty())
+    {
+        const int chartGap = 12;
+        const int PAD = 10;  // Must match PANEL_PAD
+        auto agArea = audiogramPanelBounds;
+        auto rPanel = agArea.removeFromLeft ((agArea.getWidth() - chartGap) / 2);
+        agArea.removeFromLeft (chartGap);
+        auto lPanel = agArea;
+
+        CustomLookAndFeel::drawMachinedPanel (g, rPanel, 8.0f);
+        CustomLookAndFeel::drawMachinedPanel (g, lPanel, 8.0f);
+
+        // R/L circles: toggle at (X+PAD, Y+PAD), circle after toggle
+        float circleSize = 20.0f;
+        float circleY = rPanel.getY() + PAD;  // Aligned with toggle
+
+        // R circle (after toggle: X + PAD + 36 + 4)
+        float rCircleX = rPanel.getX() + PAD + 36 + 4;
+        g.setColour (CustomLookAndFeel::accentRed);
+        g.fillEllipse (rCircleX, circleY, circleSize, circleSize);
+        g.setColour (juce::Colours::white);
+        g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+        g.drawText ("R", rCircleX, circleY, circleSize, circleSize, juce::Justification::centred);
+
+        // L circle
+        float lCircleX = lPanel.getX() + PAD + 36 + 4;
+        g.setColour (CustomLookAndFeel::accentBlue);
+        g.fillEllipse (lCircleX, circleY, circleSize, circleSize);
+        g.setColour (juce::Colours::white);
+        g.drawText ("L", lCircleX, circleY, circleSize, circleSize, juce::Justification::centred);
+    }
+
+    // === HEARING LOSS CORRECTION header ===
+    float hlHeaderY = audiogramPanelBounds.getBottom() + GAP;
+    g.setColour (CustomLookAndFeel::textMuted);
+    g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    g.drawText ("HEARING LOSS CORRECTION MODEL & PARAMETERS", MARGIN, hlHeaderY, getWidth() - 2 * MARGIN, HEADER_H, juce::Justification::centred);
 
     // Draw control panel
     if (!controlPanelBounds.isEmpty())
     {
-        CustomLookAndFeel::drawMachinedPanel (g, controlPanelBounds, 10.0f);
+        const int PAD = 10;
+        CustomLookAndFeel::drawMachinedPanel (g, controlPanelBounds, 8.0f);
 
-        // Draw divider between dropdowns and meters/faders
-        auto dividerX = controlPanelBounds.getX() + controlPanelBounds.getWidth() * 0.33f;
+        // Divider (after 28% dropdown section + padding)
+        auto dividerX = controlPanelBounds.getX() + PAD + controlPanelBounds.getWidth() * 0.28f;
         g.setColour (CustomLookAndFeel::borderNeutral);
         g.drawVerticalLine (static_cast<int> (dividerX),
-                           controlPanelBounds.getY() + 12,
-                           controlPanelBounds.getBottom() - 12);
+                           controlPanelBounds.getY() + PAD,
+                           controlPanelBounds.getBottom() - PAD);
 
-        // Draw meters using stored bounds from resized()
+        // Input meters
         if (!inputMeterBounds.isEmpty())
         {
             drawMeter (g, inputMeterBounds.getX(), inputMeterBounds.getY(),
@@ -259,6 +420,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
                       10, inputMeterBounds.getHeight(), displayInputR);
         }
 
+        // Output meters
         if (!outputMeterBounds.isEmpty())
         {
             drawMeter (g, outputMeterBounds.getX(), outputMeterBounds.getY(),
@@ -267,33 +429,20 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
                       10, outputMeterBounds.getHeight(), displayOutputR);
         }
 
-        // Draw flow arrows centered on meter/fader tracks
-        g.setColour (CustomLookAndFeel::textMuted.withAlpha (0.6f));
-        g.setFont (juce::FontOptions (14.0f));
-        float arrowY = inputMeterBounds.getCentreY() - 7;
-        float arrowX1 = inputMeterBounds.getRight() + 8;
-        float arrowX2 = correctionStrengthSlider.getRight() + 4;
-        float arrowX3 = outputGainSlider.getRight() + 4;
-        g.drawText (juce::String::charToString (0x203A), arrowX1, arrowY, 20, 14, juce::Justification::centred);
-        g.drawText (juce::String::charToString (0x203A), arrowX2, arrowY, 20, 14, juce::Justification::centred);
-        g.drawText (juce::String::charToString (0x203A), arrowX3, arrowY, 20, 14, juce::Justification::centred);
-
-        // Auto-gain hint
+        // Auto-gain hint text
         g.setColour (CustomLookAndFeel::textMuted);
-        g.setFont (juce::FontOptions (8.0f));
-        g.drawText ("hold to", autoGainButton.getBounds().toFloat().getX(),
-                   autoGainButton.getBounds().getBottom() + 2,
-                   autoGainButton.getWidth(), 10, juce::Justification::centred);
-        g.drawText ("match", autoGainButton.getBounds().toFloat().getX(),
-                   autoGainButton.getBounds().getBottom() + 11,
-                   autoGainButton.getWidth(), 10, juce::Justification::centred);
+        g.setFont (juce::FontOptions (9.0f));
+        auto btnBounds = autoGainButton.getBounds();
+        g.drawText ("press to adjust", btnBounds.getX() - 10, btnBounds.getBottom() + 2,
+                   btnBounds.getWidth() + 20, 10, juce::Justification::centred);
+        g.drawText ("release to set", btnBounds.getX() - 10, btnBounds.getBottom() + 11,
+                   btnBounds.getWidth() + 20, 10, juce::Justification::centred);
     }
 
-    // Audiogram header
-    auto audiogramHeaderY = controlPanelBounds.getBottom() + 6;
+    // Version footer
     g.setColour (CustomLookAndFeel::textMuted);
-    g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    g.drawText ("AUDIOGRAM", 0, audiogramHeaderY, getWidth(), 24, juce::Justification::centred);
+    g.setFont (juce::FontOptions (10.0f));
+    g.drawText ("v1.3.0", 0, getHeight() - 24, getWidth(), 20, juce::Justification::centred);
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, float x, float y,
@@ -321,116 +470,160 @@ void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, fl
 
 void HearingCorrectionAUv2AudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced (16);
-    bounds.removeFromTop (20); // Header
+    // ============ UNIVERSAL SPACING RULES ============
+    const int MARGIN = 16;           // Window edge margin
+    const int PANEL_PAD = 10;        // Panel internal padding
+    const int HEADER_H = 16;         // Section header height
+    const int GAP = 6;               // Gap between sections
+    const int VERSION_H = 20;        // Space for version at bottom
 
-    // Control panel - same height as audiogram (200px)
-    controlPanelBounds = bounds.removeFromTop (200).toFloat();
-    auto controlArea = controlPanelBounds.reduced (12.0f).toNearestInt();
+    // ============ LAYOUT CALCULATION ============
+    auto bounds = getLocalBounds().reduced (MARGIN);
+    bounds.removeFromBottom (VERSION_H);  // Reserve for version label
 
-    // Left 1/3: Dropdowns
-    auto dropdownSection = controlArea.removeFromLeft (static_cast<int> (controlArea.getWidth() * 0.33f));
-    dropdownSection.removeFromRight (12); // Gap before divider
+    // Fixed heights
+    const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
+    const int CTRL_PANEL_H = 160;    // Control panel
 
-    const int dropdownHeight = 28;
-    const int labelHeight = 16;
-    const int gap = 8;
+    // Calculate audiogram height to fill remaining space
+    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + HEADER_H + CTRL_PANEL_H;
+    int audiogramHeight = bounds.getHeight() - usedHeight;
 
-    // Center dropdowns vertically
-    int totalDropdownHeight = 3 * (labelHeight + dropdownHeight) + 2 * gap;
-    int dropdownY = dropdownSection.getY() + (dropdownSection.getHeight() - totalDropdownHeight) / 2;
+    // ============ 1. HEADPHONE SECTION ============
+    bounds.removeFromTop (HEADER_H);
+    headphonePanelBounds = bounds.removeFromTop (HP_PANEL_H).toFloat();
 
-    // Model
-    modelLabel.setBounds (dropdownSection.getX(), dropdownY, dropdownSection.getWidth(), labelHeight);
-    modelSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight, dropdownSection.getWidth(), dropdownHeight);
+    // Content area with PANEL_PAD from all edges
+    int hpX = static_cast<int>(headphonePanelBounds.getX()) + PANEL_PAD;
+    int hpY = static_cast<int>(headphonePanelBounds.getY()) + PANEL_PAD;
+    int hpW = static_cast<int>(headphonePanelBounds.getWidth()) - 2 * PANEL_PAD;
+    int hpH = static_cast<int>(headphonePanelBounds.getHeight()) - 2 * PANEL_PAD;
 
-    // Speed
-    compressionSpeedLabel.setBounds (dropdownSection.getX(), dropdownY + labelHeight + dropdownHeight + gap,
-                                     dropdownSection.getWidth(), labelHeight);
-    compressionSpeedSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight * 2 + dropdownHeight + gap,
-                                        dropdownSection.getWidth(), dropdownHeight);
+    // Row 1: icon, dropdown, toggle, refresh
+    int iconW = 28, toggleW = 40, refreshW = 50, elemH = 26;  // Wider refresh for text
+    int refreshX = hpX + hpW - refreshW;
+    int toggleX = refreshX - 8 - toggleW;
+    int dropX = hpX + iconW + 8;
+    int dropW = toggleX - 8 - dropX;
 
-    // Level
-    experienceLevelLabel.setBounds (dropdownSection.getX(), dropdownY + (labelHeight + dropdownHeight + gap) * 2,
-                                    dropdownSection.getWidth(), labelHeight);
-    experienceLevelSelector.setBounds (dropdownSection.getX(), dropdownY + labelHeight + (labelHeight + dropdownHeight + gap) * 2,
-                                       dropdownSection.getWidth(), dropdownHeight);
+    headphoneSelector.setBounds (dropX, hpY, dropW, elemH);
+    headphoneEnableButton.setBounds (toggleX, hpY + 3, toggleW, 20);
+    headphoneRefreshButton.setBounds (refreshX, hpY, refreshW, elemH);
 
-    // Right 2/3: Meters, Faders, Auto-gain
-    controlArea.removeFromLeft (12); // Gap after divider
-    auto metersSection = controlArea;
+    // Row 2: info label (with padding from bottom)
+    headphoneInfoLabel.setBounds (dropX, hpY + hpH - 12, dropW, 12);
 
-    // Layout constants - calculate from available space
-    const int meterLabelHeight = 16;
-    const int meterLabelWidth = 60;  // Wide enough for "OUTPUT" and "STRENGTH"
-    const int textBoxHeight = 20;
-    const int bottomPadding = 8;
+    bounds.removeFromTop (GAP);
 
-    // Calculate meter/fader track height from available space
-    // Total height = label + gap + track + gap + textbox + bottomPadding
-    const int trackHeight = metersSection.getHeight() - meterLabelHeight - 4 - textBoxHeight - bottomPadding;
+    // ============ 2. AUDIOGRAM SECTION ============
+    bounds.removeFromTop (HEADER_H);
+    audiogramPanelBounds = bounds.removeFromTop (audiogramHeight).toFloat();
 
-    // For sliders: track = bounds - 14px internal padding
-    const int faderBoundsHeight = trackHeight + 14;
-    const int faderWidth = 44;
+    auto agArea = audiogramPanelBounds.toNearestInt();
+    const int chartGap = 12;
+    const int chartW = (agArea.getWidth() - chartGap) / 2;
+    const int toggleRowH = 24;  // Toggle + circle + label row height
 
-    // Calculate strip positions (5 elements: input, strength, output fader, output meter, autogain)
-    const float stripWidth = (metersSection.getWidth() - 60) / 4.5f; // Leave room for auto-gain
+    // Right ear panel (left side)
+    auto rPanel = agArea.removeFromLeft (chartW);
+    int agContentY = rPanel.getY() + PANEL_PAD;
+    rightEnableButton.setBounds (rPanel.getX() + PANEL_PAD, agContentY, 36, 20);
+    rightEarLabel.setBounds (rPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
+    // Chart starts after toggle row + 10px gap (PANEL_PAD)
+    int chartTop = agContentY + toggleRowH + PANEL_PAD;
+    rightAudiogram.setBounds (rPanel.getX(), chartTop,
+                              rPanel.getWidth(), rPanel.getBottom() - chartTop);
 
-    int trackTop = metersSection.getY() + meterLabelHeight + 4;
-    int textBoxTop = trackTop + trackHeight + 4;
+    agArea.removeFromLeft (chartGap);
 
-    // === INPUT METERS ===
-    int inputX = metersSection.getX() + 4;
-    inputMeterLabel.setBounds (inputX, metersSection.getY(), meterLabelWidth, meterLabelHeight);
-    inputMeterBounds = juce::Rectangle<float> (inputX + 6, trackTop, 22, trackHeight);
+    // Left ear panel (right side)
+    auto lPanel = agArea;
+    leftEnableButton.setBounds (lPanel.getX() + PANEL_PAD, agContentY, 36, 20);
+    leftEarLabel.setBounds (lPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
+    leftAudiogram.setBounds (lPanel.getX(), chartTop,
+                             lPanel.getWidth(), lPanel.getBottom() - chartTop);
 
-    // === STRENGTH FADER ===
-    int strengthX = inputX + static_cast<int> (stripWidth);
-    correctionLabel.setBounds (strengthX - 6, metersSection.getY(), meterLabelWidth + 16, meterLabelHeight);
-    // Slider bounds: position so track aligns with meters, text box goes below
-    correctionStrengthSlider.setBounds (strengthX, trackTop - 7, faderWidth, faderBoundsHeight + textBoxHeight);
+    bounds.removeFromTop (GAP);
 
-    // === OUTPUT FADER ===
-    int outputFaderX = strengthX + static_cast<int> (stripWidth);
-    outputGainLabel.setBounds (outputFaderX - 4, metersSection.getY(), meterLabelWidth, meterLabelHeight);
-    outputGainSlider.setBounds (outputFaderX, trackTop - 7, faderWidth, faderBoundsHeight + textBoxHeight);
+    // ============ 3. CONTROL SECTION ============
+    bounds.removeFromTop (HEADER_H);
+    controlPanelBounds = bounds.toFloat();
+    auto ctrlArea = controlPanelBounds.reduced (PANEL_PAD).toNearestInt();
 
-    // === OUTPUT METERS ===
-    int outputMeterX = outputFaderX + static_cast<int> (stripWidth);
-    outputMeterLabel.setBounds (outputMeterX, metersSection.getY(), meterLabelWidth, meterLabelHeight);
-    outputMeterBounds = juce::Rectangle<float> (outputMeterX + 6, trackTop, 22, trackHeight);
+    // --- Left side: dropdowns (28% width) ---
+    int dropdownW = static_cast<int> (ctrlArea.getWidth() * 0.28f);
+    auto ddArea = ctrlArea.removeFromLeft (dropdownW);
 
-    // === AUTO-GAIN BUTTON === (vertically centered in remaining space)
-    int autoGainX = metersSection.getRight() - 56;
-    int autoGainY = metersSection.getY() + (metersSection.getHeight() - 60) / 2;
-    autoGainButton.setBounds (autoGainX, autoGainY, 52, 44);
+    const int ddH = 26, lblH = 14, ddGap = 4;
+    int totalDDH = 3 * (lblH + ddH) + 2 * ddGap;
+    int ddStartY = ddArea.getY() + (ddArea.getHeight() - totalDDH) / 2;
 
-    bounds.removeFromTop (6);
+    modelLabel.setBounds (ddArea.getX(), ddStartY, ddArea.getWidth(), lblH);
+    modelSelector.setBounds (ddArea.getX(), ddStartY + lblH, ddArea.getWidth(), ddH);
 
-    // Audiogram section
-    auto audiogramSection = bounds;
-    auto headerRow = audiogramSection.removeFromTop (24);
-    const int chartWidth = (audiogramSection.getWidth() - 12) / 2;
+    int y2 = ddStartY + lblH + ddH + ddGap;
+    compressionSpeedLabel.setBounds (ddArea.getX(), y2, ddArea.getWidth(), lblH);
+    compressionSpeedSelector.setBounds (ddArea.getX(), y2 + lblH, ddArea.getWidth(), ddH);
 
-    // Right ear toggle
-    auto rightEarArea = headerRow.removeFromLeft (chartWidth);
-    rightEnableButton.setBounds (rightEarArea.removeFromLeft (36).reduced (0, 2));
-    rightEarArea.removeFromLeft (6);
-    rightEarLabel.setBounds (rightEarArea.removeFromLeft (70));
+    int y3 = y2 + lblH + ddH + ddGap;
+    experienceLevelLabel.setBounds (ddArea.getX(), y3, ddArea.getWidth(), lblH);
+    experienceLevelSelector.setBounds (ddArea.getX(), y3 + lblH, ddArea.getWidth(), ddH);
 
-    headerRow.removeFromLeft (12);
+    // --- Right side: meters/faders/button with PANEL_PAD after divider ---
+    ctrlArea.removeFromLeft (PANEL_PAD);  // Gap for divider
+    auto mfArea = ctrlArea;
 
-    // Left ear toggle
-    auto leftEarArea = headerRow;
-    leftEnableButton.setBounds (leftEarArea.removeFromRight (36).reduced (0, 2));
-    leftEarArea.removeFromRight (6);
-    leftEarLabel.setBounds (leftEarArea.removeFromRight (70));
+    // Layout: 5 elements evenly spaced: INPUT, STRENGTH, MAX, OUTPUT pair, AUTO_GAIN
+    const int LBL_H = 14;
+    const int TEXT_BOX_H = 20;
+    int mfY = mfArea.getY();
+    int mfH = mfArea.getHeight();
 
-    audiogramSection.removeFromTop (4);
+    // Track dimensions
+    const int TRACK_TOP = mfY + LBL_H + 6;
+    const int TRACK_H = mfH - LBL_H - 6 - TEXT_BOX_H - 8;
 
-    // Audiogram charts
-    rightAudiogram.setBounds (audiogramSection.removeFromLeft (chartWidth));
-    audiogramSection.removeFromLeft (12);
-    leftAudiogram.setBounds (audiogramSection);
+    // Element widths
+    const int meterW = 22;
+    const int faderW = 40;
+    const int outputPairGap = 16;
+    const int outputPairW = faderW + outputPairGap + meterW;
+    const int btnW = 48;
+
+    // Calculate 5 evenly spaced center points
+    // Total width divided into 6 gaps (edges + between elements)
+    int totalW = mfArea.getWidth();
+    int spacing = totalW / 5;  // Distance between element centers
+    int startX = mfArea.getX() + spacing / 2;  // First element center
+
+    int col0 = startX;                    // INPUT
+    int col1 = startX + spacing;          // STRENGTH
+    int col2 = startX + spacing * 2;      // MAX
+    int col3 = startX + spacing * 3;      // OUTPUT pair
+    int col4 = startX + spacing * 4;      // AUTO GAIN
+
+    // INPUT meter
+    inputMeterLabel.setBounds (col0 - 30, mfY, 60, LBL_H);
+    inputMeterBounds = juce::Rectangle<float> (col0 - meterW / 2.0f, TRACK_TOP, meterW, TRACK_H);
+
+    // STRENGTH fader
+    correctionLabel.setBounds (col1 - 45, mfY, 90, LBL_H);
+    correctionStrengthSlider.setBounds (col1 - faderW / 2, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
+
+    // MAX BOOST fader
+    maxBoostLabel.setBounds (col2 - 30, mfY, 60, LBL_H);
+    maxBoostSlider.setBounds (col2 - faderW / 2, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
+
+    // OUTPUT pair: centered as one unit
+    outputGainLabel.setBounds (col3 - 45, mfY, 90, LBL_H);
+    int outputFaderX = col3 - outputPairW / 2;
+    int outputMeterX = outputFaderX + faderW + outputPairGap;
+    outputGainSlider.setBounds (outputFaderX, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
+    outputMeterLabel.setBounds (0, 0, 0, 0);
+    outputMeterBounds = juce::Rectangle<float> (outputMeterX, TRACK_TOP, meterW, TRACK_H);
+
+    // AUTO GAIN button
+    int btnH = 40;
+    int btnY = mfY + (mfH - btnH - 20) / 2;
+    autoGainButton.setBounds (col4 - btnW / 2, btnY, btnW, btnH);
 }

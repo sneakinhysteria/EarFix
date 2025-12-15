@@ -69,7 +69,9 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 
 ### Headphone Correction (Top Section)
 
-- **Headphone Selector**: Choose your headphone model from the dropdown (sourced from oratory1990/over-ear database)
+EarFix includes headphone-specific EQ correction to compensate for your headphones' frequency response, based on measurements from the [AutoEQ](https://github.com/jaakkopasanen/AutoEq) project and [oratory1990](https://www.reddit.com/r/oratory1990/).
+
+- **Headphone Selector**: Choose your headphone model from the dropdown
 - **Enable Toggle**: Turn headphone EQ correction on/off
 - **Refresh**: Reload the headphone profiles
 

@@ -30,6 +30,7 @@
 		0C2AC59EDDD624639E876FB1 /* include_juce_audio_plugin_client_AAX_utils.cpp */ = {isa = PBXBuildFile; fileRef = A313B3701C9C1E7B4FFCFA57; };
 		1163FA8EAE5FD9C1C18C66F6 /* AVFoundation.framework */ = {isa = PBXBuildFile; fileRef = A5D4FC9AAD9996A149682031; };
 		1543201907F061D3BE81472A /* AUv3 AppExtension */ = {isa = PBXBuildFile; fileRef = 5CCE7758AF76E39315E40505; };
+		1B8859806DFC36DF83014675 /* HeadphoneEQ.cpp */ = {isa = PBXBuildFile; fileRef = BC5B1D155E2DFA5412B775E5; };
 		1F3A0F83678F8ADC8A78FAC3 /* include_juce_audio_devices.mm */ = {isa = PBXBuildFile; fileRef = EC9AEF4A8EB419711D59ACF5; };
 		21F2F176A42ED578D2AA4588 /* Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 0B79CAAE07767BFD60EAF7F7; };
 		26B25D8CBB663DD634044BCA /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = 561067CD8D8A7531B2D337CF; };
@@ -124,6 +125,7 @@
 		6C3FE725E4A003C90AB7361F /* QuartzCore.framework */ /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		6D1C94BBE03E2564D5854342 /* AU */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarFix.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D2F46516E54BE9B390AC836 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
+		736DF025000AD12BE95679F6 /* HeadphoneEQ.h */ /* HeadphoneEQ.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HeadphoneEQ.h; path = ../../Source/HeadphoneEQ.h; sourceTree = SOURCE_ROOT; };
 		73BE6AA179E05F4F962576FE /* VST3 Manifest Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = juce_vst3_helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B9FD7CA453D9659D7E53C98 /* CustomLookAndFeel.h */ /* CustomLookAndFeel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CustomLookAndFeel.h; path = ../../Source/CustomLookAndFeel.h; sourceTree = SOURCE_ROOT; };
 		855C5EF12245C8C87EBAAE4D /* AudiogramComponent.h */ /* AudiogramComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudiogramComponent.h; path = ../../Source/AudiogramComponent.h; sourceTree = SOURCE_ROOT; };
@@ -142,6 +144,7 @@
 		B2EA442097B03E8499648C67 /* include_juce_audio_plugin_client_AU_1.mm */ /* include_juce_audio_plugin_client_AU_1.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AU_1.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AU_1.mm; sourceTree = SOURCE_ROOT; };
 		B35881612C79B2FD0B1B3EA5 /* VST3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarFix.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		B42023EEA3F44BF70AF1F9D3 /* include_juce_audio_formats.mm */ /* include_juce_audio_formats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_formats.mm; path = ../../JuceLibraryCode/include_juce_audio_formats.mm; sourceTree = SOURCE_ROOT; };
+		BC5B1D155E2DFA5412B775E5 /* HeadphoneEQ.cpp */ /* HeadphoneEQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HeadphoneEQ.cpp; path = ../../Source/HeadphoneEQ.cpp; sourceTree = SOURCE_ROOT; };
 		BEC68EF01FA3050229B2D2BC /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = /Users/holgerschueler/Desktop/Dev/JUCE/modules/juce_graphics; sourceTree = "<absolute>"; };
 		BF52A290720CCC2F39865034 /* JuceHeader.h */ /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
 		C106E454C61943E3411E92E7 /* include_juce_data_structures.mm */ /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
@@ -284,6 +287,8 @@
 				A936B6FE6F7241DB1D73B284,
 				855C5EF12245C8C87EBAAE4D,
 				7B9FD7CA453D9659D7E53C98,
+				BC5B1D155E2DFA5412B775E5,
+				736DF025000AD12BE95679F6,
 				7B71B32C1ED9413AFF513B72,
 			);
 			name = Source;
@@ -846,6 +851,7 @@
 			files = (
 				529776BC9CEC7EE9BC035F40,
 				E52099CE56E4D1808F2C0385,
+				1B8859806DFC36DF83014675,
 				6AC70B13674EC9A84CA7FC4F,
 				1F3A0F83678F8ADC8A78FAC3,
 				3835FFE9821D0302F2BD8678,

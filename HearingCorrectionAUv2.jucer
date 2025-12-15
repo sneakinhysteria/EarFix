@@ -19,6 +19,10 @@
             file="Source/AudiogramComponent.h"/>
       <FILE id="cuslaf" name="CustomLookAndFeel.h" compile="0" resource="0"
             file="Source/CustomLookAndFeel.h"/>
+      <FILE id="hpeqcpp" name="HeadphoneEQ.cpp" compile="1" resource="0"
+            file="Source/HeadphoneEQ.cpp"/>
+      <FILE id="hpeqh" name="HeadphoneEQ.h" compile="0" resource="0"
+            file="Source/HeadphoneEQ.h"/>
       <GROUP id="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}" name="Models">
         <FILE id="mdl001" name="CorrectionModel.h" compile="0" resource="0"
               file="Source/Models/CorrectionModel.h"/>

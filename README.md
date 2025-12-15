@@ -6,6 +6,18 @@ EarFix is a free, open-source audio plugin that applies personalized hearing cor
 
 ![EarFix Screenshot](docs/images/earfix-screenshot.png)
 
+## Download
+
+**[Download EarFix v1.3.0 for macOS](https://github.com/sneakinhysteria/EarFix/releases/download/v1.3.0/EarFix-v1.3.0-macOS.zip)** (AU + VST3)
+
+After downloading:
+1. Unzip `EarFix-v1.3.0-macOS.zip`
+2. Copy `EarFix.component` to `~/Library/Audio/Plug-Ins/Components/`
+3. Copy `EarFix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
+4. Restart your DAW
+
+See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for older versions.
+
 ## Features
 
 - **Personalized Correction**: Enter your audiogram values for 6 standard frequencies (250Hz - 8kHz)

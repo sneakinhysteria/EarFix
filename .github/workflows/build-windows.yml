@@ -1,0 +1,87 @@
+name: Build Windows VST3
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for the build artifact (e.g. 1.5.0)"
+        required: false
+        default: "dev"
+
+env:
+  JUCE_VERSION: "8.0.11"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout EarFix
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download JUCE ${{ env.JUCE_VERSION }} (Windows, prebuilt Projucer)
+        shell: pwsh
+        run: |
+          $url = "https://github.com/juce-framework/JUCE/releases/download/${{ env.JUCE_VERSION }}/juce-${{ env.JUCE_VERSION }}-windows.zip"
+          Invoke-WebRequest -Uri $url -OutFile juce.zip
+          # Extracts to a top-level "JUCE" folder, landing as a sibling of the
+          # repo root (both directly under the workspace), matching the ../../JUCE/modules
+          # module path configured in the VS2022 exporter.
+          Expand-Archive -Path juce.zip -DestinationPath . -Force
+          Remove-Item juce.zip
+
+      - name: Resave project (regenerate the Visual Studio solution)
+        shell: pwsh
+        run: |
+          & ".\JUCE\Projucer.exe" --resave "HearingCorrectionAUv2.jucer"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build VST3 (Release|x64)
+        shell: pwsh
+        run: |
+          msbuild "Builds\VisualStudio2022\EarFix.sln" /p:Configuration=Release /p:Platform=x64 /m
+
+      - name: Locate and package the build
+        id: package
+        shell: pwsh
+        run: |
+          $vst3 = Get-ChildItem -Path "Builds\VisualStudio2022" -Filter "*.vst3" -Recurse -Directory | Select-Object -First 1
+          if (-not $vst3) {
+            Write-Error "No .vst3 output found under Builds\VisualStudio2022"
+            exit 1
+          }
+          Write-Host "Found VST3 at: $($vst3.FullName)"
+          $zipName = "EarFix-v${{ steps.version.outputs.value }}-Windows.zip"
+          Compress-Archive -Path $vst3.FullName -DestinationPath $zipName
+          echo "zip=$zipName" >> $env:GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EarFix-Windows-VST3
+          path: ${{ steps.package.outputs.zip }}
+          retention-days: 30
+
+      - name: Attach to GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: gh release upload "${{ github.ref_name }}" "${{ steps.package.outputs.zip }}" --clobber

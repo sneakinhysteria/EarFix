@@ -93,20 +93,25 @@ private:
     std::unique_ptr<ButtonAttachment>   rightEnableAttachment;
     std::unique_ptr<ButtonAttachment>   leftEnableAttachment;
 
-    // Auto-gain button
-    juce::TextButton autoGainButton { "AUTO\nGAIN" };
-    bool autoGainActive = false;
-    float autoGainOffset = 0.0f;
-
     // Headphone EQ section
     juce::ComboBox     headphoneSelector;
     juce::ToggleButton headphoneEnableButton { "headphoneEQ" };
     juce::TextButton   headphoneRefreshButton { "Refresh" };  // Text button - icon too small
+    juce::TextButton   headphoneImportButton { "Import" };    // Paste a ParametricEQ profile
     juce::Label        headphoneInfoLabel;
+
+    void openHeadphoneImportDialog();
     std::unique_ptr<ButtonAttachment> headphoneEnableAttachment;
 
     void populateHeadphoneList();
     void updateHeadphoneInfo();
+
+    // Preset management (host-independent)
+    juce::TextButton savePresetButton { "Save" };
+    juce::TextButton loadPresetButton { "Load" };
+    std::unique_ptr<juce::FileChooser> presetChooser;
+    void savePreset();
+    void loadPreset();
 
     // Section bounds for painting
     juce::Rectangle<float> headphonePanelBounds;

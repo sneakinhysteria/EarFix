@@ -114,6 +114,34 @@ public:
     }
 
     //==========================================================================
+    // Vertical faders: value box pinned at the bottom, and the thumb-travel region
+    // inset by half the 14 px thumb at top and bottom. JUCE maps max→region-top and
+    // min→region-bottom without accounting for the thumb, so this inset is what keeps
+    // the thumb from clipping. The drawn track therefore ends up one knob-height
+    // shorter than the meters, centred, with the knob reaching the meter top/bottom.
+    static constexpr int faderKnobHalf = 7;
+    static constexpr int faderValueGap = 5;   // gap between knob-at-min and the value box
+
+    juce::Slider::SliderLayout getSliderLayout (juce::Slider& slider) override
+    {
+        if (slider.getSliderStyle() == juce::Slider::LinearVertical
+            && slider.getTextBoxPosition() == juce::Slider::TextBoxBelow)
+        {
+            auto bounds = slider.getLocalBounds();
+            const int tbH = slider.getTextBoxHeight();
+            const int tbW = slider.getTextBoxWidth();
+
+            juce::Slider::SliderLayout layout;
+            layout.textBoxBounds = juce::Rectangle<int> (bounds.getCentreX() - tbW / 2,
+                                                         bounds.getBottom() - tbH, tbW, tbH);
+            layout.sliderBounds = bounds.withTrimmedBottom (tbH + faderValueGap).reduced (0, faderKnobHalf);
+            return layout;
+        }
+
+        return juce::LookAndFeel_V4::getSliderLayout (slider);
+    }
+
+    //==========================================================================
     // Linear Slider (fader style with rectangular thumb)
     void drawLinearSlider (juce::Graphics& g, int x, int y, int width, int height,
                            float sliderPos, float minSliderPos, float maxSliderPos,
@@ -132,8 +160,9 @@ public:
         }
         else
         {
-            // Track extends nearly full height (thumb still moves within original range)
-            track = bounds.withSizeKeepingCentre (trackThickness, bounds.getHeight() - 6.0f);
+            // Track fills the (already knob-inset) region so it is one knob-height
+            // shorter than the meters and centred.
+            track = bounds.withSizeKeepingCentre (trackThickness, bounds.getHeight());
         }
 
         // Track background

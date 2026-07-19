@@ -93,28 +93,20 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     maxBoostSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
     maxBoostSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
     addAndMakeVisible (maxBoostSlider);
-    maxBoostLabel.setText ("MAX", juce::dontSendNotification);  // Short label
+    maxBoostLabel.setText ("MAX BOOST", juce::dontSendNotification);
     maxBoostLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     maxBoostLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     maxBoostLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (maxBoostLabel);
 
-    // Auto-gain button - styled to match UI
-    autoGainButton.setButtonText ("AUTO\nGAIN");
-    autoGainButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
-    autoGainButton.setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
-    autoGainButton.setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
-    autoGainButton.setColour (juce::TextButton::textColourOnId, juce::Colours::white);
-    addAndMakeVisible (autoGainButton);
-
     // Meter labels (same style as fader labels for consistency)
-    inputMeterLabel.setText ("INPUT", juce::dontSendNotification);
+    inputMeterLabel.setText ("IN", juce::dontSendNotification);
     inputMeterLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     inputMeterLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     inputMeterLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (inputMeterLabel);
 
-    outputMeterLabel.setText ("", juce::dontSendNotification);  // No label - flows from OUTPUT fader
+    outputMeterLabel.setText ("OUT", juce::dontSendNotification);
     outputMeterLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     outputMeterLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     outputMeterLabel.setJustificationType (juce::Justification::centred);
@@ -147,6 +139,21 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
         populateHeadphoneList();
     };
     addAndMakeVisible (headphoneRefreshButton);
+
+    headphoneImportButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+    headphoneImportButton.setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+    headphoneImportButton.onClick = [this]() { openHeadphoneImportDialog(); };
+    addAndMakeVisible (headphoneImportButton);
+
+    // Preset buttons (top-right)
+    for (auto* b : { &savePresetButton, &loadPresetButton })
+    {
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+        addAndMakeVisible (*b);
+    }
+    savePresetButton.onClick = [this]() { savePreset(); };
+    loadPresetButton.onClick = [this]() { loadPreset(); };
 
     headphoneInfoLabel.setFont (juce::FontOptions (10.0f));
     headphoneInfoLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
@@ -230,22 +237,6 @@ void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
     updateLevel (displayInputR, audioProcessor.inputLevelRight.load (std::memory_order_relaxed), attack, decay);
     updateLevel (displayOutputL, audioProcessor.outputLevelLeft.load (std::memory_order_relaxed), attack, decay);
     updateLevel (displayOutputR, audioProcessor.outputLevelRight.load (std::memory_order_relaxed), attack, decay);
-
-    // Auto-gain logic
-    if (autoGainButton.isDown())
-    {
-        float inLevel = std::max (displayInputL, displayInputR);
-        float outLevel = std::max (displayOutputL, displayOutputR);
-        if (inLevel > 0.0001f && outLevel > 0.0001f)
-        {
-            float inDb = juce::Decibels::gainToDecibels (inLevel);
-            float outDb = juce::Decibels::gainToDecibels (outLevel);
-            float diff = inDb - outDb;
-            float currentGain = outputGainSlider.getValue();
-            float newGain = juce::jlimit (-24.0f, 24.0f, static_cast<float> (currentGain + diff * 0.1f));
-            outputGainSlider.setValue (newGain, juce::sendNotificationAsync);
-        }
-    }
 
     repaint();
 }
@@ -429,20 +420,12 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
                       10, outputMeterBounds.getHeight(), displayOutputR);
         }
 
-        // Auto-gain hint text
-        g.setColour (CustomLookAndFeel::textMuted);
-        g.setFont (juce::FontOptions (9.0f));
-        auto btnBounds = autoGainButton.getBounds();
-        g.drawText ("press to adjust", btnBounds.getX() - 10, btnBounds.getBottom() + 2,
-                   btnBounds.getWidth() + 20, 10, juce::Justification::centred);
-        g.drawText ("release to set", btnBounds.getX() - 10, btnBounds.getBottom() + 11,
-                   btnBounds.getWidth() + 20, 10, juce::Justification::centred);
     }
 
     // Version footer
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (10.0f));
-    g.drawText ("v1.3.0", 0, getHeight() - 24, getWidth(), 20, juce::Justification::centred);
+    g.drawText ("v" JucePlugin_VersionString, 0, getHeight() - 24, getWidth(), 20, juce::Justification::centred);
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, float x, float y,
@@ -477,6 +460,15 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int GAP = 6;               // Gap between sections
     const int VERSION_H = 20;        // Space for version at bottom
 
+    // Preset buttons: top-right corner, centred in the band between the card's top
+    // edge (y = 0) and the headphone panel's top (y = MARGIN + HEADER_H), so the
+    // padding above the buttons equals the padding below them.
+    const int presetBtnW = 46, presetBtnH = 20, presetGap = 6;
+    const int presetBandH = MARGIN + HEADER_H;
+    const int presetBtnY = (presetBandH - presetBtnH) / 2;
+    loadPresetButton.setBounds (getWidth() - MARGIN - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
+    savePresetButton.setBounds (loadPresetButton.getX() - presetGap - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
+
     // ============ LAYOUT CALCULATION ============
     auto bounds = getLocalBounds().reduced (MARGIN);
     bounds.removeFromBottom (VERSION_H);  // Reserve for version label
@@ -499,15 +491,17 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     int hpW = static_cast<int>(headphonePanelBounds.getWidth()) - 2 * PANEL_PAD;
     int hpH = static_cast<int>(headphonePanelBounds.getHeight()) - 2 * PANEL_PAD;
 
-    // Row 1: icon, dropdown, toggle, refresh
-    int iconW = 28, toggleW = 40, refreshW = 50, elemH = 26;  // Wider refresh for text
+    // Row 1: icon, dropdown, toggle, import, refresh
+    int iconW = 28, toggleW = 40, refreshW = 50, importW = 50, elemH = 26;
     int refreshX = hpX + hpW - refreshW;
-    int toggleX = refreshX - 8 - toggleW;
+    int importX  = refreshX - 6 - importW;
+    int toggleX  = importX - 8 - toggleW;
     int dropX = hpX + iconW + 8;
     int dropW = toggleX - 8 - dropX;
 
     headphoneSelector.setBounds (dropX, hpY, dropW, elemH);
     headphoneEnableButton.setBounds (toggleX, hpY + 3, toggleW, 20);
+    headphoneImportButton.setBounds (importX, hpY, importW, elemH);
     headphoneRefreshButton.setBounds (refreshX, hpY, refreshW, elemH);
 
     // Row 2: info label (with padding from bottom)
@@ -569,61 +563,268 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     experienceLevelLabel.setBounds (ddArea.getX(), y3, ddArea.getWidth(), lblH);
     experienceLevelSelector.setBounds (ddArea.getX(), y3 + lblH, ddArea.getWidth(), ddH);
 
-    // --- Right side: meters/faders/button with PANEL_PAD after divider ---
-    ctrlArea.removeFromLeft (PANEL_PAD);  // Gap for divider
+    // --- Right side: 5 equal columns (IN meter, STRENGTH, MAX BOOST, OUTPUT, OUT meter) ---
+    // Columns fill the space between the divider and the right edge with equal padding.
+    // Each element is horizontally centred on its column; the title/control/value block
+    // is vertically centred with equal top/bottom margin.
+    ctrlArea.removeFromLeft (PANEL_PAD);  // gap after the divider
     auto mfArea = ctrlArea;
 
-    // Layout: 5 elements evenly spaced: INPUT, STRENGTH, MAX, OUTPUT pair, AUTO_GAIN
-    const int LBL_H = 14;
-    const int TEXT_BOX_H = 20;
-    int mfY = mfArea.getY();
-    int mfH = mfArea.getHeight();
+    const int LBL_H     = 14;
+    const int meterW    = 22;
+    const int faderW    = 40;
+    const int valueBoxH = 18;   // matches setTextBoxStyle height
 
-    // Track dimensions
-    const int TRACK_TOP = mfY + LBL_H + 6;
-    const int TRACK_H = mfH - LBL_H - 6 - TEXT_BOX_H - 8;
+    const int mfY = mfArea.getY();
 
-    // Element widths
-    const int meterW = 22;
-    const int faderW = 40;
-    const int outputPairGap = 16;
-    const int outputPairW = faderW + outputPairGap + meterW;
-    const int btnW = 48;
+    const int titleGap = 6;
+    const int valueGap = CustomLookAndFeel::faderValueGap;
+    const int titleY   = mfY;                            // top padding == value-box bottom padding (PANEL_PAD)
+    const int barTop   = titleY + LBL_H + titleGap;      // meter top; also the knob's top at max
+    const int faderBottom = mfArea.getBottom() + valueGap;          // extends into the card pad so the value box drops
+    const int meterBottom = faderBottom - valueBoxH - valueGap;     // meter bottom; also the knob's bottom at min
+    const int faderTop = barTop;                         // travel is inset inside the look-and-feel
 
-    // Calculate 5 evenly spaced center points
-    // Total width divided into 6 gaps (edges + between elements)
-    int totalW = mfArea.getWidth();
-    int spacing = totalW / 5;  // Distance between element centers
-    int startX = mfArea.getX() + spacing / 2;  // First element center
+    const int N    = 5;
+    const int colW = mfArea.getWidth() / N;
 
-    int col0 = startX;                    // INPUT
-    int col1 = startX + spacing;          // STRENGTH
-    int col2 = startX + spacing * 2;      // MAX
-    int col3 = startX + spacing * 3;      // OUTPUT pair
-    int col4 = startX + spacing * 4;      // AUTO GAIN
+    auto colCentre  = [&] (int i) { return mfArea.getX() + colW * i + colW / 2; };
+    auto placeTitle = [&] (juce::Label& l, int i)
+    {
+        l.setJustificationType (juce::Justification::centred);
+        l.setBounds (mfArea.getX() + colW * i, titleY, colW, LBL_H);
+    };
+    auto placeFader = [&] (juce::Slider& s, int i)
+    {
+        s.setBounds (colCentre (i) - faderW / 2, faderTop, faderW, faderBottom - faderTop);
+    };
+    auto meterRect  = [&] (int i)
+    {
+        return juce::Rectangle<float> ((float) (colCentre (i) - meterW / 2), (float) barTop,
+                                       (float) meterW, (float) (meterBottom - barTop));
+    };
 
-    // INPUT meter
-    inputMeterLabel.setBounds (col0 - 30, mfY, 60, LBL_H);
-    inputMeterBounds = juce::Rectangle<float> (col0 - meterW / 2.0f, TRACK_TOP, meterW, TRACK_H);
+    placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
+    placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
+    placeTitle (maxBoostLabel,    2);  placeFader (maxBoostSlider,           2);
+    placeTitle (outputGainLabel,  3);  placeFader (outputGainSlider,         3);
+    placeTitle (outputMeterLabel, 4);  outputMeterBounds = meterRect (4);
+}
 
-    // STRENGTH fader
-    correctionLabel.setBounds (col1 - 45, mfY, 90, LBL_H);
-    correctionStrengthSlider.setBounds (col1 - faderW / 2, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
+//==============================================================================
+// Headphone EQ paste-import dialog
+namespace {
 
-    // MAX BOOST fader
-    maxBoostLabel.setBounds (col2 - 30, mfY, 60, LBL_H);
-    maxBoostSlider.setBounds (col2 - faderW / 2, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
+class HeadphoneImportComponent : public juce::Component
+{
+public:
+    std::function<juce::String (const juce::String&, const juce::String&)> onImport;
+    std::function<void (const juce::String&)> onDone;
 
-    // OUTPUT pair: centered as one unit
-    outputGainLabel.setBounds (col3 - 45, mfY, 90, LBL_H);
-    int outputFaderX = col3 - outputPairW / 2;
-    int outputMeterX = outputFaderX + faderW + outputPairGap;
-    outputGainSlider.setBounds (outputFaderX, TRACK_TOP, faderW, TRACK_H + TEXT_BOX_H);
-    outputMeterLabel.setBounds (0, 0, 0, 0);
-    outputMeterBounds = juce::Rectangle<float> (outputMeterX, TRACK_TOP, meterW, TRACK_H);
+    HeadphoneImportComponent()
+    {
+        auto styleLabel = [this] (juce::Label& l, const juce::String& text, float size)
+        {
+            l.setText (text, juce::dontSendNotification);
+            l.setFont (juce::FontOptions (size));
+            l.setColour (juce::Label::textColourId, CustomLookAndFeel::textDark);
+            addAndMakeVisible (l);
+        };
 
-    // AUTO GAIN button
-    int btnH = 40;
-    int btnY = mfY + (mfH - btnH - 20) / 2;
-    autoGainButton.setBounds (col4 - btnW / 2, btnY, btnW, btnH);
+        styleLabel (nameLabel, "Headphone name", 13.0f);
+        nameEditor.setTextToShowWhenEmpty ("e.g. Sennheiser HD 660S2", juce::Colours::grey);
+        addAndMakeVisible (nameEditor);
+
+        styleLabel (pasteLabel, "Paste the Parametric EQ (Equalizer APO format):", 13.0f);
+
+        styleLabel (hintLabel,
+                    "squig.link: Equalizer tab → autoEQ → Export → Parametric.   "
+                    "AutoEq: the …ParametricEQ.txt file.", 11.0f);
+        hintLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+
+        pasteEditor.setMultiLine (true, true);
+        pasteEditor.setReturnKeyStartsNewLine (true);
+        pasteEditor.setTextToShowWhenEmpty (
+            "Preamp: -6.9 dB\n"
+            "Filter 1: ON PK Fc 21 Hz Gain 6.7 dB Q 0.70\n"
+            "Filter 2: ON PK Fc 120 Hz Gain -2.4 dB Q 1.10\n"
+            "Filter 3: ON PK Fc 3000 Hz Gain 4.2 dB Q 2.00\n…",
+            juce::Colours::grey);
+        addAndMakeVisible (pasteEditor);
+
+        styleLabel (sourcesLabel, "Find your headphone at:", 12.0f);
+        addLink (autoEqButton,  "AutoEq",      "https://github.com/jaakkopasanen/AutoEq/tree/master/results");
+        addLink (squigButton,   "squig.link",  "https://squig.link");
+        addLink (oratoryButton, "oratory1990", "https://www.reddit.com/r/oratory1990/wiki/index/list_of_presets");
+
+        statusLabel.setFont (juce::FontOptions (12.0f));
+        statusLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::accentRed);
+        addAndMakeVisible (statusLabel);
+
+        saveButton.setButtonText ("Save");
+        saveButton.onClick = [this] { doSave(); };
+        addAndMakeVisible (saveButton);
+
+        cancelButton.setButtonText ("Cancel");
+        cancelButton.onClick = [this] { close(); };
+        addAndMakeVisible (cancelButton);
+
+        setSize (480, 420);
+    }
+
+    void paint (juce::Graphics& g) override { g.fillAll (CustomLookAndFeel::panelWhite); }
+
+    void resized() override
+    {
+        auto r = getLocalBounds().reduced (14);
+
+        nameLabel.setBounds (r.removeFromTop (18));
+        nameEditor.setBounds (r.removeFromTop (26));
+        r.removeFromTop (10);
+        pasteLabel.setBounds (r.removeFromTop (18));
+        hintLabel.setBounds (r.removeFromTop (16));
+        r.removeFromTop (4);
+
+        auto buttonRow = r.removeFromBottom (30);
+        cancelButton.setBounds (buttonRow.removeFromRight (90));
+        buttonRow.removeFromRight (8);
+        saveButton.setBounds (buttonRow.removeFromRight (90));
+
+        r.removeFromBottom (8);
+        statusLabel.setBounds (r.removeFromBottom (20));
+
+        r.removeFromBottom (8);
+        auto sourcesRow = r.removeFromBottom (22);
+        sourcesLabel.setBounds  (sourcesRow.removeFromLeft (130));
+        autoEqButton.setBounds  (sourcesRow.removeFromLeft (64));  sourcesRow.removeFromLeft (6);
+        squigButton.setBounds   (sourcesRow.removeFromLeft (78));  sourcesRow.removeFromLeft (6);
+        oratoryButton.setBounds (sourcesRow.removeFromLeft (86));
+
+        r.removeFromBottom (8);
+        pasteEditor.setBounds (r);
+    }
+
+private:
+    juce::Label nameLabel, pasteLabel, hintLabel, sourcesLabel, statusLabel;
+    juce::TextEditor nameEditor, pasteEditor;
+    juce::TextButton saveButton, cancelButton, autoEqButton, squigButton, oratoryButton;
+
+    void addLink (juce::TextButton& b, const juce::String& text, const juce::String& url)
+    {
+        b.setButtonText (text);
+        b.onClick = [url] { juce::URL (url).launchInDefaultBrowser(); };
+        addAndMakeVisible (b);
+    }
+
+    void doSave()
+    {
+        auto name = nameEditor.getText().trim();
+        if (name.isEmpty())
+        {
+            statusLabel.setText ("Enter a name.", juce::dontSendNotification);
+            return;
+        }
+
+        auto raw = pasteEditor.getText();
+        auto saved = onImport ? onImport (name, raw) : juce::String();
+        if (saved.isEmpty())
+        {
+            if (raw.containsIgnoreCase ("GraphicEQ") || raw.contains ("; "))
+                statusLabel.setText ("Graphic EQ detected — use the Parametric export instead.",
+                                     juce::dontSendNotification);
+            else
+                statusLabel.setText ("No filters found — paste the Parametric EQ text.",
+                                     juce::dontSendNotification);
+            return;
+        }
+
+        if (onDone) onDone (saved);
+        close();
+    }
+
+    void close()
+    {
+        if (auto* dw = findParentComponentOfClass<juce::DialogWindow>())
+            dw->exitModalState (0);
+    }
+};
+
+} // namespace
+
+void HearingCorrectionAUv2AudioProcessorEditor::openHeadphoneImportDialog()
+{
+    auto* comp = new HeadphoneImportComponent();
+
+    comp->onImport = [this] (const juce::String& name, const juce::String& text)
+    {
+        return audioProcessor.importHeadphoneProfile (name, text);
+    };
+
+    comp->onDone = [this] (const juce::String& savedName)
+    {
+        populateHeadphoneList();
+        for (int i = 0; i < headphoneSelector.getNumItems(); ++i)
+            if (headphoneSelector.getItemText (i) == savedName)
+            {
+                headphoneSelector.setSelectedItemIndex (i, juce::sendNotification);
+                break;
+            }
+    };
+
+    juce::DialogWindow::LaunchOptions o;
+    o.content.setOwned (comp);
+    o.dialogTitle = "Import Headphone EQ";
+    o.dialogBackgroundColour = CustomLookAndFeel::panelWhite;
+    o.escapeKeyTriggersCloseButton = true;
+    o.useNativeTitleBar = true;
+    o.resizable = false;
+    o.launchAsync();
+}
+
+//==============================================================================
+// Presets are saved/loaded as Apple .aupreset files — the same format Logic and
+// other AU hosts use — so EarFix presets are interchangeable with the host's own
+// preset menu, and with presets from earlier EarFix versions (e.g. saved by Logic).
+void HearingCorrectionAUv2AudioProcessorEditor::savePreset()
+{
+    auto dir = HearingCorrectionAUv2AudioProcessor::getPresetsDirectory();
+    presetChooser = std::make_unique<juce::FileChooser> (
+        "Save EarFix preset", dir.getChildFile ("EarFix Preset.aupreset"), "*.aupreset");
+
+    auto flags = juce::FileBrowserComponent::saveMode
+               | juce::FileBrowserComponent::canSelectFiles
+               | juce::FileBrowserComponent::warnAboutOverwriting;
+
+    presetChooser->launchAsync (flags, [this] (const juce::FileChooser& fc)
+    {
+        auto file = fc.getResult();
+        if (file == juce::File{})
+            return;
+        if (! file.hasFileExtension ("aupreset"))
+            file = file.withFileExtension ("aupreset");
+        audioProcessor.saveAUPreset (file, file.getFileNameWithoutExtension());
+    });
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::loadPreset()
+{
+    auto dir = HearingCorrectionAUv2AudioProcessor::getPresetsDirectory();
+    presetChooser = std::make_unique<juce::FileChooser> (
+        "Load EarFix preset", dir, "*.aupreset");
+
+    auto flags = juce::FileBrowserComponent::openMode
+               | juce::FileBrowserComponent::canSelectFiles;
+
+    presetChooser->launchAsync (flags, [this] (const juce::FileChooser& fc)
+    {
+        auto file = fc.getResult();
+        if (! file.existsAsFile())
+            return;
+        if (audioProcessor.loadAUPresetFile (file))
+        {
+            // APVTS-attached controls update themselves; refresh the non-parameter bits.
+            populateHeadphoneList();
+            updateHeadphoneInfo();
+        }
+    });
 }

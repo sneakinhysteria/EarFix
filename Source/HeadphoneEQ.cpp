@@ -35,40 +35,43 @@ juce::File HeadphoneEQ::getHeadphonesDirectory()
 void HeadphoneEQ::loadDatabase()
 {
     availableHeadphones.clear();
-    databaseVersion = "No database";
+    databaseVersion = "local";
 
     auto dir = getHeadphonesDirectory();
-    if (!dir.exists())
+    if (! dir.exists())
     {
-        DBG ("HeadphoneEQ: Database directory does not exist: " + dir.getFullPathName());
+        dir.createDirectory();
         return;
     }
 
-    auto indexFile = dir.getChildFile ("index.json");
-    if (indexFile.exists())
+    // Directory is the source of truth: scan every profile JSON and read its
+    // metadata. Profiles added by paste-import (or dropped in manually) therefore
+    // appear automatically with no index to maintain.
+    for (const auto& file : dir.findChildFiles (juce::File::findFiles, false, "*.json"))
     {
-        parseIndexJSON (indexFile);
-    }
-    else
-    {
-        // Fallback: scan directory for JSON files
-        DBG ("HeadphoneEQ: No index.json found, scanning directory...");
-        for (const auto& file : dir.findChildFiles (juce::File::findFiles, false, "*.json"))
-        {
-            if (file.getFileName() != "index.json")
-            {
-                HeadphoneIndexEntry entry;
-                entry.name = file.getFileNameWithoutExtension();
-                entry.filename = file.getFileName();
-                entry.type = "unknown";
-                entry.source = "unknown";
-                availableHeadphones.push_back (entry);
-            }
-        }
-        databaseVersion = "Scanned";
+        if (file.getFileName() == "index.json")
+            continue;
+
+        auto json = juce::JSON::parse (file.loadFileAsString());
+        auto* obj = json.getDynamicObject();
+        if (obj == nullptr)
+            continue;
+
+        HeadphoneIndexEntry entry;
+        entry.name     = obj->getProperty ("name").toString();
+        if (entry.name.isEmpty())
+            entry.name = file.getFileNameWithoutExtension();
+        entry.filename = file.getFileName();
+        entry.type     = obj->getProperty ("type").toString();
+        entry.source   = obj->getProperty ("source").toString();
+        availableHeadphones.push_back (entry);
     }
 
-    DBG ("HeadphoneEQ: Loaded database with " + juce::String (availableHeadphones.size()) + " headphones");
+    std::sort (availableHeadphones.begin(), availableHeadphones.end(),
+               [] (const HeadphoneIndexEntry& a, const HeadphoneIndexEntry& b)
+               { return a.name.compareIgnoreCase (b.name) < 0; });
+
+    DBG ("HeadphoneEQ: Loaded " + juce::String (availableHeadphones.size()) + " headphone profiles");
 }
 
 //==============================================================================
@@ -163,6 +166,114 @@ void HeadphoneEQ::clearProfile()
     currentProfile = HeadphoneProfile();
     activeFilterCount = 0;
     preampGain = 1.0f;
+}
+
+//==============================================================================
+HeadphoneProfile HeadphoneEQ::parseParametricEQText (const juce::String& name,
+                                                     const juce::String& text)
+{
+    HeadphoneProfile profile;
+    profile.name   = name.trim();
+    profile.source = "custom (imported)";
+    profile.type   = "custom";
+
+    auto lines = juce::StringArray::fromLines (text);
+    for (auto line : lines)
+    {
+        line = line.trim();
+        if (line.isEmpty())
+            continue;
+
+        // Preamp:  "Preamp: -6.0 dB"
+        if (line.startsWithIgnoreCase ("Preamp"))
+        {
+            auto after = line.fromFirstOccurrenceOf (":", false, true).upToFirstOccurrenceOf ("dB", false, true);
+            profile.preamp = after.trim().getFloatValue();
+            continue;
+        }
+
+        // Filter line: "Filter 1: ON PK Fc 105 Hz Gain -2.7 dB Q 0.70"
+        // (the leading "Filter N:" and the "ON" token are optional across sources)
+        if (! line.containsIgnoreCase ("Fc"))
+            continue;
+
+        auto tokens = juce::StringArray::fromTokens (line, " \t", "");
+        tokens.removeEmptyStrings();
+
+        auto valueAfter = [&tokens] (const juce::String& key) -> juce::String
+        {
+            for (int i = 0; i < tokens.size() - 1; ++i)
+                if (tokens[i].equalsIgnoreCase (key))
+                    return tokens[i + 1];
+            return {};
+        };
+
+        // Filter type = the token immediately before "Fc"
+        juce::String type;
+        int fcIndex = -1;
+        for (int i = 0; i < tokens.size(); ++i)
+            if (tokens[i].equalsIgnoreCase ("Fc")) { fcIndex = i; break; }
+        if (fcIndex > 0)
+            type = tokens[fcIndex - 1].toUpperCase();
+
+        static const juce::StringArray known { "PK", "LSC", "LS", "HSC", "HS", "LP", "HP" };
+        if (! known.contains (type))
+            continue;
+
+        HeadphoneFilter f;
+        f.type      = type;
+        f.frequency = valueAfter ("Fc").getFloatValue();
+        f.gain      = valueAfter ("Gain").getFloatValue();          // 0 for LP/HP (no Gain token)
+        f.q         = valueAfter ("Q").getFloatValue();
+        if (f.q <= 0.0f)
+            f.q = 0.707f;
+
+        if (f.frequency > 0.0f)
+            profile.filters.push_back (f);
+    }
+
+    return profile;
+}
+
+//==============================================================================
+juce::String HeadphoneEQ::importParametricEQText (const juce::String& name, const juce::String& text)
+{
+    auto profile = parseParametricEQText (name, text);
+    if (! profile.isValid())     // needs a name and at least one filter
+        return {};
+
+    auto dir = getHeadphonesDirectory();
+    dir.createDirectory();
+
+    // Sanitise the filename
+    juce::String safe = profile.name;
+    for (auto c : juce::String ("<>:\"/\\|?*"))
+        safe = safe.replaceCharacter (c, '_');
+
+    auto* root = new juce::DynamicObject();
+    root->setProperty ("name",   profile.name);
+    root->setProperty ("source", profile.source);
+    root->setProperty ("type",   profile.type);
+    root->setProperty ("custom", true);
+    root->setProperty ("preamp", profile.preamp);
+
+    juce::Array<juce::var> filterArray;
+    for (const auto& f : profile.filters)
+    {
+        auto* fo = new juce::DynamicObject();
+        fo->setProperty ("type", f.type);
+        fo->setProperty ("freq", f.frequency);
+        fo->setProperty ("gain", f.gain);
+        fo->setProperty ("q",    f.q);
+        filterArray.add (juce::var (fo));
+    }
+    root->setProperty ("filters", filterArray);
+
+    auto file = dir.getChildFile (safe + ".json");
+    if (! file.replaceWithText (juce::JSON::toString (juce::var (root))))
+        return {};
+
+    return profile.name;
 }
 
 //==============================================================================

@@ -12,6 +12,29 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#if JUCE_MAC
+ #include <CoreFoundation/CoreFoundation.h>
+
+ // Minimal RAII wrapper for CF types (CoreFoundation is a plain C API, so this file
+ // does not need to be compiled as Objective-C++ to use it).
+ template <typename CFType>
+ struct EarFixCFPtr
+ {
+     EarFixCFPtr() = default;
+     explicit EarFixCFPtr (CFType obj) : object (obj) {}
+     ~EarFixCFPtr() { if (object != nullptr) CFRelease (object); }
+     EarFixCFPtr (const EarFixCFPtr&) = delete;
+     EarFixCFPtr& operator= (const EarFixCFPtr&) = delete;
+
+     CFType get() const { return object; }
+     explicit operator bool() const { return object != nullptr; }
+     bool operator== (std::nullptr_t) const { return object == nullptr; }
+     bool operator!= (std::nullptr_t) const { return object != nullptr; }
+
+     CFType object = nullptr;
+ };
+#endif
+
 //==============================================================================
 // Sortable parameter ID suffixes (fully numeric, zero-padded for correct sort)
 static const std::array<juce::String, 6> rightParamSuffixes = {
@@ -177,9 +200,9 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
         default: currentModel = &moslModel; break;
     }
 
-    // Update model-specific settings
-    float strength = correctionStrengthParam->load() / 100.0f;
-    currentModel->setOverallGainOffset ((strength - 0.5f) * 10.0f);  // -5 to +5 dB based on strength
+    // Correction strength is applied once as a multiplier on the centered curve in
+    // updateWDRCCoefficients(). Keep the model's prescriptive gain pure (no offset).
+    currentModel->setOverallGainOffset (0.0f);
 
     // NAL-specific settings
     if (modelIndex == 1)
@@ -248,6 +271,18 @@ void HearingCorrectionAUv2AudioProcessor::prepareToPlay (double sampleRate, int 
         rightHighpass[i].reset();
     }
 
+    // Prepare phase-compensation all-pass filters
+    for (int band = 0; band < numAudiogramBands; ++band)
+    {
+        for (int k = 0; k < numCrossovers; ++k)
+        {
+            leftAllpass[band][k].prepare (spec);
+            rightAllpass[band][k].prepare (spec);
+            leftAllpass[band][k].reset();
+            rightAllpass[band][k].reset();
+        }
+    }
+
     // Reset WDRC state for all bands
     for (int i = 0; i < numAudiogramBands; ++i)
     {
@@ -287,6 +322,25 @@ void HearingCorrectionAUv2AudioProcessor::updateCrossoverCoefficients()
         rightHighpass[i].setType (juce::dsp::LinkwitzRileyFilterType::highpass);
         rightHighpass[i].setCutoffFrequency (freq);
     }
+
+    // Configure phase-compensation all-pass filters. Band j must be all-pass
+    // filtered at every crossover k > j so it stays phase-aligned with the higher
+    // bands split off at those later crossovers.
+    for (int band = 0; band < numAudiogramBands; ++band)
+    {
+        for (int k = band + 1; k < numCrossovers; ++k)
+        {
+            float freq = crossoverFrequencies[k];
+
+            if (freq >= currentSampleRate * 0.45f)
+                freq = static_cast<float> (currentSampleRate * 0.44f);
+
+            leftAllpass[band][k].setType (juce::dsp::LinkwitzRileyFilterType::allpass);
+            leftAllpass[band][k].setCutoffFrequency (freq);
+            rightAllpass[band][k].setType (juce::dsp::LinkwitzRileyFilterType::allpass);
+            rightAllpass[band][k].setCutoffFrequency (freq);
+        }
+    }
 }
 
 void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
@@ -303,59 +357,78 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
     // Gain smoothing (10ms time constant)
     gainSmoothCoeff = std::exp (-1.0f / (static_cast<float> (currentSampleRate) * 0.01f));
 
-    // Update target gains for each band based on hearing loss
+    // Update target gains for each band based on hearing loss.
     const float strength = correctionStrengthParam->load() / 100.0f;
     const float maxBoost = maxBoostParam->load();
+    const bool  modelComp = currentModel->hasCompression();
 
-    for (int i = 0; i < numAudiogramBands; ++i)
+    // Perceptual (K-weighted, BS.1770) loudness weight per audiogram band:
+    //   weight = octave bandwidth of the crossover band x K-weighting power gain at
+    //   its centre. Band edges 20/354/707/1414/2828/5657/20000 Hz; K-weight (dB)
+    //   0/0.5/1.5/3/4/4. Used to hold perceived loudness constant across the reshape.
+    static constexpr std::array<float, numAudiogramBands> loudnessWeights =
+        { 4.146f, 1.120f, 1.413f, 1.995f, 2.512f, 4.577f };
+
+    // Builds the loudness-aligned soft-target curve for one ear:
+    //   1) sample the model's pure (uncompressed) prescriptive gain, scaled by strength
+    //   2) subtract the K-weighted power mean so perceived loudness matches the input
+    //      (only the spectral tilt remains; a flat loss collapses to no change)
+    //   3) clamp symmetrically to +/- Max Boost
+    auto computeEar = [this, strength, maxBoost, modelComp]
+        (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
+         std::array<WDRCBandState, numAudiogramBands>& wdrc)
     {
-        const float freq = audiogramFrequencies[i];
-        const float leftLoss  = std::max (0.0f, leftAudiogramParams[i]->load());
-        const float rightLoss = std::max (0.0f, rightAudiogramParams[i]->load());
+        std::array<float, numAudiogramBands> g {};
 
-        // Calculate target gain for soft sounds (full correction)
-        float leftGain  = currentModel->calculateGain (freq, leftLoss) * strength;
-        float rightGain = currentModel->calculateGain (freq, rightLoss) * strength;
+        for (int i = 0; i < numAudiogramBands; ++i)
+        {
+            const float loss = std::max (0.0f, audioParams[i]->load());
+            g[i] = currentModel->calculateGain (audiogramFrequencies[i], loss, kSoftReferenceLevelDb) * strength;
+        }
 
-        // Cap to maxBoost
-        leftWDRC[i].targetGainForSoftSounds = std::min (leftGain, maxBoost);
-        rightWDRC[i].targetGainForSoftSounds = std::min (rightGain, maxBoost);
-    }
+        double p = 0.0, wsum = 0.0;
+        for (int i = 0; i < numAudiogramBands; ++i)
+        {
+            p    += loudnessWeights[i] * std::pow (10.0, g[i] / 10.0);
+            wsum += loudnessWeights[i];
+        }
+        const float offset = 10.0f * std::log10 (static_cast<float> (p / wsum));
+
+        for (int i = 0; i < numAudiogramBands; ++i)
+        {
+            wdrc[i].targetGainForSoftSounds = juce::jlimit (-maxBoost, maxBoost, g[i] - offset);
+
+            const float loss = std::max (0.0f, audioParams[i]->load());
+            wdrc[i].compressionRatio = modelComp
+                ? currentModel->getCompressionParams (audiogramFrequencies[i], loss).ratio
+                : 1.0f;
+        }
+    };
+
+    computeEar (leftAudiogramParams, leftWDRC);
+    computeEar (rightAudiogramParams, rightWDRC);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,
-                                                               float targetGainDb,
-                                                               float maxBoostDb) const
+                                                               float softGainDb,
+                                                               float ratio) const
 {
-    // WDRC: Wide Dynamic Range Compression
-    // Soft sounds get full gain, loud sounds get reduced gain
+    // WDRC: quiet passages get the full reshaped (soft) gain; as the band level
+    // rises the deviation from flat is reduced, so loud passages approach the
+    // original input spectrum (no net loudness increase). Works for boosts and
+    // cuts alike, since it scales the signed soft gain toward zero.
 
-    // Kneepoint: below this input level, apply full target gain
-    const float kneepoint = -40.0f;  // dB (relative to 0dBFS)
+    if (inputLevelDb <= kWDRCKneeDb || ratio <= 1.0f)
+        return softGainDb;
 
-    // Above kneepoint, compression kicks in
-    // Compression ratio increases with target gain (more correction = more compression)
-    float compressionRatio = 1.0f + (targetGainDb / 30.0f);
-    compressionRatio = juce::jlimit (1.5f, 4.0f, compressionRatio);
+    // Fraction of the way from the knee (full gain) to 0 dBFS (max compression).
+    const float t = juce::jlimit (0.0f, 1.0f,
+                                  (inputLevelDb - kWDRCKneeDb) / (0.0f - kWDRCKneeDb));
 
-    if (inputLevelDb <= kneepoint)
-    {
-        // Below kneepoint: full target gain
-        return targetGainDb;
-    }
-    else
-    {
-        // Above kneepoint: compress
-        float overKnee = inputLevelDb - kneepoint;
-        float compressedOver = overKnee / compressionRatio;
-        float gainReduction = overKnee - compressedOver;
+    // At the knee: remaining = 1 (full gain). At 0 dBFS: remaining = 1/ratio.
+    const float remaining = 1.0f - t * (1.0f - 1.0f / ratio);
 
-        // Reduce target gain based on how much above kneepoint
-        float gain = targetGainDb - gainReduction;
-
-        // Never go below 0 dB gain (no attenuation in correction bands)
-        return std::max (0.0f, gain);
-    }
+    return softGainDb * remaining;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -405,7 +478,26 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
 
     const bool leftEnabled  = leftEnableParam->load() > 0.5f;
     const bool rightEnabled = rightEnableParam->load() > 0.5f;
-    const float maxBoost = maxBoostParam->load();
+    const bool modelComp    = currentModel->hasCompression();
+
+    // Applies the envelope-following WDRC gain for one band and returns the new
+    // smoothed linear gain. When the model has no compression the static soft
+    // target is used directly (true linear EQ, e.g. Half-Gain).
+    auto bandGain = [this, modelComp] (WDRCBandState& st, float bandSample) -> float
+    {
+        const float level = std::abs (bandSample);
+        const float coeff = (level > st.envelope) ? attackCoeff : releaseCoeff;
+        st.envelope = st.envelope * coeff + level * (1.0f - coeff);
+
+        const float inputDb = juce::Decibels::gainToDecibels (st.envelope + 1e-6f);
+        const float gainDb  = modelComp
+            ? calculateWDRCGain (inputDb, st.targetGainForSoftSounds, st.compressionRatio)
+            : st.targetGainForSoftSounds;
+
+        const float gainLin = juce::Decibels::decibelsToGain (gainDb);
+        st.smoothedGain = st.smoothedGain * gainSmoothCoeff + gainLin * (1.0f - gainSmoothCoeff);
+        return st.smoothedGain;
+    };
 
     if (buffer.getNumChannels() >= 2)
     {
@@ -414,93 +506,53 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
 
         for (int sample = 0; sample < numSamples; ++sample)
         {
-            float leftIn  = leftChannel[sample];
-            float rightIn = rightChannel[sample];
+            const float leftIn  = leftChannel[sample];
+            const float rightIn = rightChannel[sample];
+
+            // Phase-compensated multiband split.
+            // Signal flow: Input -> split into bands (phase-aligned) -> WDRC -> sum.
+            float leftBands[numAudiogramBands];
+            float rightBands[numAudiogramBands];
+
+            leftBands[0]  = leftLowpass[0].processSample  (0, leftIn);
+            rightBands[0] = rightLowpass[0].processSample (0, rightIn);
+            float leftHigh  = leftHighpass[0].processSample  (0, leftIn);
+            float rightHigh = rightHighpass[0].processSample (0, rightIn);
+
+            for (int k = 1; k < numCrossovers; ++k)
+            {
+                const float leftLow   = leftLowpass[k].processSample   (0, leftHigh);
+                const float rightLow  = rightLowpass[k].processSample  (0, rightHigh);
+                const float leftNext  = leftHighpass[k].processSample  (0, leftHigh);
+                const float rightNext = rightHighpass[k].processSample (0, rightHigh);
+
+                // Keep the already-extracted lower bands phase-aligned.
+                for (int j = 0; j < k; ++j)
+                {
+                    leftBands[j]  = leftAllpass[j][k].processSample  (0, leftBands[j]);
+                    rightBands[j] = rightAllpass[j][k].processSample (0, rightBands[j]);
+                }
+
+                leftBands[k]  = leftLow;
+                rightBands[k] = rightLow;
+                leftHigh  = leftNext;
+                rightHigh = rightNext;
+            }
+
+            leftBands[numCrossovers]  = leftHigh;   // final (highest) band
+            rightBands[numCrossovers] = rightHigh;
+
             float leftOut = 0.0f;
             float rightOut = 0.0f;
 
-            // Process through multiband crossover with WDRC
-            // Signal flow: Input -> Split into bands -> WDRC each band -> Sum
-
-            float leftRemaining = leftIn;
-            float rightRemaining = rightIn;
-
             for (int band = 0; band < numAudiogramBands; ++band)
             {
-                float leftBand, rightBand;
-
-                if (band < numCrossovers)
-                {
-                    // Extract this band using lowpass, pass remainder through highpass
-                    leftBand = leftLowpass[band].processSample (0, leftRemaining);
-                    leftRemaining = leftHighpass[band].processSample (0, leftRemaining);
-
-                    rightBand = rightLowpass[band].processSample (0, rightRemaining);
-                    rightRemaining = rightHighpass[band].processSample (0, rightRemaining);
-                }
-                else
-                {
-                    // Last band gets the remainder (highpass only)
-                    leftBand = leftRemaining;
-                    rightBand = rightRemaining;
-                }
-
-                // Apply WDRC to this band if enabled
-                if (leftEnabled && leftWDRC[band].targetGainForSoftSounds > 0.0f)
-                {
-                    // Envelope follower for this band
-                    float inputLevel = std::abs (leftBand);
-                    float& env = leftWDRC[band].envelope;
-                    float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
-                    env = env * coeff + inputLevel * (1.0f - coeff);
-
-                    // Calculate input level in dB
-                    float inputDb = juce::Decibels::gainToDecibels (env + 1e-6f);
-
-                    // Calculate WDRC gain based on input level
-                    float targetGainDb = calculateWDRCGain (inputDb,
-                                                            leftWDRC[band].targetGainForSoftSounds,
-                                                            maxBoost);
-
-                    // Smooth gain changes
-                    float targetGainLinear = juce::Decibels::decibelsToGain (targetGainDb);
-                    leftWDRC[band].smoothedGain = leftWDRC[band].smoothedGain * gainSmoothCoeff
-                                                  + targetGainLinear * (1.0f - gainSmoothCoeff);
-
-                    leftBand *= leftWDRC[band].smoothedGain;
-                }
-
-                if (rightEnabled && rightWDRC[band].targetGainForSoftSounds > 0.0f)
-                {
-                    // Envelope follower for this band
-                    float inputLevel = std::abs (rightBand);
-                    float& env = rightWDRC[band].envelope;
-                    float coeff = (inputLevel > env) ? attackCoeff : releaseCoeff;
-                    env = env * coeff + inputLevel * (1.0f - coeff);
-
-                    // Calculate input level in dB
-                    float inputDb = juce::Decibels::gainToDecibels (env + 1e-6f);
-
-                    // Calculate WDRC gain based on input level
-                    float targetGainDb = calculateWDRCGain (inputDb,
-                                                            rightWDRC[band].targetGainForSoftSounds,
-                                                            maxBoost);
-
-                    // Smooth gain changes
-                    float targetGainLinear = juce::Decibels::decibelsToGain (targetGainDb);
-                    rightWDRC[band].smoothedGain = rightWDRC[band].smoothedGain * gainSmoothCoeff
-                                                   + targetGainLinear * (1.0f - gainSmoothCoeff);
-
-                    rightBand *= rightWDRC[band].smoothedGain;
-                }
-
-                // Sum this band to output
-                leftOut += leftBand;
-                rightOut += rightBand;
+                leftOut  += leftBands[band]  * bandGain (leftWDRC[band],  leftBands[band]);
+                rightOut += rightBands[band] * bandGain (rightWDRC[band], rightBands[band]);
             }
 
-            // If ear is disabled, pass through original signal
-            leftChannel[sample]  = leftEnabled ? leftOut : leftIn;
+            // If an ear is disabled, pass through the original signal.
+            leftChannel[sample]  = leftEnabled  ? leftOut  : leftIn;
             rightChannel[sample] = rightEnabled ? rightOut : rightIn;
         }
     }
@@ -578,6 +630,113 @@ void HearingCorrectionAUv2AudioProcessor::setStateInformation (const void* data,
         }
     }
 }
+
+//==============================================================================
+// AU presets (.aupreset). Same file format Logic and other AU hosts use, saved to
+// the standard per-user AU presets location, so presets round-trip with hosts and
+// are interchangeable with anything else that reads/writes EarFix .aupreset files.
+//
+// A .aupreset is a plist with plugin-identity keys (name/type/subtype/manufacturer/
+// version) plus a "jucePluginState" CFData entry holding exactly the bytes JUCE's
+// getStateInformation()/setStateInformation() produce/consume (see
+// juce_audio_plugin_client_AU_1.mm SaveState/RestoreState, JUCE_STATE_DICTIONARY_KEY).
+
+juce::File HearingCorrectionAUv2AudioProcessor::getPresetsDirectory()
+{
+   #if JUCE_MAC
+    auto dir = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                   .getChildFile ("Library").getChildFile ("Audio").getChildFile ("Presets")
+                   .getChildFile (JucePlugin_Manufacturer).getChildFile (JucePlugin_Name);
+    dir.createDirectory();
+    return dir;
+   #else
+    // .aupreset is an Apple Audio Unit format; only meaningful on macOS.
+    return {};
+   #endif
+}
+
+#if JUCE_MAC
+void HearingCorrectionAUv2AudioProcessor::saveAUPreset (const juce::File& file, const juce::String& presetName)
+{
+    juce::MemoryBlock state;
+    getStateInformation (state);
+
+    EarFixCFPtr<CFMutableDictionaryRef> dict (
+        CFDictionaryCreateMutable (kCFAllocatorDefault, 0,
+                                   &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+
+    auto setNumber = [&dict] (CFStringRef key, SInt32 value)
+    {
+        EarFixCFPtr<CFNumberRef> num (CFNumberCreate (kCFAllocatorDefault, kCFNumberSInt32Type, &value));
+        CFDictionarySetValue (dict.get(), key, num.get());
+    };
+    auto setString = [&dict] (CFStringRef key, const juce::String& value)
+    {
+        auto cfStr = value.toCFString();
+        CFDictionarySetValue (dict.get(), key, cfStr);
+        CFRelease (cfStr);
+    };
+
+    setNumber (CFSTR ("version"), 0);
+    setString (CFSTR ("name"), presetName);
+    setNumber (CFSTR ("type"), (SInt32) JucePlugin_AUMainType);
+    setNumber (CFSTR ("subtype"), (SInt32) JucePlugin_AUSubType);
+    setNumber (CFSTR ("manufacturer"), (SInt32) JucePlugin_AUManufacturerCode);
+
+    EarFixCFPtr<CFDataRef> stateData (
+        CFDataCreate (kCFAllocatorDefault, (const UInt8*) state.getData(), (CFIndex) state.getSize()));
+    EarFixCFPtr<CFStringRef> stateKey (
+        CFStringCreateWithCString (kCFAllocatorDefault, "jucePluginState", kCFStringEncodingUTF8));
+    CFDictionarySetValue (dict.get(), stateKey.get(), stateData.get());
+
+    EarFixCFPtr<CFDataRef> xmlData (
+        CFPropertyListCreateData (kCFAllocatorDefault, dict.get(),
+                                  kCFPropertyListXMLFormat_v1_0, 0, nullptr));
+    if (xmlData != nullptr)
+    {
+        juce::MemoryBlock xmlBlock (CFDataGetBytePtr (xmlData.get()),
+                                    (size_t) CFDataGetLength (xmlData.get()));
+        file.replaceWithData (xmlBlock.getData(), xmlBlock.getSize());
+    }
+}
+
+bool HearingCorrectionAUv2AudioProcessor::loadAUPresetFile (const juce::File& file)
+{
+    juce::MemoryBlock fileData;
+    if (! file.loadFileAsData (fileData))
+        return false;
+
+    EarFixCFPtr<CFDataRef> cfData (
+        CFDataCreate (kCFAllocatorDefault, (const UInt8*) fileData.getData(), (CFIndex) fileData.getSize()));
+
+    CFErrorRef error = nullptr;
+    EarFixCFPtr<CFPropertyListRef> plist (
+        CFPropertyListCreateWithData (kCFAllocatorDefault, cfData.get(),
+                                      kCFPropertyListImmutable, nullptr, &error));
+    if (error != nullptr)
+        CFRelease (error);
+
+    if (plist == nullptr || CFGetTypeID (plist.get()) != CFDictionaryGetTypeID())
+        return false;
+
+    auto* dict = (CFDictionaryRef) plist.get();
+    EarFixCFPtr<CFStringRef> stateKey (
+        CFStringCreateWithCString (kCFAllocatorDefault, "jucePluginState", kCFStringEncodingUTF8));
+
+    CFDataRef stateData = nullptr;
+    if (! CFDictionaryGetValueIfPresent (dict, stateKey.get(), (const void**) &stateData) || stateData == nullptr)
+        return false;
+
+    setStateInformation (CFDataGetBytePtr (stateData), (int) CFDataGetLength (stateData));
+
+    // setStateInformation already restores the headphone profile via the
+    // "headphoneName" property embedded in our state XML.
+    return true;
+}
+#else
+void HearingCorrectionAUv2AudioProcessor::saveAUPreset (const juce::File&, const juce::String&) {}
+bool HearingCorrectionAUv2AudioProcessor::loadAUPresetFile (const juce::File&) { return false; }
+#endif
 
 //==============================================================================
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

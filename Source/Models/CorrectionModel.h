@@ -97,7 +97,8 @@ protected:
 enum class CorrectionModelType
 {
     HalfGain = 0,
-    NAL = 1
+    NAL = 1,
+    MOSL = 2
 };
 
 inline juce::String getModelName (CorrectionModelType type)
@@ -106,6 +107,7 @@ inline juce::String getModelName (CorrectionModelType type)
     {
         case CorrectionModelType::HalfGain: return "Half-Gain (Simple)";
         case CorrectionModelType::NAL:      return "NAL (with Compression)";
+        case CorrectionModelType::MOSL:     return "MOSL (Music)";
         default: return "Unknown";
     }
 }

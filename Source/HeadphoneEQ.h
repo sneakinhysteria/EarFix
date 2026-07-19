@@ -80,6 +80,11 @@ public:
     /** Clears the current profile (no headphone correction). */
     void clearProfile();
 
+    /** Parses a pasted ParametricEQ text block (AutoEq / REW / EqualizerAPO format)
+        and saves it as a custom profile JSON in the headphones directory. Returns the
+        saved profile name, or an empty string on failure. */
+    juce::String importParametricEQText (const juce::String& name, const juce::String& text);
+
     /** Returns the currently loaded profile name, or empty if none. */
     juce::String getCurrentProfileName() const { return currentProfile.name; }
 
@@ -110,6 +115,7 @@ private:
 
     HeadphoneProfile parseProfileJSON (const juce::File& jsonFile);
     void parseIndexJSON (const juce::File& indexFile);
+    static HeadphoneProfile parseParametricEQText (const juce::String& name, const juce::String& text);
 
     //==========================================================================
     // Filter management

@@ -109,6 +109,31 @@ public:
     /** Reloads the headphone database (for UI refresh button). */
     void reloadHeadphoneDatabase() { headphoneEQ.loadDatabase(); }
 
+    /** Imports a pasted ParametricEQ profile, then reloads the database.
+        Returns the saved profile name, or empty on failure. */
+    juce::String importHeadphoneProfile (const juce::String& name, const juce::String& text)
+    {
+        auto saved = headphoneEQ.importParametricEQText (name, text);
+        if (saved.isNotEmpty())
+            headphoneEQ.loadDatabase();
+        return saved;
+    }
+
+    //==============================================================================
+    // Presets (in-plugin, host-independent). State = APVTS tree + headphone name.
+
+    /** Standard AU preset directory (~/Library/Audio/Presets/<Manufacturer>/<Name>),
+        shared with hosts like Logic so presets are interchangeable. */
+    static juce::File getPresetsDirectory();
+
+    /** Saves the current state as an Apple .aupreset (loadable by Logic and other AU
+        hosts, and by this plugin). macOS only. */
+    void saveAUPreset (const juce::File& file, const juce::String& presetName);
+
+    /** Loads an Apple .aupreset by extracting the embedded plugin state.
+        Returns true on success. macOS only. */
+    bool loadAUPresetFile (const juce::File& file);
+
 private:
     //==============================================================================
     // Correction models
@@ -155,13 +180,21 @@ private:
     std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> rightLowpass;
     std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers> rightHighpass;
 
+    // Phase-compensation all-pass filters. Each already-extracted lower band is
+    // passed through an all-pass at every later crossover so all bands share the
+    // same phase and sum to a flat magnitude response at unity gain.
+    // Indexed [band][crossover]; only entries with crossover > band are used.
+    std::array<std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers>, numAudiogramBands> leftAllpass;
+    std::array<std::array<juce::dsp::LinkwitzRileyFilter<float>, numCrossovers>, numAudiogramBands> rightAllpass;
+
     //==============================================================================
     // True WDRC state per band per ear
     struct WDRCBandState
     {
-        float envelope = 0.0f;           // Envelope follower state
-        float smoothedGain = 0.0f;       // Smoothed gain value
-        float targetGainForSoftSounds = 0.0f;  // Max gain (for quiet inputs)
+        float envelope = 0.0f;                  // Envelope follower state
+        float smoothedGain = 1.0f;              // Smoothed linear gain (starts at unity)
+        float targetGainForSoftSounds = 0.0f;   // Signed dB: full-reshape target for soft input
+        float compressionRatio = 1.0f;          // Per-band WDRC ratio (from the model)
     };
 
     std::array<WDRCBandState, numAudiogramBands> leftWDRC;
@@ -174,8 +207,18 @@ private:
     void updateWDRCCoefficients();
     void updateCrossoverCoefficients();
 
-    // Calculate WDRC gain based on input level and hearing loss
-    float calculateWDRCGain (float inputLevelDb, float hearingLossDb, float maxBoostDb) const;
+    // Effective per-band gain for the current input level. Below the knee the full
+    // reshaped (soft) gain is applied; above it the deviation from flat is reduced
+    // per the band ratio so loud passages approach the input spectrum.
+    float calculateWDRCGain (float inputLevelDb, float softGainDb, float ratio) const;
+
+    // Input level (dBFS) used to sample the model's uncompressed prescriptive gain.
+    // Kept below every model's compression threshold so the soft target is the full
+    // insertion gain, with level-dependence handled solely by the processor WDRC.
+    static constexpr float kSoftReferenceLevelDb = 25.0f;
+
+    // WDRC knee (dBFS): below this, quiet passages receive the full reshaped gain.
+    static constexpr float kWDRCKneeDb = -40.0f;
 
     //==============================================================================
     double currentSampleRate = 44100.0;

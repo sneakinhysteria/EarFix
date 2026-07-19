@@ -87,3 +87,4 @@ JuceLibraryCode/
 !*.jucer
 CLAUDE.md
 harness/measure
+Builds/VisualStudio2022/

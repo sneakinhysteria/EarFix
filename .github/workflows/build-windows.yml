@@ -56,6 +56,29 @@ jobs:
             exit 1
           }
 
+      - name: Remove AAX project from solution (no AAX SDK configured)
+        shell: pwsh
+        run: |
+          # pluginFormats is a single project-wide setting (also covers the macOS
+          # exporter, which does need buildAAX), so Projucer generates an AAX project
+          # for Windows too even without an SDK path configured. Strip it out (GUID
+          # extracted dynamically since Projucer's generated GUIDs aren't stable
+          # across resaves) so a plain solution build doesn't fail on it. VST3 has no
+          # dependency on AAX, so removing it doesn't affect the VST3 build.
+          $slnPath = "Builds\VisualStudio2022\EarFix.sln"
+          $content = Get-Content $slnPath -Raw
+          $pattern = '(?ms)^Project\("\{[0-9A-Fa-f-]+\}"\) = "EarFix - AAX", "EarFix_AAX\.vcxproj", "(\{[0-9A-Fa-f-]+\})"\r?\n.*?^EndProject\r?\n'
+          $match = [regex]::Match($content, $pattern)
+          if ($match.Success) {
+            $aaxGuid = $match.Groups[1].Value
+            $content = $content.Remove($match.Index, $match.Length)
+            $content = $content -replace "(?m)^\s*$([regex]::Escape($aaxGuid))\..*\r?\n", ''
+            Set-Content $slnPath -Value $content -NoNewline
+            Write-Host "Removed AAX project ($aaxGuid) from the solution"
+          } else {
+            Write-Host "No AAX project found in the solution -- nothing to remove"
+          }
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 

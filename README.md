@@ -41,9 +41,11 @@ See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for relea
 | Format | macOS | Windows |
 |--------|-------|---------|
 | AU (Audio Unit) | Yes | N/A |
-| VST3 | Yes | Planned |
+| VST3 | Yes | Yes* |
 | AUv3 | Yes | N/A |
 | AAX | Yes | Planned |
+
+\* Windows VST3 builds automatically via CI starting with the next tagged release; not yet attached to a published release.
 
 ## Requirements
 

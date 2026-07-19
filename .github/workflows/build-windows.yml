@@ -51,7 +51,13 @@ jobs:
         shell: pwsh
         run: |
           & "..\..\JUCE\Projucer.exe" --resave "HearingCorrectionAUv2.jucer"
-          if (-not (Test-Path "Builds\VisualStudio2022\EarFix.sln")) {
+          # Projucer's CLI can return before it has finished flushing the per-exporter
+          # files it just logged as saved, so poll briefly rather than checking once.
+          $slnPath = "Builds\VisualStudio2022\EarFix.sln"
+          for ($i = 0; $i -lt 15 -and -not (Test-Path $slnPath); $i++) {
+            Start-Sleep -Seconds 1
+          }
+          if (-not (Test-Path $slnPath)) {
             Write-Error "Resave did not produce a solution file -- check the module path error above."
             exit 1
           }

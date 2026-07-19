@@ -39,16 +39,22 @@ jobs:
         run: |
           $url = "https://github.com/juce-framework/JUCE/releases/download/${{ env.JUCE_VERSION }}/juce-${{ env.JUCE_VERSION }}-windows.zip"
           Invoke-WebRequest -Uri $url -OutFile juce.zip
-          # Extracts to a top-level "JUCE" folder, landing as a sibling of the
-          # repo root (both directly under the workspace), matching the ../../JUCE/modules
-          # module path configured in the VS2022 exporter.
-          Expand-Archive -Path juce.zip -DestinationPath . -Force
+          # Projucer resolves each exporter's MODULEPATH relative to the .jucer file's
+          # own directory (repo root), not relative to the exporter's targetFolder. The
+          # VS2022 exporter uses "../../JUCE/modules" (matching the Mac exporter's
+          # convention), so JUCE must land two levels above the checked-out repo root.
+          Expand-Archive -Path juce.zip -DestinationPath "..\..\" -Force
           Remove-Item juce.zip
+          Get-ChildItem "..\..\JUCE\Projucer.exe"
 
       - name: Resave project (regenerate the Visual Studio solution)
         shell: pwsh
         run: |
-          & ".\JUCE\Projucer.exe" --resave "HearingCorrectionAUv2.jucer"
+          & "..\..\JUCE\Projucer.exe" --resave "HearingCorrectionAUv2.jucer"
+          if (-not (Test-Path "Builds\VisualStudio2022\EarFix.sln")) {
+            Write-Error "Resave did not produce a solution file -- check the module path error above."
+            exit 1
+          }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2

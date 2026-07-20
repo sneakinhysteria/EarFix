@@ -243,34 +243,54 @@ public:
         // "how much is this helping" and "is Max Boost/Strength doing anything" are
         // visible at a glance rather than inferred blind.
         {
-            juce::Path correctedPath;
-            bool correctedStarted = false;
+            auto correctedY = [&] (int i)
+            {
+                float correctedDb = pointValues[i] - appliedCorrection[i];
+                return juce::jlimit (chartTop, chartBottom,
+                                     chartTop + ((correctedDb - dbMin) / dbRange) * chartHeight);
+            };
+            auto lossY = [&] (int i)
+            {
+                return juce::jlimit (chartTop, chartBottom,
+                                     chartTop + ((pointValues[i] - dbMin) / dbRange) * chartHeight);
+            };
 
+            juce::Path correctedPath;
             for (int i = 0; i < 6; ++i)
             {
                 float x = getXForFrequencyIndex (i, chartLeft, chartWidth);
-                float correctedDb = pointValues[i] - appliedCorrection[i];
-                float y = chartTop + ((correctedDb - dbMin) / dbRange) * chartHeight;
-                y = juce::jlimit (chartTop, chartBottom, y);
-
-                if (!correctedStarted) { correctedPath.startNewSubPath (x, y); correctedStarted = true; }
-                else                    correctedPath.lineTo (x, y);
+                if (i == 0) correctedPath.startNewSubPath (x, correctedY (i));
+                else        correctedPath.lineTo (x, correctedY (i));
             }
 
+            // Fill the area between the correction curve and the loss curve -- same
+            // gradient style as the loss curve's own fill, in the correction colour.
+            juce::Path betweenPath;
+            for (int i = 0; i < 6; ++i)
+            {
+                float x = getXForFrequencyIndex (i, chartLeft, chartWidth);
+                if (i == 0) betweenPath.startNewSubPath (x, correctedY (i));
+                else        betweenPath.lineTo (x, correctedY (i));
+            }
+            for (int i = 5; i >= 0; --i)
+                betweenPath.lineTo (getXForFrequencyIndex (i, chartLeft, chartWidth), lossY (i));
+            betweenPath.closeSubPath();
+
+            juce::ColourGradient betweenGradient (CustomLookAndFeel::meterGreen.withAlpha (0.15f), 0, chartTop,
+                                                   CustomLookAndFeel::meterGreen.withAlpha (0.02f), 0, chartBottom,
+                                                   false);
+            g.setGradientFill (betweenGradient);
+            g.fillPath (betweenPath);
+
+            // Solid stroke, same style/thickness as the loss curve
             g.setColour (CustomLookAndFeel::meterGreen);
-            juce::Path dashedCorrected;
-            const float dashPattern[] = { 5.0f, 3.0f };
-            juce::PathStrokeType correctedStroke (2.0f, juce::PathStrokeType::curved);
-            correctedStroke.createDashedStroke (correctedPath, dashedCorrected, dashPattern, 2);
-            g.strokePath (dashedCorrected, correctedStroke);
+            g.strokePath (correctedPath, juce::PathStrokeType (2.0f, juce::PathStrokeType::curved));
 
             // Small diamond markers (distinct from the draggable circular points)
             for (int i = 0; i < 6; ++i)
             {
                 float x = getXForFrequencyIndex (i, chartLeft, chartWidth);
-                float correctedDb = pointValues[i] - appliedCorrection[i];
-                float y = chartTop + ((correctedDb - dbMin) / dbRange) * chartHeight;
-                y = juce::jlimit (chartTop, chartBottom, y);
+                float y = correctedY (i);
 
                 const float r = 3.5f;
                 juce::Path diamond;

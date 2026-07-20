@@ -127,6 +127,20 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     leftEnableButton.setName ("left");
     addAndMakeVisible (rightEnableButton);
     addAndMakeVisible (leftEnableButton);
+    rightEnableButton.onClick = [this]() { onEarEnableClicked (true); };
+    leftEnableButton.onClick  = [this]() { onEarEnableClicked (false); };
+
+    // Link toggle: click either to link/unlink both ears' enable state
+    for (auto* b : { &rightLinkButton, &leftLinkButton })
+    {
+        b->setClickingTogglesState (false);  // we manage the visual state ourselves
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
+        addAndMakeVisible (*b);
+    }
+    rightLinkButton.onClick = [this]() { setEarsLinked (! earsLinked); };
+    leftLinkButton.onClick  = [this]() { setEarsLinked (! earsLinked); };
+    setEarsLinked (false);
 
     // Headphone EQ components
     headphoneSelector.onChange = [this]() {
@@ -250,6 +264,24 @@ void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
     updateLevel (displayOutputL, audioProcessor.outputLevelLeft.load (std::memory_order_relaxed), attack, decay);
     updateLevel (displayOutputR, audioProcessor.outputLevelRight.load (std::memory_order_relaxed), attack, decay);
 
+    // Push the live applied-correction curve to the audiogram overlay
+    std::array<float, 6> leftGains {}, rightGains {};
+    for (int i = 0; i < 6; ++i)
+    {
+        leftGains[i]  = audioProcessor.leftAppliedGainDb[i].load (std::memory_order_relaxed);
+        rightGains[i] = audioProcessor.rightAppliedGainDb[i].load (std::memory_order_relaxed);
+    }
+    leftAudiogram.setAppliedCorrection (leftGains);
+    rightAudiogram.setAppliedCorrection (rightGains);
+
+    // Dim Max Boost when it isn't currently constraining the curve for the active
+    // audiogram/model/strength/loudness-mode combination -- raising it further
+    // wouldn't change anything right now (though it may start to as those change).
+    const bool maxBoostActive = audioProcessor.maxBoostActive.load (std::memory_order_relaxed);
+    const float maxBoostAlpha = maxBoostActive ? 1.0f : 0.45f;
+    maxBoostSlider.setAlpha (maxBoostAlpha);
+    maxBoostLabel.setAlpha (maxBoostAlpha);
+
     repaint();
 }
 
@@ -270,6 +302,33 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
     experienceLevelLabel.setVisible (showCompressionOptions);
     experienceLevelSelector.setVisible (showCompressionOptions);
     repaint();
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::setEarsLinked (bool linked)
+{
+    earsLinked = linked;
+    rightLinkButton.setToggleState (linked, juce::dontSendNotification);
+    leftLinkButton.setToggleState (linked, juce::dontSendNotification);
+    repaint();
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::onEarEnableClicked (bool isRight)
+{
+    if (! earsLinked)
+        return;
+
+    // Mirror the just-clicked ear's new state onto the other ear's parameter.
+    // ButtonAttachment has already applied the click to its own parameter by the
+    // time onClick fires, so read the clicked button's current state and copy it.
+    bool newState = isRight ? rightEnableButton.getToggleState() : leftEnableButton.getToggleState();
+    const char* otherParamId = isRight ? "leftEnable" : "rightEnable";
+
+    if (auto* param = audioProcessor.parameters.getParameter (otherParamId))
+    {
+        param->beginChangeGesture();
+        param->setValueNotifyingHost (newState ? 1.0f : 0.0f);
+        param->endChangeGesture();
+    }
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::populateHeadphoneList()
@@ -530,11 +589,14 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int chartW = (agArea.getWidth() - chartGap) / 2;
     const int toggleRowH = 24;  // Toggle + circle + label row height
 
+    const int linkW = 22;
+
     // Right ear panel (left side)
     auto rPanel = agArea.removeFromLeft (chartW);
     int agContentY = rPanel.getY() + PANEL_PAD;
     rightEnableButton.setBounds (rPanel.getX() + PANEL_PAD, agContentY, 36, 20);
     rightEarLabel.setBounds (rPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
+    rightLinkButton.setBounds (rPanel.getRight() - PANEL_PAD - linkW, agContentY, linkW, 20);
     // Chart starts after toggle row + 10px gap (PANEL_PAD)
     int chartTop = agContentY + toggleRowH + PANEL_PAD;
     rightAudiogram.setBounds (rPanel.getX(), chartTop,
@@ -546,6 +608,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     auto lPanel = agArea;
     leftEnableButton.setBounds (lPanel.getX() + PANEL_PAD, agContentY, 36, 20);
     leftEarLabel.setBounds (lPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
+    leftLinkButton.setBounds (lPanel.getRight() - PANEL_PAD - linkW, agContentY, linkW, 20);
     leftAudiogram.setBounds (lPanel.getX(), chartTop,
                              lPanel.getWidth(), lPanel.getBottom() - chartTop);
 

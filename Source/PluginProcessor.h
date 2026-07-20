@@ -79,6 +79,18 @@ public:
     std::atomic<float> inputLevelRight { 0.0f };
     std::atomic<float> outputLevelLeft { 0.0f };
     std::atomic<float> outputLevelRight { 0.0f };
+
+    // Live per-band applied correction gain in dB (read by the audiogram chart overlay).
+    // Written each block in updateWDRCCoefficients() from the current model/strength/
+    // maxBoost/loudnessMode -- reflects exactly what's being applied right now.
+    std::array<std::atomic<float>, numAudiogramBands> leftAppliedGainDb;
+    std::array<std::atomic<float>, numAudiogramBands> rightAppliedGainDb;
+
+    // True when Max Boost is actually constraining the curve right now (either ear),
+    // for either loudness mode -- vs. sitting above the curve's natural peak and doing
+    // nothing. Lets the UI dim the control when raising it wouldn't change anything for
+    // the current audiogram/model/strength.
+    std::atomic<bool> maxBoostActive { false };
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
         250.0f,    // Audiogram band 0
         354.0f,    // Interpolated (geometric mean of 250 & 500)

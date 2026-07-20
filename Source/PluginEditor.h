@@ -68,6 +68,14 @@ private:
     juce::Label        rightEarLabel;
     juce::Label        leftEarLabel;
 
+    // Link toggle: when active, enabling/disabling one ear also does the other.
+    // One shared state, mirrored by a small button in each ear card.
+    juce::TextButton   rightLinkButton { juce::String::fromUTF8 ("\xF0\x9F\x94\x97") };  // chain-link emoji
+    juce::TextButton   leftLinkButton  { juce::String::fromUTF8 ("\xF0\x9F\x94\x97") };
+    bool earsLinked = false;
+    void setEarsLinked (bool linked);
+    void onEarEnableClicked (bool isRight);
+
     // Audiogram charts (side by side: Right | Left)
     AudiogramComponent rightAudiogram { AudiogramComponent::Ear::Right, CustomLookAndFeel::accentRed };
     AudiogramComponent leftAudiogram  { AudiogramComponent::Ear::Left, CustomLookAndFeel::accentBlue };

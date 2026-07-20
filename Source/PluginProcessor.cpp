@@ -199,6 +199,8 @@ HearingCorrectionAUv2AudioProcessor::HearingCorrectionAUv2AudioProcessor()
     {
         rightAudiogramParams[i] = parameters.getRawParameterValue ("audiogram_" + rightParamSuffixes[i]);
         leftAudiogramParams[i]  = parameters.getRawParameterValue ("audiogram_" + leftParamSuffixes[i]);
+        leftAppliedGainDb[i].store (0.0f, std::memory_order_relaxed);
+        rightAppliedGainDb[i].store (0.0f, std::memory_order_relaxed);
     }
 }
 
@@ -398,12 +400,15 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     static constexpr double wsum = 4.146 + 1.120 + 1.413 + 1.995 + 2.512 + 4.577;
 
+    bool anyMaxBoostActive = false;
+
     // Builds the loudness-safe target curve for one ear from the model's pure
     // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
     // selected loudness mode (see the parameter comment above).
-    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum]
+    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum, &anyMaxBoostActive]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
-         std::array<WDRCBandState, numAudiogramBands>& wdrc)
+         std::array<WDRCBandState, numAudiogramBands>& wdrc,
+         std::array<std::atomic<float>, numAudiogramBands>& appliedGainDb)
     {
         std::array<float, numAudiogramBands> g {};
 
@@ -427,7 +432,9 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
             // as a result; that's inherent to never cutting, and Output Gain is there
             // to trim it.
             const float peak = *std::max_element (g.begin(), g.end());
-            const float k = (peak > maxBoost && peak > 0.0f) ? (maxBoost / peak) : 1.0f;
+            const bool  clamped = (peak > maxBoost && peak > 0.0f);
+            const float k = clamped ? (maxBoost / peak) : 1.0f;
+            if (clamped) anyMaxBoostActive = true;
             for (int i = 0; i < numAudiogramBands; ++i)
                 shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
         }
@@ -435,12 +442,17 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
         {
             const float offset = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (g) / wsum));
             for (int i = 0; i < numAudiogramBands; ++i)
-                shaped[i] = juce::jlimit (-maxBoost, maxBoost, g[i] - offset);
+            {
+                const float v = g[i] - offset;
+                if (v > maxBoost || v < -maxBoost) anyMaxBoostActive = true;
+                shaped[i] = juce::jlimit (-maxBoost, maxBoost, v);
+            }
         }
 
         for (int i = 0; i < numAudiogramBands; ++i)
         {
             wdrc[i].targetGainForSoftSounds = shaped[i];
+            appliedGainDb[i].store (shaped[i], std::memory_order_relaxed);
 
             const float loss = std::max (0.0f, audioParams[i]->load());
             wdrc[i].compressionRatio = modelComp
@@ -449,8 +461,10 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
         }
     };
 
-    computeEar (leftAudiogramParams, leftWDRC);
-    computeEar (rightAudiogramParams, rightWDRC);
+    computeEar (leftAudiogramParams, leftWDRC, leftAppliedGainDb);
+    computeEar (rightAudiogramParams, rightWDRC, rightAppliedGainDb);
+
+    maxBoostActive.store (anyMaxBoostActive, std::memory_order_relaxed);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,

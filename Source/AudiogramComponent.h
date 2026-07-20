@@ -31,6 +31,22 @@ public:
             paramPointers[i] = params[i];
     }
 
+    /** Updates the live "applied correction" overlay curve (dB gain per band, from the
+        processor's current model/strength/maxBoost/loudnessMode). Called from the
+        editor's timer, same cadence as the level meters. */
+    void setAppliedCorrection (const std::array<float, 6>& appliedGainDb)
+    {
+        bool changed = false;
+        for (int i = 0; i < 6; ++i)
+        {
+            if (std::abs (appliedCorrection[i] - appliedGainDb[i]) > 0.05f)
+                changed = true;
+            appliedCorrection[i] = appliedGainDb[i];
+        }
+        if (changed)
+            repaint();
+    }
+
     void setParameterAttachments (juce::AudioProcessorValueTreeState& apvts,
                                    const juce::StringArray& paramIds)
     {
@@ -221,6 +237,49 @@ public:
                            draggingPoint == i ? 2.5f : 2.0f);
         }
 
+        // Applied-correction overlay: the "effective/aided" threshold this correction
+        // curve produces (loss minus the gain actually being applied right now), on
+        // the same dB HL axis as the loss curve -- standard aided-audiogram style, so
+        // "how much is this helping" and "is Max Boost/Strength doing anything" are
+        // visible at a glance rather than inferred blind.
+        {
+            juce::Path correctedPath;
+            bool correctedStarted = false;
+
+            for (int i = 0; i < 6; ++i)
+            {
+                float x = getXForFrequencyIndex (i, chartLeft, chartWidth);
+                float correctedDb = pointValues[i] - appliedCorrection[i];
+                float y = chartTop + ((correctedDb - dbMin) / dbRange) * chartHeight;
+                y = juce::jlimit (chartTop, chartBottom, y);
+
+                if (!correctedStarted) { correctedPath.startNewSubPath (x, y); correctedStarted = true; }
+                else                    correctedPath.lineTo (x, y);
+            }
+
+            g.setColour (CustomLookAndFeel::meterGreen);
+            juce::Path dashedCorrected;
+            const float dashPattern[] = { 5.0f, 3.0f };
+            juce::PathStrokeType correctedStroke (2.0f, juce::PathStrokeType::curved);
+            correctedStroke.createDashedStroke (correctedPath, dashedCorrected, dashPattern, 2);
+            g.strokePath (dashedCorrected, correctedStroke);
+
+            // Small diamond markers (distinct from the draggable circular points)
+            for (int i = 0; i < 6; ++i)
+            {
+                float x = getXForFrequencyIndex (i, chartLeft, chartWidth);
+                float correctedDb = pointValues[i] - appliedCorrection[i];
+                float y = chartTop + ((correctedDb - dbMin) / dbRange) * chartHeight;
+                y = juce::jlimit (chartTop, chartBottom, y);
+
+                const float r = 3.5f;
+                juce::Path diamond;
+                diamond.addQuadrilateral (x, y - r, x + r, y, x, y + r, x - r, y);
+                g.setColour (CustomLookAndFeel::meterGreen);
+                g.fillPath (diamond);
+            }
+        }
+
         // Value tooltip when dragging
         if (draggingPoint >= 0 && draggingPoint < 6)
         {
@@ -321,6 +380,7 @@ private:
     juce::Colour earColour;
 
     std::array<float, 6> pointValues = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    std::array<float, 6> appliedCorrection = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     std::array<std::atomic<float>*, 6> paramPointers = { nullptr };
     std::array<std::unique_ptr<juce::ParameterAttachment>, 6> attachments;
     juce::AudioProcessorValueTreeState* apvtsPtr = nullptr;

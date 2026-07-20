@@ -10,11 +10,13 @@ EarFix is a free, open-source audio plugin that applies personalized hearing cor
 
 **[Download EarFix for macOS (latest)](https://github.com/sneakinhysteria/EarFix/releases/latest/download/EarFix-macOS.zip)** (AU + VST3, signed & notarized)
 
+**[Download EarFix for Windows (latest)](https://github.com/sneakinhysteria/EarFix/releases/latest/download/EarFix-Windows.zip)** (VST3)
+
 After downloading:
 1. Unzip the downloaded file
-2. Copy `EarFix.component` to `~/Library/Audio/Plug-Ins/Components/`
-3. Copy `EarFix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
-4. Restart your DAW
+2. **macOS**: copy `EarFix.component` to `~/Library/Audio/Plug-Ins/Components/` and `EarFix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
+   **Windows**: copy `EarFix.vst3` to `C:\Program Files\Common Files\VST3\`
+3. Restart your DAW
 
 See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for release notes and older versions.
 
@@ -41,11 +43,9 @@ See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for relea
 | Format | macOS | Windows |
 |--------|-------|---------|
 | AU (Audio Unit) | Yes | N/A |
-| VST3 | Yes | Yes* |
+| VST3 | Yes | Yes |
 | AUv3 | Yes | N/A |
 | AAX | Yes | Planned |
-
-\* Windows VST3 builds automatically via CI starting with the next tagged release; not yet attached to a published release.
 
 ## Requirements
 

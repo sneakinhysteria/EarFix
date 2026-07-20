@@ -105,7 +105,11 @@ jobs:
           Write-Host "Found VST3 at: $($vst3.FullName)"
           $zipName = "EarFix-v${{ steps.version.outputs.value }}-Windows.zip"
           Compress-Archive -Path $vst3.FullName -DestinationPath $zipName
+          # Stable-named copy so the README's evergreen "latest" download link
+          # (mirroring the macOS EarFix-macOS.zip asset) never needs updating.
+          Copy-Item $zipName "EarFix-Windows.zip"
           echo "zip=$zipName" >> $env:GITHUB_OUTPUT
+          echo "zip_stable=EarFix-Windows.zip" >> $env:GITHUB_OUTPUT
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -119,4 +123,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
-        run: gh release upload "${{ github.ref_name }}" "${{ steps.package.outputs.zip }}" --clobber
+        run: |
+          gh release upload "${{ github.ref_name }}" "${{ steps.package.outputs.zip }}" --clobber
+          gh release upload "${{ github.ref_name }}" "${{ steps.package.outputs.zip_stable }}" --clobber

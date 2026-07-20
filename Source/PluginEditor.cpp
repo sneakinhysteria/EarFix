@@ -88,6 +88,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     // Loudness mode selector
     loudnessModeSelector.addItem ("Centered", 1);
     loudnessModeSelector.addItem ("Boost Only", 2);
+    loudnessModeSelector.addItem ("Boost Only (Anchored)", 3);
     addAndMakeVisible (loudnessModeSelector);
     loudnessModeLabel.setText ("LOUDNESS", juce::dontSendNotification);
     loudnessModeLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));

@@ -97,18 +97,21 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         juce::AudioParameterFloatAttributes().withLabel ("dB")));
 
     // Loudness mode: how the per-band curve is kept from running louder than the input.
-    //   Centered  - subtract the K-weighted mean from every band. Exact loudness match,
-    //               but bands with little/no loss can get cut to subsidize bands that
-    //               need a large boost elsewhere.
-    //   Boost Only - never cut a band below its own prescribed gain. If the raw
-    //               boost-only curve would run louder than the input, the whole curve
-    //               is scaled down by one uniform factor (shape preserved) until it
-    //               isn't -- so a band with normal hearing is left alone rather than
-    //               borrowed from to balance a severe band elsewhere.
+    //   Centered   - subtract the K-weighted mean from every band. Exact loudness match,
+    //                but bands with little/no loss can get cut to subsidize bands that
+    //                need a large boost elsewhere.
+    //   Boost Only - never cut a band below its own absolute model-prescribed gain. If
+    //                the raw curve would run louder than the input, the whole curve is
+    //                scaled down by one uniform factor (shape preserved) until it isn't.
+    //                A barely-affected band still gets its own (small) prescribed boost.
+    //   Boost Only (Anchored) - same never-cut/uniform-scale-down guarantee, but every
+    //                band's gain is first made relative to the curve's own least-affected
+    //                band, so that band is left at exactly 0 (untouched) instead of
+    //                getting its own absolute prescription.
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "loudnessMode", 1 },
         "Loudness",
-        juce::StringArray { "Centered", "Boost Only" },
+        juce::StringArray { "Centered", "Boost Only", "Boost Only (Anchored)" },
         1));  // Default: Boost Only
 
     // Compression speed: 0 = Fast, 1 = Slow (only used by NAL model)
@@ -427,16 +430,31 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
         if (loudnessMode == 1)
         {
-            // Boost Only: anchored at the least-affected band. Every model's raw gain
-            // is proportional to loss at that frequency, so even a barely-affected band
-            // gets some absolute prescribed gain -- subtracting the curve's own minimum
-            // makes the best-hearing band exactly 0 (untouched) and every other band's
-            // gain relative to how much WORSE it is than that anchor, rather than an
-            // absolute prescription. This still guarantees no band is ever cut (the
-            // minimum is always >= 0 after subtraction, by construction) without needing
-            // a separate floor. Scale the whole curve down uniformly (shape preserved)
-            // only if its loudest band would exceed Max Boost. Net loudness can run a
-            // little hotter than the input as a result; Output Gain is there to trim it.
+            // Boost Only: every band is >= 0 by construction (the model's own gain is
+            // never negative), so no band is ever cut to subsidize another. A curve
+            // that only ever adds gain can't be made loudness-neutral by scaling (any
+            // positive scale strictly increases weighted loudness above flat) -- so
+            // instead of chasing an unreachable target, scale the whole curve down
+            // uniformly (shape preserved) only if needed so its loudest band never
+            // exceeds Max Boost. Net loudness can run a little hotter than the input
+            // as a result; that's inherent to never cutting, and Output Gain is there
+            // to trim it.
+            const float peak = *std::max_element (g.begin(), g.end());
+            const bool  clamped = (peak > maxBoost && peak > 0.0f);
+            const float k = clamped ? (maxBoost / peak) : 1.0f;
+            if (clamped) anyMaxBoostActive = true;
+            maxNeededBoostDb = std::max (maxNeededBoostDb, peak);
+            for (int i = 0; i < numAudiogramBands; ++i)
+                shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
+        }
+        else if (loudnessMode == 2)
+        {
+            // Boost Only (Anchored): same never-cut/uniform-scale-down guarantee as
+            // Boost Only above, but every band's gain is first made relative to the
+            // curve's own least-affected band, so that band lands at exactly 0
+            // (untouched) instead of getting its own absolute prescribed gain. Still
+            // guarantees no band is ever cut (the minimum after subtraction is always
+            // >= 0, by construction).
             const float anchor = *std::min_element (g.begin(), g.end());
             std::array<float, numAudiogramBands> relative {};
             for (int i = 0; i < numAudiogramBands; ++i)

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="exa5JB" name="EarFix" projectType="audioplug" version="1.5.0" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildAAX,buildAU,buildAUv3,buildVST3"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildAU,buildAUv3,buildVST3"
               pluginManufacturer="BrighterRealities" pluginManufacturerCode="Brtr"
-              pluginCode="Earx" pluginVST3Category="Fx,EQ" pluginAAXCategory="8192"
+              pluginCode="Earx" pluginVST3Category="Fx,EQ"
               companyName="BrighterRealities" companyCopyright="BrighterRealities"
               pluginDesc="Hearing loss correction based on audiogram" bundleIdentifier="com.BrighterRealities.EarFix">
   <MAINGROUP id="AObiug" name="EarFix">

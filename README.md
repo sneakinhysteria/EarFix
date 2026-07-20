@@ -45,7 +45,8 @@ See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for relea
 | AU (Audio Unit) | Yes | N/A |
 | VST3 | Yes | Yes |
 | AUv3 | Yes | N/A |
-| AAX | Yes | Planned |
+
+Pro Tools (AAX) is not supported — AAX requires a paid Avid developer partnership, iLok hardware, and PACE code-signing, which isn't worth the overhead for a free plugin.
 
 ## Requirements
 

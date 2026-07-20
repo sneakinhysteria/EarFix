@@ -174,17 +174,23 @@ struct Engine
 
         if (normMode == 3)
         {
-            // Boost Only: every band is >= 0 by construction, so no band is ever cut.
-            // A curve that only adds gain can't be scaled to exact loudness parity
-            // (any positive scale strictly increases weighted loudness above flat), so
-            // instead scale the whole curve down (shape preserved) only if needed so
-            // its loudest band never exceeds Max Boost.
-            float peak = g[0];
-            for (int i = 1; i < NB; ++i) peak = std::max (peak, g[i]);
+            // Boost Only: anchored at the least-affected band. Subtract the curve's own
+            // minimum so the best-hearing band lands at 0 (untouched) and every other
+            // band is boosted relative to how much worse it is than that anchor, rather
+            // than each band getting its own absolute model-prescribed gain. Still
+            // guarantees no band is ever cut (minimum is always >= 0 after subtraction).
+            // Scale the whole curve down (shape preserved) only if needed so its loudest
+            // band never exceeds Max Boost.
+            float anchor = g[0];
+            for (int i = 1; i < NB; ++i) anchor = std::min (anchor, g[i]);
+            float rel[NB];
+            for (int i = 0; i < NB; ++i) rel[i] = g[i] - anchor;
+            float peak = rel[0];
+            for (int i = 1; i < NB; ++i) peak = std::max (peak, rel[i]);
             const float k = (peak > maxBoost && peak > 0.0f) ? (maxBoost / peak) : 1.0f;
             for (int i = 0; i < NB; ++i)
             {
-                wd[i].target = juce::jlimit (0.0f, maxBoost, g[i] * k);
+                wd[i].target = juce::jlimit (0.0f, maxBoost, rel[i] * k);
                 const float loss = std::max (0.0f, audiogram[i]);
                 wd[i].ratio = modelComp ? model.getCompressionParams (freqs[i], loss).ratio : 1.0f;
             }

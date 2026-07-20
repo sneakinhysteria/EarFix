@@ -421,21 +421,27 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
         if (loudnessMode == 1)
         {
-            // Boost Only: every band is >= 0 by construction (the model's own gain is
-            // never negative), so no band is ever cut to subsidize another. A curve
-            // that only ever adds gain can't be made loudness-neutral by scaling (any
-            // positive scale strictly increases weighted loudness above flat) -- so
-            // instead of chasing an unreachable target, scale the whole curve down
-            // uniformly (shape preserved) only if needed so its loudest band never
-            // exceeds Max Boost. Net loudness can run a little hotter than the input
-            // as a result; that's inherent to never cutting, and Output Gain is there
-            // to trim it.
-            const float peak = *std::max_element (g.begin(), g.end());
+            // Boost Only: anchored at the least-affected band. Every model's raw gain
+            // is proportional to loss at that frequency, so even a barely-affected band
+            // gets some absolute prescribed gain -- subtracting the curve's own minimum
+            // makes the best-hearing band exactly 0 (untouched) and every other band's
+            // gain relative to how much WORSE it is than that anchor, rather than an
+            // absolute prescription. This still guarantees no band is ever cut (the
+            // minimum is always >= 0 after subtraction, by construction) without needing
+            // a separate floor. Scale the whole curve down uniformly (shape preserved)
+            // only if its loudest band would exceed Max Boost. Net loudness can run a
+            // little hotter than the input as a result; Output Gain is there to trim it.
+            const float anchor = *std::min_element (g.begin(), g.end());
+            std::array<float, numAudiogramBands> relative {};
+            for (int i = 0; i < numAudiogramBands; ++i)
+                relative[i] = g[i] - anchor;
+
+            const float peak = *std::max_element (relative.begin(), relative.end());
             const bool  clamped = (peak > maxBoost && peak > 0.0f);
             const float k = clamped ? (maxBoost / peak) : 1.0f;
             if (clamped) anyMaxBoostActive = true;
             for (int i = 0; i < numAudiogramBands; ++i)
-                shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
+                shaped[i] = juce::jlimit (0.0f, maxBoost, relative[i] * k);
         }
         else
         {

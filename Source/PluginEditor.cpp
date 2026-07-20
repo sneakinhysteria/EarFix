@@ -282,6 +282,18 @@ void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
     maxBoostSlider.setAlpha (maxBoostAlpha);
     maxBoostLabel.setAlpha (maxBoostAlpha);
 
+    // Active-range marker: shade/line the part of the fader's travel that's currently
+    // dead (raising Max Boost past this point wouldn't change the output), tracking
+    // Strength/audiogram changes live. The fader itself stays fully draggable across
+    // its whole parameter range -- this is visual context only.
+    const float maxBoostCeiling = audioProcessor.maxBoostThresholdDb.load (std::memory_order_relaxed);
+    if (std::abs (maxBoostCeiling - lastMaxBoostCeiling) > 0.05f)
+    {
+        lastMaxBoostCeiling = maxBoostCeiling;
+        maxBoostSlider.getProperties().set ("rangeCeiling", (double) maxBoostCeiling);
+        maxBoostSlider.repaint();
+    }
+
     repaint();
 }
 

@@ -401,10 +401,16 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     bool anyMaxBoostActive = false;
 
+    // Highest value either ear's curve would need if Max Boost had no ceiling at all --
+    // i.e. the point past which dragging Max Boost higher stops changing the output.
+    // Drives the UI's active-range marker on the Max Boost fader.
+    float maxNeededBoostDb = 0.0f;
+
     // Builds the loudness-safe target curve for one ear from the model's pure
     // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
     // selected loudness mode (see the parameter comment above).
-    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum, &anyMaxBoostActive]
+    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum,
+                        &anyMaxBoostActive, &maxNeededBoostDb]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
          std::array<WDRCBandState, numAudiogramBands>& wdrc,
          std::array<std::atomic<float>, numAudiogramBands>& appliedGainDb)
@@ -440,18 +446,22 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
             const bool  clamped = (peak > maxBoost && peak > 0.0f);
             const float k = clamped ? (maxBoost / peak) : 1.0f;
             if (clamped) anyMaxBoostActive = true;
+            maxNeededBoostDb = std::max (maxNeededBoostDb, peak);
             for (int i = 0; i < numAudiogramBands; ++i)
                 shaped[i] = juce::jlimit (0.0f, maxBoost, relative[i] * k);
         }
         else
         {
             const float offset = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (g) / wsum));
+            float bandPeak = 0.0f;
             for (int i = 0; i < numAudiogramBands; ++i)
             {
                 const float v = g[i] - offset;
                 if (v > maxBoost || v < -maxBoost) anyMaxBoostActive = true;
+                bandPeak = std::max (bandPeak, std::abs (v));
                 shaped[i] = juce::jlimit (-maxBoost, maxBoost, v);
             }
+            maxNeededBoostDb = std::max (maxNeededBoostDb, bandPeak);
         }
 
         for (int i = 0; i < numAudiogramBands; ++i)
@@ -470,6 +480,7 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
     computeEar (rightAudiogramParams, rightWDRC, rightAppliedGainDb);
 
     maxBoostActive.store (anyMaxBoostActive, std::memory_order_relaxed);
+    maxBoostThresholdDb.store (maxNeededBoostDb, std::memory_order_relaxed);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,

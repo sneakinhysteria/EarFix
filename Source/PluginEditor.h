@@ -134,5 +134,9 @@ private:
     float displayInputL = 0.0f, displayInputR = 0.0f;
     float displayOutputL = 0.0f, displayOutputR = 0.0f;
 
+    // Last value pushed to maxBoostSlider's "rangeCeiling" property, to avoid
+    // repainting the active-range marker every timer tick when it hasn't moved.
+    float lastMaxBoostCeiling = -1.0f;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HearingCorrectionAUv2AudioProcessorEditor)
 };

@@ -91,6 +91,11 @@ public:
     // nothing. Lets the UI dim the control when raising it wouldn't change anything for
     // the current audiogram/model/strength.
     std::atomic<bool> maxBoostActive { false };
+
+    // Highest value either ear's curve would need with no ceiling at all -- the point
+    // past which raising Max Boost further stops changing the output. Drives the UI's
+    // active-range marker on the Max Boost fader; updates live with Strength/audiogram.
+    std::atomic<float> maxBoostThresholdDb { 0.0f };
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
         250.0f,    // Audiogram band 0
         354.0f,    // Interpolated (geometric mean of 250 & 500)

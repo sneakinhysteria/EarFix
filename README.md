@@ -50,8 +50,14 @@ Pro Tools (AAX) is not supported — AAX requires a paid Avid developer partners
 
 ## Requirements
 
-- **macOS**: 10.13 (High Sierra) or later
-- **Architecture**: Universal Binary (Apple Silicon & Intel)
+**macOS**
+- macOS 10.13 (High Sierra) or later
+- Universal Binary (Apple Silicon & Intel)
+
+**Windows**
+- Windows 10 (version 1607+) or Windows 11
+- 64-bit (x64) only — no 32-bit or ARM64 build; your DAW must also be running as a 64-bit process
+- [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vc14/vc_redist.x64.exe) — required for the plugin to load; most DAWs already install this, but a fresh Windows install may not have it
 
 ## Installation
 

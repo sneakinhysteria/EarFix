@@ -223,14 +223,13 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
     // updateWDRCCoefficients(). Keep the model's prescriptive gain pure (no offset).
     currentModel->setOverallGainOffset (0.0f);
 
-    // NAL-specific settings
+    // NAL-specific settings. NAL has no use for Level -- it would only have scaled
+    // gain by a fixed 0.7/0.85/1.0 factor, which Strength already does continuously
+    // (the two multiply into the same value, so it was a redundant discrete preset).
     if (modelIndex == 1)
     {
         bool fastCompression = compressionSpeedParam->load() < 0.5f;
         nalModel.setCompressionSpeed (fastCompression);
-
-        int experienceLevel = static_cast<int> (experienceLevelParam->load());
-        nalModel.setExperienceLevel (experienceLevel);
     }
 
     // MOSL-specific settings

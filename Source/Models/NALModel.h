@@ -52,9 +52,6 @@ public:
             gain -= (aboveThreshold - compressedAbove);
         }
 
-        // Apply experience level factor (new users get reduced gain)
-        gain *= experienceGainFactor;
-
         // Apply user's overall adjustment
         gain += overallGainOffset;
 
@@ -101,25 +98,10 @@ public:
         compressionThreshold = juce::jlimit (30.0f, 60.0f, thresholdDb);
     }
 
-    // Experience level: 0 = New User (reduce gain), 1 = Some Experience, 2 = Experienced (full gain)
-    // NAL-NL2 recommends reducing gain for new users to improve acceptance
-    void setExperienceLevel (int level)
-    {
-        switch (level)
-        {
-            case 0:  experienceGainFactor = 0.7f;  break;  // New user: 70% of prescribed gain
-            case 1:  experienceGainFactor = 0.85f; break;  // Some experience: 85%
-            default: experienceGainFactor = 1.0f;  break;  // Experienced: full gain
-        }
-    }
-
-    float getExperienceGainFactor() const { return experienceGainFactor; }
-
 private:
     float compressionThreshold = 50.0f;  // dB SPL
     float attackMs = 5.0f;
     float releaseMs = 100.0f;
-    float experienceGainFactor = 1.0f;   // 0.7 for new, 0.85 for some, 1.0 for experienced
 
     // Frequency-specific gain adjustments based on NAL research
     float getFrequencyAdjustment (float frequency, float hearingLossDb) const

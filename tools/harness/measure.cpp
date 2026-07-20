@@ -434,7 +434,6 @@ int main()
 
     NALModel nal;
     nal.setCompressionSpeed (true);   // Fast (default)
-    nal.setExperienceLevel (2);       // Experienced (default)
 
     MOSLModel mosl;
     mosl.setCompressionSpeed (true);

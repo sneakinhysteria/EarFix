@@ -295,12 +295,14 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
 {
     auto* modelParam = audioProcessor.parameters.getRawParameterValue ("modelSelect");
     int modelIndex = modelParam != nullptr ? static_cast<int> (modelParam->load()) : 0;
-    bool showCompressionOptions = (modelIndex >= 1);
+    bool showCompressionOptions = (modelIndex >= 1);        // NAL or MOSL: Speed is real for both
+    bool showLevel = (modelIndex == 2);                      // MOSL only: Level shapes bass/brightness there;
+                                                              // for NAL it was a redundant Strength preset
 
     compressionSpeedLabel.setVisible (showCompressionOptions);
     compressionSpeedSelector.setVisible (showCompressionOptions);
-    experienceLevelLabel.setVisible (showCompressionOptions);
-    experienceLevelSelector.setVisible (showCompressionOptions);
+    experienceLevelLabel.setVisible (showLevel);
+    experienceLevelSelector.setVisible (showLevel);
     repaint();
 }
 

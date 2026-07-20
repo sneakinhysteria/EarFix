@@ -85,6 +85,16 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     experienceLevelLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (experienceLevelLabel);
 
+    // Loudness mode selector
+    loudnessModeSelector.addItem ("Centered", 1);
+    loudnessModeSelector.addItem ("Boost Only", 2);
+    addAndMakeVisible (loudnessModeSelector);
+    loudnessModeLabel.setText ("LOUDNESS", juce::dontSendNotification);
+    loudnessModeLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    loudnessModeLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    loudnessModeLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (loudnessModeLabel);
+
     // Max boost slider (vertical fader in control section)
     maxBoostSlider.setSliderStyle (juce::Slider::LinearVertical);
     maxBoostSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 54, 18);
@@ -197,6 +207,8 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
         audioProcessor.parameters, "compressionSpeed", compressionSpeedSelector);
     experienceLevelAttachment = std::make_unique<ComboBoxAttachment> (
         audioProcessor.parameters, "experienceLevel", experienceLevelSelector);
+    loudnessModeAttachment = std::make_unique<ComboBoxAttachment> (
+        audioProcessor.parameters, "loudnessMode", loudnessModeSelector);
     rightEnableAttachment = std::make_unique<ButtonAttachment> (
         audioProcessor.parameters, "rightEnable", rightEnableButton);
     leftEnableAttachment = std::make_unique<ButtonAttachment> (
@@ -475,7 +487,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
 
     // Fixed heights
     const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
-    const int CTRL_PANEL_H = 160;    // Control panel
+    const int CTRL_PANEL_H = 200;    // Control panel (4 dropdown rows: Model/Speed/Level/Loudness)
 
     // Calculate audiogram height to fill remaining space
     int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + HEADER_H + CTRL_PANEL_H;
@@ -549,7 +561,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     auto ddArea = ctrlArea.removeFromLeft (dropdownW);
 
     const int ddH = 26, lblH = 14, ddGap = 4;
-    int totalDDH = 3 * (lblH + ddH) + 2 * ddGap;
+    int totalDDH = 4 * (lblH + ddH) + 3 * ddGap;
     int ddStartY = ddArea.getY() + (ddArea.getHeight() - totalDDH) / 2;
 
     modelLabel.setBounds (ddArea.getX(), ddStartY, ddArea.getWidth(), lblH);
@@ -562,6 +574,10 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     int y3 = y2 + lblH + ddH + ddGap;
     experienceLevelLabel.setBounds (ddArea.getX(), y3, ddArea.getWidth(), lblH);
     experienceLevelSelector.setBounds (ddArea.getX(), y3 + lblH, ddArea.getWidth(), ddH);
+
+    int y4 = y3 + lblH + ddH + ddGap;
+    loudnessModeLabel.setBounds (ddArea.getX(), y4, ddArea.getWidth(), lblH);
+    loudnessModeSelector.setBounds (ddArea.getX(), y4 + lblH, ddArea.getWidth(), ddH);
 
     // --- Right side: 5 equal columns (IN meter, STRENGTH, MAX BOOST, OUTPUT, OUT meter) ---
     // Columns fill the space between the divider and the right edge with equal padding.

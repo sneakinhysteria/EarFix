@@ -11,6 +11,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <algorithm>
 
 #if JUCE_MAC
  #include <CoreFoundation/CoreFoundation.h>
@@ -95,6 +96,21 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         25.0f,
         juce::AudioParameterFloatAttributes().withLabel ("dB")));
 
+    // Loudness mode: how the per-band curve is kept from running louder than the input.
+    //   Centered  - subtract the K-weighted mean from every band. Exact loudness match,
+    //               but bands with little/no loss can get cut to subsidize bands that
+    //               need a large boost elsewhere.
+    //   Boost Only - never cut a band below its own prescribed gain. If the raw
+    //               boost-only curve would run louder than the input, the whole curve
+    //               is scaled down by one uniform factor (shape preserved) until it
+    //               isn't -- so a band with normal hearing is left alone rather than
+    //               borrowed from to balance a severe band elsewhere.
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "loudnessMode", 1 },
+        "Loudness",
+        juce::StringArray { "Centered", "Boost Only" },
+        1));  // Default: Boost Only
+
     // Compression speed: 0 = Fast, 1 = Slow (only used by NAL model)
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "compressionSpeed", 1 },
@@ -174,6 +190,7 @@ HearingCorrectionAUv2AudioProcessor::HearingCorrectionAUv2AudioProcessor()
     maxBoostParam           = parameters.getRawParameterValue ("maxBoost");
     compressionSpeedParam   = parameters.getRawParameterValue ("compressionSpeed");
     experienceLevelParam    = parameters.getRawParameterValue ("experienceLevel");
+    loudnessModeParam       = parameters.getRawParameterValue ("loudnessMode");
     leftEnableParam         = parameters.getRawParameterValue ("leftEnable");
     rightEnableParam        = parameters.getRawParameterValue ("rightEnable");
     headphoneEQEnableParam  = parameters.getRawParameterValue ("headphoneEQEnable");
@@ -361,6 +378,7 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
     const float strength = correctionStrengthParam->load() / 100.0f;
     const float maxBoost = maxBoostParam->load();
     const bool  modelComp = currentModel->hasCompression();
+    const int   loudnessMode = static_cast<int> (loudnessModeParam->load());  // 0=Centered, 1=Boost Only
 
     // Perceptual (K-weighted, BS.1770) loudness weight per audiogram band:
     //   weight = octave bandwidth of the crossover band x K-weighting power gain at
@@ -369,12 +387,21 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
     static constexpr std::array<float, numAudiogramBands> loudnessWeights =
         { 4.146f, 1.120f, 1.413f, 1.995f, 2.512f, 4.577f };
 
-    // Builds the loudness-aligned soft-target curve for one ear:
-    //   1) sample the model's pure (uncompressed) prescriptive gain, scaled by strength
-    //   2) subtract the K-weighted power mean so perceived loudness matches the input
-    //      (only the spectral tilt remains; a flat loss collapses to no change)
-    //   3) clamp symmetrically to +/- Max Boost
-    auto computeEar = [this, strength, maxBoost, modelComp]
+    // K-weighted power sum of a candidate curve, for comparing against flat (0 dB).
+    auto kWeightedPowerSum = [] (const std::array<float, numAudiogramBands>& gains)
+    {
+        double sum = 0.0;
+        for (int i = 0; i < numAudiogramBands; ++i)
+            sum += loudnessWeights[i] * std::pow (10.0, static_cast<double> (gains[i]) / 10.0);
+        return sum;
+    };
+
+    static constexpr double wsum = 4.146 + 1.120 + 1.413 + 1.995 + 2.512 + 4.577;
+
+    // Builds the loudness-safe target curve for one ear from the model's pure
+    // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
+    // selected loudness mode (see the parameter comment above).
+    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
          std::array<WDRCBandState, numAudiogramBands>& wdrc)
     {
@@ -386,17 +413,34 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
             g[i] = currentModel->calculateGain (audiogramFrequencies[i], loss, kSoftReferenceLevelDb) * strength;
         }
 
-        double p = 0.0, wsum = 0.0;
-        for (int i = 0; i < numAudiogramBands; ++i)
+        std::array<float, numAudiogramBands> shaped {};
+
+        if (loudnessMode == 1)
         {
-            p    += loudnessWeights[i] * std::pow (10.0, g[i] / 10.0);
-            wsum += loudnessWeights[i];
+            // Boost Only: every band is >= 0 by construction (the model's own gain is
+            // never negative), so no band is ever cut to subsidize another. A curve
+            // that only ever adds gain can't be made loudness-neutral by scaling (any
+            // positive scale strictly increases weighted loudness above flat) -- so
+            // instead of chasing an unreachable target, scale the whole curve down
+            // uniformly (shape preserved) only if needed so its loudest band never
+            // exceeds Max Boost. Net loudness can run a little hotter than the input
+            // as a result; that's inherent to never cutting, and Output Gain is there
+            // to trim it.
+            const float peak = *std::max_element (g.begin(), g.end());
+            const float k = (peak > maxBoost && peak > 0.0f) ? (maxBoost / peak) : 1.0f;
+            for (int i = 0; i < numAudiogramBands; ++i)
+                shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
         }
-        const float offset = 10.0f * std::log10 (static_cast<float> (p / wsum));
+        else
+        {
+            const float offset = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (g) / wsum));
+            for (int i = 0; i < numAudiogramBands; ++i)
+                shaped[i] = juce::jlimit (-maxBoost, maxBoost, g[i] - offset);
+        }
 
         for (int i = 0; i < numAudiogramBands; ++i)
         {
-            wdrc[i].targetGainForSoftSounds = juce::jlimit (-maxBoost, maxBoost, g[i] - offset);
+            wdrc[i].targetGainForSoftSounds = shaped[i];
 
             const float loss = std::max (0.0f, audioParams[i]->load());
             wdrc[i].compressionRatio = modelComp

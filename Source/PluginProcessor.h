@@ -153,6 +153,7 @@ private:
     std::atomic<float>* maxBoostParam         = nullptr;
     std::atomic<float>* compressionSpeedParam = nullptr;
     std::atomic<float>* experienceLevelParam  = nullptr;
+    std::atomic<float>* loudnessModeParam     = nullptr;
     std::atomic<float>* leftEnableParam       = nullptr;
     std::atomic<float>* rightEnableParam      = nullptr;
     std::atomic<float>* headphoneEQEnableParam = nullptr;

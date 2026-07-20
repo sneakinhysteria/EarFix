@@ -54,6 +54,10 @@ private:
     juce::ComboBox     experienceLevelSelector;
     juce::Label        experienceLevelLabel;
 
+    // Left column: Loudness mode (Centered / Boost Only)
+    juce::ComboBox     loudnessModeSelector;
+    juce::Label        loudnessModeLabel;
+
     // Fader section: Max boost limiter (correction ceiling)
     juce::Slider       maxBoostSlider;
     juce::Label        maxBoostLabel;
@@ -90,6 +94,7 @@ private:
     std::unique_ptr<ComboBoxAttachment> modelSelectAttachment;
     std::unique_ptr<ComboBoxAttachment> compressionSpeedAttachment;
     std::unique_ptr<ComboBoxAttachment> experienceLevelAttachment;
+    std::unique_ptr<ComboBoxAttachment> loudnessModeAttachment;
     std::unique_ptr<ButtonAttachment>   rightEnableAttachment;
     std::unique_ptr<ButtonAttachment>   leftEnableAttachment;
 

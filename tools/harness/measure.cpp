@@ -139,7 +139,9 @@ struct Engine
         for (int b = 0; b < NB; ++b) { wd[b].env = 0.0f; wd[b].sg = 1.0f; }
     }
 
-    // normMode: 0 = arithmetic dB mean, 1 = energy (pink-RMS) mean, 2 = perceptual (K-weighted)
+    // normMode: 0 = arithmetic dB mean, 1 = energy (pink-RMS) mean, 2 = perceptual
+    // (K-weighted) centered [shipped as "Centered"], 3 = Boost Only (global scale-down,
+    // never cuts a band -- shipped default)
     void computeTargets (const CorrectionModel& model, const float audiogram[NB],
                          float strength, float maxBoost, int normMode)
     {
@@ -157,9 +159,10 @@ struct Engine
         float w[NB];
         for (int i = 0; i < NB; ++i)
         {
-            if (normMode == 2) w[i] = bw[i] * std::pow (10.0f, kDb[i] / 10.0f);
-            else               w[i] = bw[i];
+            if (normMode == 2 || normMode == 3) w[i] = bw[i] * std::pow (10.0f, kDb[i] / 10.0f);
+            else                                 w[i] = bw[i];
         }
+        double wsumAll = 0.0; for (int i = 0; i < NB; ++i) wsumAll += w[i];
 
         // Prescriptive gain, pre-scaled by strength
         float g[NB];
@@ -167,6 +170,25 @@ struct Engine
         {
             const float loss = std::max (0.0f, audiogram[i]);
             g[i] = model.calculateGain (freqs[i], loss, kSoftReferenceLevelDb) * strength;
+        }
+
+        if (normMode == 3)
+        {
+            // Boost Only: every band is >= 0 by construction, so no band is ever cut.
+            // A curve that only adds gain can't be scaled to exact loudness parity
+            // (any positive scale strictly increases weighted loudness above flat), so
+            // instead scale the whole curve down (shape preserved) only if needed so
+            // its loudest band never exceeds Max Boost.
+            float peak = g[0];
+            for (int i = 1; i < NB; ++i) peak = std::max (peak, g[i]);
+            const float k = (peak > maxBoost && peak > 0.0f) ? (maxBoost / peak) : 1.0f;
+            for (int i = 0; i < NB; ++i)
+            {
+                wd[i].target = juce::jlimit (0.0f, maxBoost, g[i] * k);
+                const float loss = std::max (0.0f, audiogram[i]);
+                wd[i].ratio = modelComp ? model.getCompressionParams (freqs[i], loss).ratio : 1.0f;
+            }
+            return;
         }
 
         // Normalisation offset
@@ -356,10 +378,11 @@ static void runModel (const char* label, CorrectionModel& model,
             label, strength * 100.0f, maxBoost, model.hasCompression() ? "yes" : "no");
     printf ("================================================================\n");
 
-    // Compare the three normalisation modes
+    // Compare the four normalisation/loudness modes
     Engine eDb; eDb.prepare (fs); eDb.computeTargets (model, audiogram, strength, maxBoost, 0);
     Engine eEn; eEn.prepare (fs); eEn.computeTargets (model, audiogram, strength, maxBoost, 1);
     Engine eK;  eK.prepare  (fs); eK.computeTargets  (model, audiogram, strength, maxBoost, 2);
+    Engine eBO; eBO.prepare (fs); eBO.computeTargets (model, audiogram, strength, maxBoost, 3);
 
     printf ("                  ");
     for (int i = 0; i < 6; ++i) printf ("%6.0fHz", bf[i]);
@@ -370,15 +393,18 @@ static void runModel (const char* label, CorrectionModel& model,
     printf ("   energy center  ");
     for (int i = 0; i < 6; ++i) printf ("%+7.1f", eEn.wd[i].target);
     printf ("  %+6.2f   %+6.2f dB\n", measurePinkDeltaDb (eEn, -20.0f), measurePinkDeltaKWeighted (eEn, -20.0f));
-    printf ("   PERCEPTUAL (K) ");
+    printf ("   Centered (K)   ");
     for (int i = 0; i < 6; ++i) printf ("%+7.1f", eK.wd[i].target);
-    printf ("  %+6.2f   %+6.2f dB\n\n", measurePinkDeltaDb (eK, -20.0f), measurePinkDeltaKWeighted (eK, -20.0f));
+    printf ("  %+6.2f   %+6.2f dB\n", measurePinkDeltaDb (eK, -20.0f), measurePinkDeltaKWeighted (eK, -20.0f));
+    printf ("   Boost Only     ");
+    for (int i = 0; i < 6; ++i) printf ("%+7.1f", eBO.wd[i].target);
+    printf ("  %+6.2f   %+6.2f dB\n\n", measurePinkDeltaDb (eBO, -20.0f), measurePinkDeltaKWeighted (eBO, -20.0f));
 
-    printf (" Measured response (PERCEPTUAL / K-weighted):  soft(-50dBFS)   loud(-6dBFS)\n");
+    printf (" Measured response (Boost Only, shipped default):  soft(-50dBFS)   loud(-6dBFS)\n");
     for (int i = 0; i < kNumSweep; ++i)
     {
-        const float gSoft = measureGainDb (eK, kSweep[i], -50.0f);
-        const float gLoud = measureGainDb (eK, kSweep[i], -6.0f);
+        const float gSoft = measureGainDb (eBO, kSweep[i], -50.0f);
+        const float gLoud = measureGainDb (eBO, kSweep[i], -6.0f);
         printf ("   %8.0f Hz   %+8.2f dB    %+8.2f dB\n", kSweep[i], gSoft, gLoud);
     }
 }

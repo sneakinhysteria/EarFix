@@ -23,18 +23,19 @@ See [all releases](https://github.com/sneakinhysteria/EarFix/releases) for relea
 ## Features
 
 - **Personalized Correction**: Enter your audiogram values for 6 standard frequencies (250Hz - 8kHz), per ear
-- **Loudness-Neutral Correction**: Correction curves are centered using perceptual (K-weighted) loudness, so corrected output matches your source material's loudness instead of getting louder as prescribed gain increases
-- **Multiband WDRC**: Phase-compensated 6-band Linkwitz-Riley crossover with Wide Dynamic Range Compression per band
+- **Basic & Advanced modes**: Basic offers one-click **Speech** and **Music** presets grounded in hearing-aid fitting practice; Advanced exposes the full control set. Both drive the same underlying settings
 - **Three Correction Models**:
   - **Half-Gain**: Simple, transparent correction (applies 50% of hearing loss as gain), no compression
   - **NAL (Speech)**: Clinical-grade algorithm with compression (based on National Acoustic Laboratories formula)
   - **MOSL (Music)**: Music-optimized specific loudness restoration with gentle compression and preserved dynamics
-- **Max Boost Control**: Limit per-band gain (10-40dB) for hearing safety
+- **Two Loudness Modes**: *Boost Only* (default) never cuts a band — it applies your prescribed correction and leaves overall level to the Output stage; *Centered* holds perceived (K-weighted) loudness constant across the reshape
+- **Multiband WDRC**: Phase-compensated 6-band Linkwitz-Riley crossover with Wide Dynamic Range Compression per band
+- **One-click Auto level match**: Sets Output so the corrected signal sits at the same loudness as your source, measured from the actual signal while it plays
+- **Output Gain**: Master output trim, -48 to +24 dB — wide enough to tame the large boosts correction can add, so you never have to turn down your source or system volume
 - **Level Metering**: Stereo input and output meters for visual feedback
-- **Independent Ear Control**: Separate audiograms and enable/disable for left and right ears
+- **Independent Ear Control**: Separate audiograms and enable/disable for left and right ears, with a link toggle
 - **Adjustable Strength**: Scale correction from 0-100% to find your comfort level
-- **Output Gain**: Master volume control with +/-24dB range
-- **Headphone Correction**: Flatten your headphones' response before hearing correction is applied. Paste in a Parametric EQ profile (from [AutoEq](https://github.com/jaakkopasanen/AutoEq), [squig.link](https://squig.link), or [oratory1990](https://www.reddit.com/r/oratory1990/)) for any headphone
+- **Headphone Correction**: Loudness-neutral EQ that flattens your headphones' own response. Paste in a Parametric EQ profile (from [AutoEq](https://github.com/jaakkopasanen/AutoEq), [squig.link](https://squig.link), or [oratory1990](https://www.reddit.com/r/oratory1990/)) for any headphone
 - **AU Presets**: Save/load presets in the standard `.aupreset` format, interchangeable with Logic and other AU hosts
 - **Premium UI**: Clean, professional interface with interactive audiogram charts and signal flow visualization
 
@@ -75,16 +76,16 @@ See the [User Guide](docs/USER_GUIDE.md) for complete documentation.
 
 **Quick Start:**
 1. Insert EarFix on a track or master bus
-2. Enter your audiogram values (hearing threshold in dB HL) for each frequency
-3. Choose a correction model (start with Half-Gain)
-4. Adjust correction strength to taste
-5. Enable/disable individual ears as needed
+2. Enter your audiogram values (hearing threshold in dB HL) for each frequency, per ear
+3. In **Basic** mode, click **Speech** or **Music** for a research-grounded starting point — or switch to **Advanced** to pick a model and set strength yourself
+4. Play audio and click **Auto** to match the output loudness to your source
+5. Switch to Advanced any time to fine-tune (model, strength, loudness mode, compression speed)
 
 ## How It Works
 
-EarFix splits audio into 6 bands (matching the 250Hz-8kHz audiogram frequencies) using a phase-compensated Linkwitz-Riley crossover, then applies gain per band based on your audiogram and chosen correction model. Signal flow is: **headphone EQ** (flattens your headphones' own response, if a profile is loaded) → **hearing correction** (reshapes the now-neutral signal for your audiogram) → **output gain**.
+EarFix splits audio into 6 bands (matching the 250Hz-8kHz audiogram frequencies) using a phase-compensated Linkwitz-Riley crossover, then applies gain per band based on your audiogram and chosen correction model. Signal flow is: **hearing correction** (reshapes the signal for your audiogram) → **headphone EQ** (flattens your headphones' own response, if a profile is loaded) → **output gain**. Hearing correction comes first so its level-dependent compression responds to the clean source dynamics rather than to a signal already colored by the headphone-inverse EQ; the net frequency response is the same either way, since the two filter stages combine identically regardless of order.
 
-The per-band correction curve is centered using perceptual (K-weighted) loudness, so a flat hearing loss produces no change in level (only compression), and a sloping loss produces a spectral tilt without making the overall signal louder than the source. Wide Dynamic Range Compression (WDRC) then eases the correction toward flat as input level rises, so quiet passages get the full prescribed correction and loud passages approach the original spectrum.
+In the default **Boost Only** loudness mode, each band gets its model-prescribed gain and no band is ever cut, so the correction can run louder than the source — the **Auto** button (or the Output fader) brings that back to the source's loudness by measuring the actual processed vs. input level. The alternative **Centered** mode instead holds perceived (K-weighted) loudness constant across the reshape, so a flat hearing loss produces no change in level and a sloping loss produces a spectral tilt without getting louder. In both modes, Wide Dynamic Range Compression (WDRC) eases the correction toward flat as input level rises, so quiet passages get the full prescribed correction and loud passages approach the original spectrum.
 
 **Correction Models:**
 
@@ -94,9 +95,9 @@ The per-band correction curve is centered using perceptual (K-weighted) loudness
 
 - **MOSL (Music)**: Music-Optimized Specific Loudness model that preserves spectral balance and musical dynamics. Uses gentler compression (max 1.7:1) and slower time constants to avoid "pumping" artifacts common with speech-focused algorithms.
 
-**Safety Features:**
+**Level Management:**
 
-The Max Boost control (10-40dB) limits the maximum gain applied in any frequency band, protecting your hearing from excessive amplification.
+Correction can add substantial gain, so overall level is managed at the output rather than by reducing your source (which would lose quality before the signal reaches EarFix). The Output fader trims down to -48 dB, and the **Auto** button sets it automatically to match the corrected signal's loudness to your input. A fixed internal ceiling caps any single band's gain so no frequency is over-amplified.
 
 ## Building from Source
 

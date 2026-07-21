@@ -377,16 +377,20 @@ public:
             // Classic hyperlink/chain glyph: two elongated stadium-shaped rings,
             // both tilted along the same diagonal and strung end-to-end so they
             // overlap in the middle, like two paperclip loops interlocking.
-            auto bounds = button.getLocalBounds().toFloat();
+            // Inset first so the rotated shape has clipping margin -- the previous
+            // version sized the rings almost as wide as the whole button, so most of
+            // each ring fell outside the component bounds and got clipped away,
+            // leaving only the small crossing blob in the middle visible.
+            auto bounds = button.getLocalBounds().toFloat().reduced (2.0f);
             g.setColour (button.getToggleState() ? juce::Colours::white : textMuted);
 
             const float cx = bounds.getCentreX(), cy = bounds.getCentreY();
             const float s  = juce::jmin (bounds.getWidth(), bounds.getHeight());
 
-            const float ringW = s * 1.05f;    // long axis of each link
-            const float ringH = s * 0.46f;    // short axis -- elongated, not circular
-            const float thickness = juce::jmax (1.6f, ringH * 0.42f);
-            const float offset = s * 0.24f;   // how far each ring's centre sits from the middle
+            const float ringW = s * 0.55f;    // long axis of each link
+            const float ringH = s * 0.26f;    // short axis -- elongated, not circular
+            const float thickness = juce::jmax (1.4f, ringH * 0.4f);
+            const float offset = s * 0.16f;   // how far each ring's centre sits from the middle
 
             const float angle = juce::degreesToRadians (-45.0f);
             const auto  dir   = juce::Point<float> (1.0f, 0.0f).transformedBy (juce::AffineTransform::rotation (angle));

@@ -369,8 +369,33 @@ void HeadphoneEQ::updateFilterCoefficients()
         }
     }
 
+    // Loudness-neutral makeup: evaluate the filter chain's magnitude on a log-spaced
+    // (pink-weighted) grid, take the mean power, and set the makeup so the net broadband
+    // loudness is preserved (the profile's preamp is deliberately not applied).
+    {
+        const double fLo = 20.0;
+        const double fHi = std::min (20000.0, currentSampleRate * 0.45);
+        const int    pointsPerOctave = 12;
+        const double octaves = std::log2 (fHi / fLo);
+        const int    steps = std::max (1, static_cast<int> (std::round (octaves * pointsPerOctave)));
+
+        double sumPower = 0.0;
+        for (int s = 0; s <= steps; ++s)
+        {
+            const double f = fLo * std::pow (2.0, octaves * s / steps);
+            double mag = 1.0;
+            for (int i = 0; i < activeFilterCount; ++i)
+                mag *= leftFilters[i].coefficients->getMagnitudeForFrequency (f, currentSampleRate);
+            sumPower += mag * mag;
+        }
+        const double meanPower = sumPower / (steps + 1);
+        loudnessMakeupGain = (meanPower > 1.0e-12)
+            ? static_cast<float> (1.0 / std::sqrt (meanPower)) : 1.0f;
+    }
+
     DBG ("HeadphoneEQ: Updated " + juce::String (activeFilterCount) + " filters, preamp: " +
-         juce::String (currentProfile.preamp, 1) + " dB");
+         juce::String (currentProfile.preamp, 1) + " dB, loudness makeup: " +
+         juce::String (juce::Decibels::gainToDecibels (loudnessMakeupGain), 1) + " dB");
 }
 
 //==============================================================================
@@ -421,9 +446,10 @@ void HeadphoneEQ::process (juce::AudioBuffer<float>& buffer)
 
     const int numSamples = buffer.getNumSamples();
 
-    // Apply preamp
-    if (std::abs (preampGain - 1.0f) > 0.001f)
-        buffer.applyGain (preampGain);
+    // Apply loudness-neutral makeup (replaces the profile's preamp cut) so the EQ
+    // changes tone, not overall level.
+    if (std::abs (loudnessMakeupGain - 1.0f) > 0.001f)
+        buffer.applyGain (loudnessMakeupGain);
 
     if (buffer.getNumChannels() >= 2)
     {

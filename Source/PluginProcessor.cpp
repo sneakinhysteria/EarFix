@@ -258,6 +258,8 @@ void HearingCorrectionAUv2AudioProcessor::prepareToPlay (double sampleRate, int 
     headphoneEQ.prepare (sampleRate, samplesPerBlock);
 
     previousGain = juce::Decibels::decibelsToGain (outputGainParam->load());
+    inputLoudnessMS = 0.0f;
+    processedLoudnessMS = 0.0f;
 
     // Prepare filter spec for mono processing
     juce::dsp::ProcessSpec spec;
@@ -393,14 +395,10 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     static constexpr double wsum = 4.146 + 1.120 + 1.413 + 1.995 + 2.512 + 4.577;
 
-    // Tracks the louder ear's K-weighted loudness excess over input, for the Auto
-    // output-trim button (see correctionExcessDb).
-    float maxExcessDb = 0.0f;
-
     // Builds the loudness-safe target curve for one ear from the model's pure
     // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
     // selected loudness mode (see the parameter comment above).
-    auto computeEar = [this, strength, modelComp, loudnessMode, &kWeightedPowerSum, &maxExcessDb]
+    auto computeEar = [this, strength, modelComp, loudnessMode, &kWeightedPowerSum]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
          std::array<WDRCBandState, numAudiogramBands>& wdrc,
          std::array<std::atomic<float>, numAudiogramBands>& appliedGainDb)
@@ -431,11 +429,6 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
                 shaped[i] = juce::jlimit (-kCorrectionCeilingDb, kCorrectionCeilingDb, g[i] - offset);
         }
 
-        // K-weighted loudness of this ear's shaped curve relative to flat 0 dB input --
-        // "how many dB hotter than input this correction runs" (see correctionExcessDb).
-        const float excess = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (shaped) / wsum));
-        maxExcessDb = std::max (maxExcessDb, excess);
-
         for (int i = 0; i < numAudiogramBands; ++i)
         {
             wdrc[i].targetGainForSoftSounds = shaped[i];
@@ -450,8 +443,6 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     computeEar (leftAudiogramParams, leftWDRC, leftAppliedGainDb);
     computeEar (rightAudiogramParams, rightWDRC, rightAppliedGainDb);
-
-    correctionExcessDb.store (maxExcessDb, std::memory_order_relaxed);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,
@@ -498,11 +489,16 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
     for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
         buffer.clear (i, 0, numSamples);
 
-    // Measure input levels
+    // Measure input levels (peak, for meters) and block loudness (mean-square, for the
+    // signal-based Auto trim below).
+    float inputBlockMS = 0.0f;
     if (buffer.getNumChannels() >= 2)
     {
         inputLevelLeft.store (buffer.getMagnitude (0, 0, numSamples), std::memory_order_relaxed);
         inputLevelRight.store (buffer.getMagnitude (1, 0, numSamples), std::memory_order_relaxed);
+        const float rL = buffer.getRMSLevel (0, 0, numSamples);
+        const float rR = buffer.getRMSLevel (1, 0, numSamples);
+        inputBlockMS = 0.5f * (rL * rL + rR * rR);
     }
 
     if (bypassParam->load() > 0.5f)
@@ -512,13 +508,10 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
         return;
     }
 
-    // Apply headphone EQ correction (flattens headphone response before hearing correction)
-    bool headphoneEQEnabled = headphoneEQEnableParam->load() > 0.5f;
-    headphoneEQ.setEnabled (headphoneEQEnabled);
-    headphoneEQ.process (buffer);   // no-op when disabled
+    const bool headphoneEQEnabled = headphoneEQEnableParam->load() > 0.5f;
 
-    // Update model and WDRC parameters (kept live so the overlay/Auto value stay
-    // current even while correction is momentarily disabled).
+    // Update model and WDRC parameters (kept live so the overlay stays current even
+    // while correction is momentarily disabled).
     updateCurrentModel();
     updateWDRCCoefficients();
 
@@ -608,6 +601,37 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
             leftChannel[sample]  = leftEnabled  ? leftOut  : leftIn;
             rightChannel[sample] = rightEnabled ? rightOut : rightIn;
         }
+    }
+
+    // Headphone EQ AFTER hearing correction. The transducer is the last physical stage,
+    // so its compensation is a final linear touch-up on the corrected signal. Running it
+    // here (not before) means the WDRC compression above responded to the clean source
+    // dynamics rather than the signal pre-distorted by the headphone-inverse EQ. The net
+    // magnitude correction is identical either way (linear filters commute); only the
+    // level-dependent compression benefits. Loudness-neutral, so it changes tone not level.
+    headphoneEQ.setEnabled (headphoneEQEnabled);
+    headphoneEQ.process (buffer);   // no-op when disabled
+
+    // Signal-based loudness measurement for the Auto trim: compare the actual processed
+    // loudness (post correction + headphone EQ, pre output gain) against the input,
+    // integrated over ~400 ms. Unlike a gain-curve estimate this reflects the real energy
+    // the processing added for whatever is playing -- a large HF boost adds little when the
+    // material has little HF energy -- so Auto matches loudness instead of over-trimming.
+    // Gated on a real input signal so silence doesn't skew the running average.
+    if (buffer.getNumChannels() >= 2 && inputBlockMS > 1.0e-7f)   // ~-70 dBFS gate
+    {
+        const float rL = buffer.getRMSLevel (0, 0, numSamples);
+        const float rR = buffer.getRMSLevel (1, 0, numSamples);
+        const float processedBlockMS = 0.5f * (rL * rL + rR * rR);
+
+        const float a = std::exp (-static_cast<float> (numSamples)
+                                   / static_cast<float> (currentSampleRate * 0.4));
+        inputLoudnessMS     = inputLoudnessMS     * a + inputBlockMS     * (1.0f - a);
+        processedLoudnessMS = processedLoudnessMS * a + processedBlockMS * (1.0f - a);
+
+        if (inputLoudnessMS > 1.0e-9f)
+            correctionExcessDb.store (10.0f * std::log10 (processedLoudnessMS / inputLoudnessMS),
+                                      std::memory_order_relaxed);
     }
 
     // Output gain with smoothing. Applied only while something is being corrected --

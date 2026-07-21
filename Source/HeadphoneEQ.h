@@ -141,5 +141,11 @@ private:
     int activeFilterCount = 0;
     float preampGain = 1.0f;
 
+    // Loudness-neutral makeup: scales the filter chain so it preserves broadband
+    // (pink-weighted) loudness -- headphone EQ then changes tone, not overall level.
+    // Replaces the profile's preamp (a clipping-headroom cut, unneeded on a float path;
+    // final level is handled downstream by Output Gain / Auto). Computed per profile.
+    float loudnessMakeupGain = 1.0f;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HeadphoneEQ)
 };

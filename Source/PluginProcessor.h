@@ -86,10 +86,12 @@ public:
     std::array<std::atomic<float>, numAudiogramBands> leftAppliedGainDb;
     std::array<std::atomic<float>, numAudiogramBands> rightAppliedGainDb;
 
-    // How many dB (K-weighted, BS.1770) hotter than the input the current correction
-    // curve runs -- the louder of the two ears. The "Auto" output button negates this
-    // to bring corrected loudness back to input parity. ~0 in Centered mode (already
-    // loudness-neutral); positive in Boost Only. Written each block.
+    // How many dB louder than the input the actual processed signal runs right now --
+    // measured (not estimated from the gain curve) as the ratio of processed to input
+    // RMS loudness, integrated over ~400 ms, so it reflects the real energy the
+    // correction + headphone EQ add for whatever is playing. The "Auto" output button
+    // negates this to bring loudness back to input parity. Needs audio playing to be
+    // meaningful; holds its last value during silence. Written each block in processBlock.
     std::atomic<float> correctionExcessDb { 0.0f };
 
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
@@ -196,6 +198,11 @@ private:
 
     // Gain smoothing
     float previousGain = 1.0f;
+
+    // Leaky-integrated (~400ms) mean-square loudness of the input and the processed
+    // signal, for the signal-based Auto trim (correctionExcessDb). Audio-thread only.
+    float inputLoudnessMS = 0.0f;
+    float processedLoudnessMS = 0.0f;
 
     //==============================================================================
     // Linkwitz-Riley Multiband Crossover (5 crossovers for 6 bands)

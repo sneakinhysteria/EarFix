@@ -72,11 +72,16 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         juce::StringArray { "Half-Gain", "NAL (Speech)", "MOSL (Music)" },
         2));  // Default to MOSL for music-focused use
 
-    // Output gain: -24 to +24 dB
+    // Output gain: -48 to +24 dB. The wide negative range is deliberate: hearing
+    // correction in Boost Only mode never cuts and can add tens of dB of boost, so the
+    // corrected signal runs far hotter than the input. Trimming here (a lossless float
+    // scale, no clipping anywhere in the path) is the correct place to bring it back --
+    // never by reducing source/system volume, which throws away resolution upstream.
+    // The "Auto" button sets this to cancel the correction's measured loudness excess.
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { "outputGain", 1 },
         "Output Gain",
-        juce::NormalisableRange<float> (-24.0f, 24.0f, 0.1f),
+        juce::NormalisableRange<float> (-48.0f, 24.0f, 0.1f),
         0.0f,
         juce::AudioParameterFloatAttributes().withLabel ("dB")));
 
@@ -388,10 +393,14 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     static constexpr double wsum = 4.146 + 1.120 + 1.413 + 1.995 + 2.512 + 4.577;
 
+    // Tracks the louder ear's K-weighted loudness excess over input, for the Auto
+    // output-trim button (see correctionExcessDb).
+    float maxExcessDb = 0.0f;
+
     // Builds the loudness-safe target curve for one ear from the model's pure
     // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
     // selected loudness mode (see the parameter comment above).
-    auto computeEar = [this, strength, modelComp, loudnessMode, &kWeightedPowerSum]
+    auto computeEar = [this, strength, modelComp, loudnessMode, &kWeightedPowerSum, &maxExcessDb]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
          std::array<WDRCBandState, numAudiogramBands>& wdrc,
          std::array<std::atomic<float>, numAudiogramBands>& appliedGainDb)
@@ -422,6 +431,11 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
                 shaped[i] = juce::jlimit (-kCorrectionCeilingDb, kCorrectionCeilingDb, g[i] - offset);
         }
 
+        // K-weighted loudness of this ear's shaped curve relative to flat 0 dB input --
+        // "how many dB hotter than input this correction runs" (see correctionExcessDb).
+        const float excess = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (shaped) / wsum));
+        maxExcessDb = std::max (maxExcessDb, excess);
+
         for (int i = 0; i < numAudiogramBands; ++i)
         {
             wdrc[i].targetGainForSoftSounds = shaped[i];
@@ -436,6 +450,8 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     computeEar (leftAudiogramParams, leftWDRC, leftAppliedGainDb);
     computeEar (rightAudiogramParams, rightWDRC, rightAppliedGainDb);
+
+    correctionExcessDb.store (maxExcessDb, std::memory_order_relaxed);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,

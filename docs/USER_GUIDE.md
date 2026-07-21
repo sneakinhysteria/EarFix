@@ -80,15 +80,14 @@ EarFix includes headphone-specific EQ correction to compensate for your headphon
 **Left Column (Model & Options):**
 - **Model**: Select correction algorithm (Half-Gain, NAL Speech, or MOSL Music)
 - **Speed**: Compression speed for NAL/MOSL models (Fast/Slow)
-- **Level**: Experience level for NAL/MOSL models (New/Some/Experienced)
+- **Loudness**: How the curve is kept from running louder than input (Centered / Boost Only)
 
 **Right Column (Signal Flow):**
 - **Input Meters**: Stereo level meters showing input signal
 - **Strength**: Correction intensity fader (0-100%)
-- **Max**: Maximum per-band boost limit (0-30 dB) - limits gain in any frequency band for hearing safety
-- **Output**: Master output gain fader (-24 to +24 dB)
+- **Output**: Master output gain fader (-48 to +24 dB). The wide negative range covers the large boosts hearing correction adds — always trim here rather than reducing your source/system volume, which loses quality.
+- **Auto**: Click to set Output automatically so the corrected signal matches the input's loudness — one click, and the fader moves to the computed value (still adjustable afterward).
 - **Output Meters**: Stereo level meters showing output signal
-- **Auto Gain**: Hold to automatically match output level to input level
 
 ### Audiogram Section (Bottom)
 
@@ -146,7 +145,7 @@ Start with the Strength slider at 50% and adjust to taste:
 
 ### Step 4: Set Output Level
 
-Adjust the Output slider to match your original listening level. Hearing correction adds gain, so you may need to reduce output to avoid clipping.
+Click **Auto** to set the Output level automatically — it matches the corrected signal's loudness back to the input so the overall volume feels unchanged. Then fine-tune the Output slider to taste. Hearing correction adds a lot of gain (especially in Boost Only mode, which never cuts), so the Output fader reaches down to -48 dB; always trim here rather than turning down your source or system volume, which degrades quality before the signal even reaches EarFix.
 
 ---
 
@@ -188,10 +187,7 @@ Based on the National Acoustic Laboratories' Non-Linear 2 prescription formula, 
 - **Fast**: Quick response to level changes (5ms attack, 50ms release)
 - **Slow**: Smoother response (10ms attack, 150ms release)
 
-**Experience Level:**
-- **New**: More conservative correction (70% of prescribed gain)
-- **Some**: Moderate correction (85% of prescribed gain)
-- **Experienced**: Full prescription correction (100%)
+Overall correction amount is set continuously with the **Strength** fader (there is no separate experience-level preset).
 
 **Best for:**
 - Moderate to moderately-severe hearing loss
@@ -216,9 +212,7 @@ Music-Optimized Specific Loudness model based on research from Fitz & McKinney (
 - **Fast**: 5ms attack, 150ms release (still slower than NAL)
 - **Slow**: 10ms attack, 300ms release (best for critical listening)
 
-**Experience Level:**
-- **New/Some**: Brightness boost disabled
-- **Experienced**: Brightness boost enabled (subtle HF enhancement)
+Overall correction amount is set continuously with the **Strength** fader.
 
 **Best for:**
 - Music listening and production
@@ -241,7 +235,7 @@ Music-Optimized Specific Loudness model based on research from Fitz & McKinney (
 - Use the **MOSL (Music)** model for best results
 - Alternatively, **Half-Gain** for maximum transparency
 - Set **Strength** to 50-75%
-- Use **Auto Gain** to quickly match levels
+- Use **Auto** to quickly match levels
 - Consider using on the master bus or headphone output
 
 ### For Mixing/Mastering
@@ -270,7 +264,7 @@ No. EarFix is designed for music and audio listening, not for daily communicatio
 You may be perceiving frequencies you haven't heard clearly in a while. Try:
 - Reducing the Strength slider
 - Giving your ears time to adjust
-- Using the NAL model with "New User" experience level
+- Switching to the MOSL (Music) model, which shapes more gently than NAL
 
 ### Can I save my audiogram settings?
 
@@ -284,9 +278,9 @@ EarFix implements a simplified version of the NAL-NL2 formula suitable for audio
 
 **NAL (Speech)** is optimized for speech intelligibility with faster compression designed to handle the dynamic range of conversation. **MOSL (Music)** uses gentler compression with slower time constants to preserve musical dynamics and avoid the "pumping" effect that can occur with speech-optimized algorithms on music.
 
-### How does Auto Gain work?
+### How does Auto work?
 
-Hold the Auto Gain button while audio is playing. EarFix compares the input and output levels and automatically adjusts the output gain to match them. This is useful for A/B comparing corrected vs. uncorrected audio at the same perceived volume.
+Click the **Auto** button next to the Output fader. EarFix computes how much louder the current correction runs than the input (a perceptual, K-weighted measure) and sets the Output gain to cancel exactly that, so corrected and uncorrected audio sit at the same perceived loudness. The fader visibly jumps to the computed value and stays adjustable, so you can fine-tune from there. It works with any audiogram and correction strength, no need to play audio while clicking.
 
 ### Does EarFix add latency?
 

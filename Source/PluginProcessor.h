@@ -86,6 +86,12 @@ public:
     std::array<std::atomic<float>, numAudiogramBands> leftAppliedGainDb;
     std::array<std::atomic<float>, numAudiogramBands> rightAppliedGainDb;
 
+    // How many dB (K-weighted, BS.1770) hotter than the input the current correction
+    // curve runs -- the louder of the two ears. The "Auto" output button negates this
+    // to bring corrected loudness back to input parity. ~0 in Centered mode (already
+    // loudness-neutral); positive in Boost Only. Written each block.
+    std::atomic<float> correctionExcessDb { 0.0f };
+
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
         250.0f,    // Audiogram band 0
         354.0f,    // Interpolated (geometric mean of 250 & 500)

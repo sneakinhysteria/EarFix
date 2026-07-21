@@ -48,6 +48,11 @@ private:
     juce::Label        outputGainLabel;
     juce::Label        correctionLabel;
 
+    // One-click output trim: sets Output Gain to cancel the correction's measured
+    // loudness excess (matches corrected output loudness back to the input). Sits in
+    // the Output fader column in both Basic and Advanced modes.
+    juce::TextButton   autoOutputButton { "Auto" };
+
     // Left column: Model selection
     juce::ComboBox     modelSelector;
     juce::Label        modelLabel;

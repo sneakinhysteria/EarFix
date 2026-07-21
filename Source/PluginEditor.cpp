@@ -53,6 +53,23 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     outputGainLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (outputGainLabel);
 
+    // "Auto" output-trim button: set Output Gain to negate the correction's measured
+    // loudness excess, matching corrected output back to input loudness in one click.
+    autoOutputButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+    autoOutputButton.setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+    autoOutputButton.onClick = [this]()
+    {
+        const float excess = audioProcessor.correctionExcessDb.load (std::memory_order_relaxed);
+        if (auto* p = audioProcessor.parameters.getParameter ("outputGain"))
+        {
+            const float target = juce::jlimit (-48.0f, 24.0f, -excess);
+            p->beginChangeGesture();
+            p->setValueNotifyingHost (p->convertTo0to1 (target));
+            p->endChangeGesture();
+        }
+    };
+    addAndMakeVisible (autoOutputButton);
+
     // Model selector
     modelSelector.addItem ("Half-Gain", 1);
     modelSelector.addItem ("NAL (Speech)", 2);
@@ -783,17 +800,28 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
                                        (float) meterW, (float) (meterBottom - barTop));
     };
 
+    // Output column: fader shortened to fit the compact "Auto" trim button beneath its
+    // value box (the fader's own value box stays pinned to the bottom of its bounds).
+    const int autoBtnH = 16, autoBtnGap = 4, autoBtnW = 48;
+    auto placeOutputColumn = [&] (int i)
+    {
+        placeTitle (outputGainLabel, i);
+        const int shortBottom = faderBottom - (autoBtnH + autoBtnGap);
+        outputGainSlider.setBounds (colCentre (i) - faderW / 2, faderTop, faderW, shortBottom - faderTop);
+        autoOutputButton.setBounds (colCentre (i) - autoBtnW / 2, shortBottom + autoBtnGap, autoBtnW, autoBtnH);
+    };
+
     if (basicUI)
     {
         placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
-        placeTitle (outputGainLabel,  1);  placeFader (outputGainSlider, 1);
+        placeOutputColumn (1);
         placeTitle (outputMeterLabel, 2);  outputMeterBounds = meterRect (2);
     }
     else
     {
         placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
         placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
-        placeTitle (outputGainLabel,  2);  placeFader (outputGainSlider,         2);
+        placeOutputColumn (2);
         placeTitle (outputMeterLabel, 3);  outputMeterBounds = meterRect (3);
     }
 }

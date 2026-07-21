@@ -680,16 +680,8 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
     const int CTRL_PANEL_H = 200;    // Control panel (4 dropdown rows: Model/Speed/Level/Loudness)
 
-    // Basic/Advanced toggle row: asymmetric padding so it reads as attached to the
-    // control ("hearing loss") card below it, not equidistant between it and the
-    // audiogram above -- clear separation above, flush (no gap) below.
-    const int MODE_GAP_ABOVE = 16;
-    const int MODE_ROW_H     = 20;
-    const int MODE_GAP_BELOW = 0;
-
     // Calculate audiogram height to fill remaining space
-    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP
-                    + MODE_GAP_ABOVE + MODE_ROW_H + MODE_GAP_BELOW + HEADER_H + CTRL_PANEL_H;
+    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + HEADER_H + CTRL_PANEL_H;
     int audiogramHeight = bounds.getHeight() - usedHeight;
 
     // ============ 1. HEADPHONE SECTION ============
@@ -753,20 +745,19 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     leftAudiogram.setBounds (lPanel.getX(), chartTop,
                              lPanel.getWidth(), lPanel.getBottom() - chartTop);
 
-    // ============ MODE TOGGLE ROW ============
-    // Sits directly above the control ("hearing loss") card, not at the very top of
-    // the window, so it reads as belonging to the section it controls -- more space
-    // above (separating it from the audiogram) than below (flush against the card).
-    bounds.removeFromTop (MODE_GAP_ABOVE);
-    const int modeBtnW = 60, modeBtnH = MODE_ROW_H;
-    auto modeRow = bounds.removeFromTop (MODE_ROW_H);
-    basicModeButton.setBounds (modeRow.getX(), modeRow.getY(), modeBtnW, modeBtnH);
-    advancedModeButton.setBounds (modeRow.getX() + modeBtnW, modeRow.getY(), modeBtnW, modeBtnH);
-    bounds.removeFromTop (MODE_GAP_BELOW);
+    bounds.removeFromTop (GAP);
 
     // ============ 3. CONTROL SECTION ============
-    bounds.removeFromTop (HEADER_H);
+    // Basic/Advanced toggle lives inside the same title row as "HEARING LOSS
+    // CORRECTION MODEL & PARAMETERS" (paint()), left-aligned -- it uses exactly the
+    // same GAP-then-HEADER_H rhythm as every other card title instead of a separate
+    // row, so it reads as part of this card's title, not floating between sections.
+    auto controlHeaderRow = bounds.removeFromTop (HEADER_H);
     controlPanelBounds = bounds.toFloat();
+
+    const int modeBtnW = 54, modeBtnH = HEADER_H;
+    basicModeButton.setBounds (controlHeaderRow.getX(), controlHeaderRow.getY(), modeBtnW, modeBtnH);
+    advancedModeButton.setBounds (controlHeaderRow.getX() + modeBtnW, controlHeaderRow.getY(), modeBtnW, modeBtnH);
     auto ctrlArea = controlPanelBounds.reduced (PANEL_PAD).toNearestInt();
 
     const bool basicUI = (audioProcessor.getUIMode() == "Basic");

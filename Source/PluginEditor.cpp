@@ -88,7 +88,6 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     // Loudness mode selector
     loudnessModeSelector.addItem ("Centered", 1);
     loudnessModeSelector.addItem ("Boost Only", 2);
-    loudnessModeSelector.addItem ("Boost Only (Anchored)", 3);
     addAndMakeVisible (loudnessModeSelector);
     loudnessModeLabel.setText ("LOUDNESS", juce::dontSendNotification);
     loudnessModeLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
@@ -180,6 +179,48 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     savePresetButton.onClick = [this]() { savePreset(); };
     loadPresetButton.onClick = [this]() { loadPreset(); };
 
+    // Basic/Advanced mode toggle (segmented pair, top-left) -- same manual on/off-colour
+    // technique as the ear-link buttons above, since the two states are named, not a
+    // simple boolean switch.
+    for (auto* b : { &basicModeButton, &advancedModeButton })
+    {
+        b->setClickingTogglesState (false);
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
+        addAndMakeVisible (*b);
+    }
+    basicModeButton.onClick = [this]()
+    {
+        audioProcessor.setUIMode ("Basic");
+        updateUIModeVisibility();
+    };
+    advancedModeButton.onClick = [this]()
+    {
+        audioProcessor.setUIMode ("Advanced");
+        updateUIModeVisibility();
+    };
+
+    // Basic-mode curated preset buttons
+    for (auto* b : { &speechPresetButton, &musicPresetButton })
+    {
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+        addAndMakeVisible (*b);
+    }
+    speechPresetButton.onClick = [this]()
+    {
+        audioProcessor.applyCuratedPreset (HearingCorrectionAUv2AudioProcessor::CuratedPreset::Speech);
+    };
+    musicPresetButton.onClick = [this]()
+    {
+        audioProcessor.applyCuratedPreset (HearingCorrectionAUv2AudioProcessor::CuratedPreset::Music);
+    };
+
+    presetSummaryLabel.setFont (juce::FontOptions (11.0f));
+    presetSummaryLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
+    presetSummaryLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (presetSummaryLabel);
+
     headphoneInfoLabel.setFont (juce::FontOptions (10.0f));
     headphoneInfoLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     headphoneInfoLabel.setJustificationType (juce::Justification::centredLeft);
@@ -233,7 +274,7 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
 
     // Listen for model changes
     audioProcessor.parameters.addParameterListener ("modelSelect", this);
-    updateNALOptionsVisibility();
+    updateUIModeVisibility();
 
     // Start timer for meter updates
     startTimerHz (30);
@@ -295,13 +336,15 @@ void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
         maxBoostSlider.repaint();
     }
 
+    updatePresetSummaryLabel();
+
     repaint();
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::parameterChanged (const juce::String& parameterID, float)
 {
     if (parameterID == "modelSelect")
-        juce::MessageManager::callAsync ([this]() { updateNALOptionsVisibility(); });
+        juce::MessageManager::callAsync ([this]() { updateUIModeVisibility(); });
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
@@ -317,6 +360,71 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
     experienceLevelLabel.setVisible (showLevel);
     experienceLevelSelector.setVisible (showLevel);
     repaint();
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::updateUIModeVisibility()
+{
+    const bool basic = (audioProcessor.getUIMode() == "Basic");
+
+    basicModeButton.setColour (juce::TextButton::buttonColourId,
+                               basic ? CustomLookAndFeel::accentBlue : CustomLookAndFeel::panelWhite);
+    advancedModeButton.setColour (juce::TextButton::buttonColourId,
+                                  basic ? CustomLookAndFeel::panelWhite : CustomLookAndFeel::accentBlue);
+
+    // Advanced-only controls: the full dropdown column + Strength/Max Boost faders.
+    modelLabel.setVisible (! basic);
+    modelSelector.setVisible (! basic);
+    loudnessModeLabel.setVisible (! basic);
+    loudnessModeSelector.setVisible (! basic);
+    correctionLabel.setVisible (! basic);
+    correctionStrengthSlider.setVisible (! basic);
+    maxBoostLabel.setVisible (! basic);
+    maxBoostSlider.setVisible (! basic);
+
+    if (basic)
+    {
+        // Compression Speed / Level are also model-conditional in Advanced mode -- in
+        // Basic mode they're always hidden regardless, so don't let a later
+        // updateNALOptionsVisibility() call re-show them.
+        compressionSpeedLabel.setVisible (false);
+        compressionSpeedSelector.setVisible (false);
+        experienceLevelLabel.setVisible (false);
+        experienceLevelSelector.setVisible (false);
+    }
+    else
+    {
+        updateNALOptionsVisibility();
+    }
+
+    // Basic-mode-only controls: curated preset buttons + live summary.
+    speechPresetButton.setVisible (basic);
+    musicPresetButton.setVisible (basic);
+    presetSummaryLabel.setVisible (basic);
+    if (basic)
+        updatePresetSummaryLabel();
+
+    resized();
+    repaint();
+}
+
+void HearingCorrectionAUv2AudioProcessorEditor::updatePresetSummaryLabel()
+{
+    auto* modelParam    = audioProcessor.parameters.getRawParameterValue ("modelSelect");
+    auto* strengthParam = audioProcessor.parameters.getRawParameterValue ("correctionStrength");
+    auto* maxBoostParam = audioProcessor.parameters.getRawParameterValue ("maxBoost");
+    auto* speedParam    = audioProcessor.parameters.getRawParameterValue ("compressionSpeed");
+    if (modelParam == nullptr || strengthParam == nullptr || maxBoostParam == nullptr || speedParam == nullptr)
+        return;
+
+    static const char* modelNames[] = { "Half-Gain", "NAL (Speech)", "MOSL (Music)" };
+    int modelIndex = juce::jlimit (0, 2, static_cast<int> (modelParam->load()));
+    bool fastSpeed = speedParam->load() < 0.5f;
+
+    juce::String summary;
+    summary << modelNames[modelIndex] << "   Strength " << (int) strengthParam->load() << "%"
+            << "   Max Boost " << (int) maxBoostParam->load() << " dB"
+            << "   " << (fastSpeed ? "Fast" : "Slow");
+    presetSummaryLabel.setText (summary, juce::dontSendNotification);
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::setEarsLinked (bool linked)
@@ -481,8 +589,11 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
         const int PAD = 10;
         CustomLookAndFeel::drawMachinedPanel (g, controlPanelBounds, 8.0f);
 
-        // Divider (after 28% dropdown section + padding)
-        auto dividerX = controlPanelBounds.getX() + PAD + controlPanelBounds.getWidth() * 0.28f;
+        // Divider: after the dropdown column (Advanced, 28%) or preset-button area
+        // (Basic, 58%) + padding -- must match the leftFraction used in resized().
+        const bool basicUI = (audioProcessor.getUIMode() == "Basic");
+        auto dividerX = controlPanelBounds.getX() + PAD
+                      + controlPanelBounds.getWidth() * (basicUI ? 0.58f : 0.28f);
         g.setColour (CustomLookAndFeel::borderNeutral);
         g.drawVerticalLine (static_cast<int> (dividerX),
                            controlPanelBounds.getY() + PAD,
@@ -554,6 +665,11 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int presetBtnY = (presetBandH - presetBtnH) / 2;
     loadPresetButton.setBounds (getWidth() - MARGIN - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
     savePresetButton.setBounds (loadPresetButton.getX() - presetGap - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
+
+    // Basic/Advanced mode toggle: same band, top-left corner (mirrors preset buttons).
+    const int modeBtnW = 60, modeBtnH = presetBtnH;
+    basicModeButton.setBounds (MARGIN, presetBtnY, modeBtnW, modeBtnH);
+    advancedModeButton.setBounds (MARGIN + modeBtnW, presetBtnY, modeBtnW, modeBtnH);
 
     // ============ LAYOUT CALCULATION ============
     auto bounds = getLocalBounds().reduced (MARGIN);
@@ -634,30 +750,51 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     controlPanelBounds = bounds.toFloat();
     auto ctrlArea = controlPanelBounds.reduced (PANEL_PAD).toNearestInt();
 
-    // --- Left side: dropdowns (28% width) ---
-    int dropdownW = static_cast<int> (ctrlArea.getWidth() * 0.28f);
-    auto ddArea = ctrlArea.removeFromLeft (dropdownW);
+    const bool basicUI = (audioProcessor.getUIMode() == "Basic");
 
-    const int ddH = 26, lblH = 14, ddGap = 4;
-    int totalDDH = 4 * (lblH + ddH) + 3 * ddGap;
-    int ddStartY = ddArea.getY() + (ddArea.getHeight() - totalDDH) / 2;
+    // --- Left side: dropdown column (Advanced) or preset buttons + summary (Basic) ---
+    // Basic gets more width since it only holds two buttons + a summary line, not four
+    // stacked dropdowns; the divider position in paint() must match this fraction.
+    const float leftFraction = basicUI ? 0.58f : 0.28f;
+    int leftW = static_cast<int> (ctrlArea.getWidth() * leftFraction);
+    auto leftArea = ctrlArea.removeFromLeft (leftW);
 
-    modelLabel.setBounds (ddArea.getX(), ddStartY, ddArea.getWidth(), lblH);
-    modelSelector.setBounds (ddArea.getX(), ddStartY + lblH, ddArea.getWidth(), ddH);
+    if (basicUI)
+    {
+        const int btnW = 130, btnH = 50, btnGap = 12, summaryH = 16, summaryGap = 8;
+        const int totalW = 2 * btnW + btnGap;
+        int btnX = leftArea.getX() + (leftArea.getWidth() - totalW) / 2;
+        int btnY = leftArea.getY() + (leftArea.getHeight() - btnH - summaryGap - summaryH) / 2;
+        speechPresetButton.setBounds (btnX, btnY, btnW, btnH);
+        musicPresetButton.setBounds (btnX + btnW + btnGap, btnY, btnW, btnH);
+        presetSummaryLabel.setBounds (leftArea.getX(), btnY + btnH + summaryGap, leftArea.getWidth(), summaryH);
+    }
+    else
+    {
+        const int ddH = 26, lblH = 14, ddGap = 4;
+        int totalDDH = 4 * (lblH + ddH) + 3 * ddGap;
+        int ddStartY = leftArea.getY() + (leftArea.getHeight() - totalDDH) / 2;
 
-    int y2 = ddStartY + lblH + ddH + ddGap;
-    compressionSpeedLabel.setBounds (ddArea.getX(), y2, ddArea.getWidth(), lblH);
-    compressionSpeedSelector.setBounds (ddArea.getX(), y2 + lblH, ddArea.getWidth(), ddH);
+        modelLabel.setBounds (leftArea.getX(), ddStartY, leftArea.getWidth(), lblH);
+        modelSelector.setBounds (leftArea.getX(), ddStartY + lblH, leftArea.getWidth(), ddH);
 
-    int y3 = y2 + lblH + ddH + ddGap;
-    experienceLevelLabel.setBounds (ddArea.getX(), y3, ddArea.getWidth(), lblH);
-    experienceLevelSelector.setBounds (ddArea.getX(), y3 + lblH, ddArea.getWidth(), ddH);
+        int y2 = ddStartY + lblH + ddH + ddGap;
+        compressionSpeedLabel.setBounds (leftArea.getX(), y2, leftArea.getWidth(), lblH);
+        compressionSpeedSelector.setBounds (leftArea.getX(), y2 + lblH, leftArea.getWidth(), ddH);
 
-    int y4 = y3 + lblH + ddH + ddGap;
-    loudnessModeLabel.setBounds (ddArea.getX(), y4, ddArea.getWidth(), lblH);
-    loudnessModeSelector.setBounds (ddArea.getX(), y4 + lblH, ddArea.getWidth(), ddH);
+        int y3 = y2 + lblH + ddH + ddGap;
+        experienceLevelLabel.setBounds (leftArea.getX(), y3, leftArea.getWidth(), lblH);
+        experienceLevelSelector.setBounds (leftArea.getX(), y3 + lblH, leftArea.getWidth(), ddH);
 
-    // --- Right side: 5 equal columns (IN meter, STRENGTH, MAX BOOST, OUTPUT, OUT meter) ---
+        int y4 = y3 + lblH + ddH + ddGap;
+        loudnessModeLabel.setBounds (leftArea.getX(), y4, leftArea.getWidth(), lblH);
+        loudnessModeSelector.setBounds (leftArea.getX(), y4 + lblH, leftArea.getWidth(), ddH);
+    }
+
+    // --- Right side: meter/fader columns ---
+    // Advanced: IN meter | STRENGTH | MAX BOOST | OUTPUT | OUT meter (5 columns).
+    // Basic: IN meter | OUTPUT | OUT meter (3 columns) -- Strength/Max Boost are
+    // preset-managed and hidden, so their columns disappear rather than going empty.
     // Columns fill the space between the divider and the right edge with equal padding.
     // Each element is horizontally centred on its column; the title/control/value block
     // is vertically centred with equal top/bottom margin.
@@ -679,7 +816,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int meterBottom = faderBottom - valueBoxH - valueGap;     // meter bottom; also the knob's bottom at min
     const int faderTop = barTop;                         // travel is inset inside the look-and-feel
 
-    const int N    = 5;
+    const int N    = basicUI ? 3 : 5;
     const int colW = mfArea.getWidth() / N;
 
     auto colCentre  = [&] (int i) { return mfArea.getX() + colW * i + colW / 2; };
@@ -698,11 +835,20 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
                                        (float) meterW, (float) (meterBottom - barTop));
     };
 
-    placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
-    placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
-    placeTitle (maxBoostLabel,    2);  placeFader (maxBoostSlider,           2);
-    placeTitle (outputGainLabel,  3);  placeFader (outputGainSlider,         3);
-    placeTitle (outputMeterLabel, 4);  outputMeterBounds = meterRect (4);
+    if (basicUI)
+    {
+        placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
+        placeTitle (outputGainLabel,  1);  placeFader (outputGainSlider, 1);
+        placeTitle (outputMeterLabel, 2);  outputMeterBounds = meterRect (2);
+    }
+    else
+    {
+        placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
+        placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
+        placeTitle (maxBoostLabel,    2);  placeFader (maxBoostSlider,           2);
+        placeTitle (outputGainLabel,  3);  placeFader (outputGainSlider,         3);
+        placeTitle (outputMeterLabel, 4);  outputMeterBounds = meterRect (4);
+    }
 }
 
 //==============================================================================

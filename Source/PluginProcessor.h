@@ -151,6 +151,21 @@ public:
         Returns true on success. macOS only. */
     bool loadAUPresetFile (const juce::File& file);
 
+    //==============================================================================
+    // Basic/Advanced UI mode (editor display preference, not an automatable parameter --
+    // stored out-of-band in the state tree, same as headphoneName below).
+    juce::String getUIMode() const { return uiMode; }
+    void setUIMode (const juce::String& mode) { uiMode = mode; }
+
+    // Curated quick-start presets for Basic mode. Each sets only modelSelect,
+    // correctionStrength, maxBoost, loudnessMode, compressionSpeed -- never touches
+    // audiogram_*, headphoneName, rightEnable/leftEnable, bypass, or outputGain, so it
+    // can't clobber the user's actual hearing data or ear/output setup. Recipes are
+    // research-grounded (NAL-NL2 prescriptive-formula behavior, published music-fitting
+    // guidance), not personal preference -- see earfix-correction-design memory.
+    enum class CuratedPreset { Speech, Music };
+    void applyCuratedPreset (CuratedPreset preset);
+
 private:
     //==============================================================================
     // Correction models
@@ -177,6 +192,11 @@ private:
 
     // Headphone profile name (stored separately as strings aren't supported in APVTS)
     juce::String selectedHeadphoneName;
+
+    // Basic/Advanced UI mode, stored the same way (see getUIMode/setUIMode above).
+    // Advanced is the fallback for new instances and any session saved before this
+    // feature existed, so nothing changes for existing users until they opt into Basic.
+    juce::String uiMode { "Advanced" };
 
     std::array<std::atomic<float>*, numAudiogramBands> leftAudiogramParams;
     std::array<std::atomic<float>*, numAudiogramBands> rightAudiogramParams;

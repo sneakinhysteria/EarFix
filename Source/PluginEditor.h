@@ -33,6 +33,12 @@ private:
     void updateNALOptionsVisibility();
     void drawMeter (juce::Graphics& g, float x, float y, float w, float h, float level);
 
+    // Basic/Advanced UI mode: Basic swaps the full dropdown/fader control set for two
+    // curated preset buttons (Speech/Music) + a live summary of what they set. Advanced
+    // is the existing full control set, unchanged.
+    void updateUIModeVisibility();
+    void updatePresetSummaryLabel();
+
     HearingCorrectionAUv2AudioProcessor& audioProcessor;
     CustomLookAndFeel customLookAndFeel;
 
@@ -125,6 +131,15 @@ private:
     std::unique_ptr<juce::FileChooser> presetChooser;
     void savePreset();
     void loadPreset();
+
+    // Basic/Advanced mode toggle (segmented pair, top-left, mirroring Save/Load)
+    juce::TextButton basicModeButton    { "Basic" };
+    juce::TextButton advancedModeButton { "Advanced" };
+
+    // Basic-mode curated preset buttons + live summary of what they set
+    juce::TextButton speechPresetButton { "Speech" };
+    juce::TextButton musicPresetButton  { "Music" };
+    juce::Label      presetSummaryLabel;
 
     // Section bounds for painting
     juce::Rectangle<float> headphonePanelBounds;

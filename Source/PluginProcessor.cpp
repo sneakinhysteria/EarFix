@@ -103,15 +103,13 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
     //   Boost Only - never cut a band below its own absolute model-prescribed gain. If
     //                the raw curve would run louder than the input, the whole curve is
     //                scaled down by one uniform factor (shape preserved) until it isn't.
-    //                A barely-affected band still gets its own (small) prescribed boost.
-    //   Boost Only (Anchored) - same never-cut/uniform-scale-down guarantee, but every
-    //                band's gain is first made relative to the curve's own least-affected
-    //                band, so that band is left at exactly 0 (untouched) instead of
-    //                getting its own absolute prescription.
+    //                A barely-affected band still gets its own (small) prescribed boost --
+    //                matching published prescriptive-formula behavior (e.g. NAL-NL2 still
+    //                applies ~5-10 dB of gain at near-normal thresholds rather than zero).
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "loudnessMode", 1 },
         "Loudness",
-        juce::StringArray { "Centered", "Boost Only", "Boost Only (Anchored)" },
+        juce::StringArray { "Centered", "Boost Only" },
         1));  // Default: Boost Only
 
     // Compression speed: 0 = Fast, 1 = Slow (only used by NAL model)
@@ -447,27 +445,6 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
             for (int i = 0; i < numAudiogramBands; ++i)
                 shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
         }
-        else if (loudnessMode == 2)
-        {
-            // Boost Only (Anchored): same never-cut/uniform-scale-down guarantee as
-            // Boost Only above, but every band's gain is first made relative to the
-            // curve's own least-affected band, so that band lands at exactly 0
-            // (untouched) instead of getting its own absolute prescribed gain. Still
-            // guarantees no band is ever cut (the minimum after subtraction is always
-            // >= 0, by construction).
-            const float anchor = *std::min_element (g.begin(), g.end());
-            std::array<float, numAudiogramBands> relative {};
-            for (int i = 0; i < numAudiogramBands; ++i)
-                relative[i] = g[i] - anchor;
-
-            const float peak = *std::max_element (relative.begin(), relative.end());
-            const bool  clamped = (peak > maxBoost && peak > 0.0f);
-            const float k = clamped ? (maxBoost / peak) : 1.0f;
-            if (clamped) anyMaxBoostActive = true;
-            maxNeededBoostDb = std::max (maxNeededBoostDb, peak);
-            for (int i = 0; i < numAudiogramBands; ++i)
-                shaped[i] = juce::jlimit (0.0f, maxBoost, relative[i] * k);
-        }
         else
         {
             const float offset = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (g) / wsum));
@@ -696,12 +673,71 @@ void HearingCorrectionAUv2AudioProcessor::loadHeadphoneProfile (const juce::Stri
 }
 
 //==============================================================================
+// Curated Basic-mode presets. Grounded in published fitting practice rather than
+// personal preference:
+//   Speech (NAL) -- full-strength (the model's calculateGain already implements the
+//     prescriptive target; scaling it down would under-correct), Max Boost at its
+//     ceiling (a 70-80 dB HL band needs ~35-40 dB under the half-gain rule, so the
+//     ceiling should be a safety backstop, not a routine constraint), Fast compression
+//     (near-universal clinical practice for speech -- faster release preserves
+//     consonant transients), Boost Only loudness mode (closest match to how real
+//     prescriptive formulas behave: NAL-NL2 still applies ~5-10 dB of gain even at
+//     near-normal thresholds, never a hard zero-floor).
+//   Music (MOSL) -- 50% strength / 25 dB Max Boost / Slow speed, the user's own
+//     empirically-found comfortable baseline (music fitting literature treats this as
+//     comfort-driven rather than having one universal numeric target, unlike speech),
+//     Boost Only loudness mode for the same reason as Speech.
+namespace
+{
+    struct CuratedParamValue { const char* paramId; float rawValue; };
+
+    const CuratedParamValue kSpeechPreset[] = {
+        { "modelSelect",        1.0f },   // NAL (Speech)
+        { "correctionStrength", 100.0f },
+        { "maxBoost",           40.0f },
+        { "loudnessMode",        1.0f },  // Boost Only
+        { "compressionSpeed",    0.0f },  // Fast
+    };
+
+    const CuratedParamValue kMusicPreset[] = {
+        { "modelSelect",        2.0f },   // MOSL (Music)
+        { "correctionStrength", 50.0f },
+        { "maxBoost",           25.0f },
+        { "loudnessMode",        1.0f },  // Boost Only
+        { "compressionSpeed",    1.0f },  // Slow
+    };
+}
+
+void HearingCorrectionAUv2AudioProcessor::applyCuratedPreset (CuratedPreset preset)
+{
+    const auto* table = (preset == CuratedPreset::Speech) ? kSpeechPreset : kMusicPreset;
+    const int   count = (preset == CuratedPreset::Speech)
+                             ? (int) (sizeof (kSpeechPreset) / sizeof (kSpeechPreset[0]))
+                             : (int) (sizeof (kMusicPreset) / sizeof (kMusicPreset[0]));
+
+    for (int i = 0; i < count; ++i)
+    {
+        auto* param = parameters.getParameter (table[i].paramId);
+        jassert (param != nullptr);
+        if (param == nullptr)
+            continue;
+
+        param->beginChangeGesture();
+        param->setValueNotifyingHost (param->convertTo0to1 (table[i].rawValue));
+        param->endChangeGesture();
+    }
+}
+
+//==============================================================================
 void HearingCorrectionAUv2AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     auto state = parameters.copyState();
 
     // Add headphone name to state
     state.setProperty ("headphoneName", selectedHeadphoneName, nullptr);
+
+    // Add UI mode (Basic/Advanced) to state -- editor display preference, not a parameter
+    state.setProperty ("uiMode", uiMode, nullptr);
 
     if (auto xml = state.createXml())
         copyXmlToBinary (*xml, destData);
@@ -719,6 +755,12 @@ void HearingCorrectionAUv2AudioProcessor::setStateInformation (const void* data,
             auto headphoneName = parameters.state.getProperty ("headphoneName").toString();
             if (headphoneName.isNotEmpty())
                 loadHeadphoneProfile (headphoneName);
+
+            // Restore UI mode -- "Advanced" fallback covers both brand-new instances and
+            // any session/project saved before this property existed.
+            auto storedMode = parameters.state.getProperty ("uiMode", "Advanced").toString();
+            if (storedMode == "Basic" || storedMode == "Advanced")
+                uiMode = storedMode;
         }
     }
 }

@@ -375,7 +375,9 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
     // Fixed per-band ceiling (dB), the silent safety limit that replaced the former
     // user "Max Boost" fader. Matches each model's own internal calculateGain clamp,
     // so in Boost Only it effectively never binds -- the curve is just strength*model.
-    constexpr float kCorrectionCeilingDb = 40.0f;
+    // static so the computeEar lambda can use it without an explicit capture (MSVC
+    // requires capturing a non-static constexpr local; Clang doesn't).
+    static constexpr float kCorrectionCeilingDb = 40.0f;
 
     // Perceptual (K-weighted, BS.1770) loudness weight per audiogram band:
     //   weight = octave bandwidth of the crossover band x K-weighting power gain at

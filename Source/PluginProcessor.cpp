@@ -515,15 +515,30 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
     // Apply headphone EQ correction (flattens headphone response before hearing correction)
     bool headphoneEQEnabled = headphoneEQEnableParam->load() > 0.5f;
     headphoneEQ.setEnabled (headphoneEQEnabled);
-    headphoneEQ.process (buffer);
+    headphoneEQ.process (buffer);   // no-op when disabled
 
-    // Update model and WDRC parameters
+    // Update model and WDRC parameters (kept live so the overlay/Auto value stay
+    // current even while correction is momentarily disabled).
     updateCurrentModel();
     updateWDRCCoefficients();
 
     const bool leftEnabled  = leftEnableParam->load() > 0.5f;
     const bool rightEnabled = rightEnableParam->load() > 0.5f;
     const bool modelComp    = currentModel->hasCompression();
+
+    // Fully transparent when nothing is being corrected: both ears off AND headphone
+    // EQ off. In that state the buffer is still the untouched input (headphone process
+    // was a no-op, no correction applied yet), so return it as-is -- crucially WITHOUT
+    // the Output Gain trim. That trim exists only to compensate the correction's added
+    // loudness; applying it here would attenuate a signal that has no boost to offset,
+    // making "all correction off" quieter than host bypass. This makes the two match.
+    if (! leftEnabled && ! rightEnabled && ! headphoneEQEnabled)
+    {
+        outputLevelLeft.store  (inputLevelLeft.load  (std::memory_order_relaxed), std::memory_order_relaxed);
+        outputLevelRight.store (inputLevelRight.load (std::memory_order_relaxed), std::memory_order_relaxed);
+        previousGain = 1.0f;   // next active block ramps the Output trim up from unity
+        return;
+    }
 
     // Applies the envelope-following WDRC gain for one band and returns the new
     // smoothed linear gain. When the model has no compression the static soft

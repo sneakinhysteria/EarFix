@@ -130,20 +130,16 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     rightEnableButton.onClick = [this]() { onEarEnableClicked (true); };
     leftEnableButton.onClick  = [this]() { onEarEnableClicked (false); };
 
-    // Link toggle: click either to link/unlink both ears' enable state. componentID
-    // "linkIcon" tells CustomLookAndFeel to draw a vector chain-link glyph instead of
-    // text; colours follow the same on/off convention as the Basic/Advanced toggle
-    // below (mid-grey when off, accent when on).
-    for (auto* b : { &rightLinkButton, &leftLinkButton })
-    {
-        b->setComponentID ("linkIcon");
-        b->setClickingTogglesState (false);  // we manage the visual state ourselves
-        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::midGrey);
-        b->setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
-        addAndMakeVisible (*b);
-    }
-    rightLinkButton.onClick = [this]() { setEarsLinked (! earsLinked); };
-    leftLinkButton.onClick  = [this]() { setEarsLinked (! earsLinked); };
+    // Link toggle: single shared button sitting in the gap between the two audiogram
+    // cards. componentID "linkIcon" tells CustomLookAndFeel to draw a vector
+    // chain-link glyph instead of text; colours follow the same on/off convention as
+    // the Basic/Advanced toggle below (mid-grey when off, accent when on).
+    earsLinkButton.setComponentID ("linkIcon");
+    earsLinkButton.setClickingTogglesState (false);  // we manage the visual state ourselves
+    earsLinkButton.setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::midGrey);
+    earsLinkButton.setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
+    addAndMakeVisible (earsLinkButton);
+    earsLinkButton.onClick = [this]() { setEarsLinked (! earsLinked); };
     setEarsLinked (false);
 
     // Headphone EQ components
@@ -434,8 +430,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::updatePresetSummaryLabel()
 void HearingCorrectionAUv2AudioProcessorEditor::setEarsLinked (bool linked)
 {
     earsLinked = linked;
-    rightLinkButton.setToggleState (linked, juce::dontSendNotification);
-    leftLinkButton.setToggleState (linked, juce::dontSendNotification);
+    earsLinkButton.setToggleState (linked, juce::dontSendNotification);
     repaint();
 }
 
@@ -558,7 +553,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
     // Draw audiogram panels with R/L indicators
     if (!audiogramPanelBounds.isEmpty())
     {
-        const int chartGap = 12;
+        const int chartGap = 22 + 12;  // linkW + 12 -- must match resized()
         const int PAD = 10;  // Must match PANEL_PAD
         auto agArea = audiogramPanelBounds;
         auto rPanel = agArea.removeFromLeft ((agArea.getWidth() - chartGap) / 2);
@@ -683,11 +678,18 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
 
     // Fixed heights
     const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
-    const int MODE_ROW_H = 24;       // Basic/Advanced toggle row, above the control card
     const int CTRL_PANEL_H = 200;    // Control panel (4 dropdown rows: Model/Speed/Level/Loudness)
 
+    // Basic/Advanced toggle row: asymmetric padding so it reads as attached to the
+    // control ("hearing loss") card below it, not equidistant between it and the
+    // audiogram above -- clear separation above, flush (no gap) below.
+    const int MODE_GAP_ABOVE = 16;
+    const int MODE_ROW_H     = 20;
+    const int MODE_GAP_BELOW = 0;
+
     // Calculate audiogram height to fill remaining space
-    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + MODE_ROW_H + GAP + HEADER_H + CTRL_PANEL_H;
+    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP
+                    + MODE_GAP_ABOVE + MODE_ROW_H + MODE_GAP_BELOW + HEADER_H + CTRL_PANEL_H;
     int audiogramHeight = bounds.getHeight() - usedHeight;
 
     // ============ 1. HEADPHONE SECTION ============
@@ -723,43 +725,44 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     audiogramPanelBounds = bounds.removeFromTop (audiogramHeight).toFloat();
 
     auto agArea = audiogramPanelBounds.toNearestInt();
-    const int chartGap = 12;
+    const int linkW = 22;
+    // Wide enough for a single shared link icon to sit centred in the gap between the
+    // two cards (was 12, just a visual seam with no room for a control) -- must match
+    // the chartGap in paint().
+    const int chartGap = linkW + 12;
     const int chartW = (agArea.getWidth() - chartGap) / 2;
     const int toggleRowH = 24;  // Toggle + circle + label row height
-
-    const int linkW = 22;
 
     // Right ear panel (left side)
     auto rPanel = agArea.removeFromLeft (chartW);
     int agContentY = rPanel.getY() + PANEL_PAD;
     rightEnableButton.setBounds (rPanel.getX() + PANEL_PAD, agContentY, 36, 20);
     rightEarLabel.setBounds (rPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
-    rightLinkButton.setBounds (rPanel.getRight() - PANEL_PAD - linkW, agContentY, linkW, 20);
     // Chart starts after toggle row + 10px gap (PANEL_PAD)
     int chartTop = agContentY + toggleRowH + PANEL_PAD;
     rightAudiogram.setBounds (rPanel.getX(), chartTop,
                               rPanel.getWidth(), rPanel.getBottom() - chartTop);
 
-    agArea.removeFromLeft (chartGap);
+    auto gapArea = agArea.removeFromLeft (chartGap);
+    earsLinkButton.setBounds (gapArea.getX() + (chartGap - linkW) / 2, agContentY, linkW, 20);
 
     // Left ear panel (right side)
     auto lPanel = agArea;
     leftEnableButton.setBounds (lPanel.getX() + PANEL_PAD, agContentY, 36, 20);
     leftEarLabel.setBounds (lPanel.getX() + PANEL_PAD + 36 + 24 + 4, agContentY, 80, 20);
-    leftLinkButton.setBounds (lPanel.getRight() - PANEL_PAD - linkW, agContentY, linkW, 20);
     leftAudiogram.setBounds (lPanel.getX(), chartTop,
                              lPanel.getWidth(), lPanel.getBottom() - chartTop);
 
-    bounds.removeFromTop (GAP);
-
     // ============ MODE TOGGLE ROW ============
     // Sits directly above the control ("hearing loss") card, not at the very top of
-    // the window, so it reads as belonging to the section it controls.
-    const int modeBtnW = 60, modeBtnH = 20;
+    // the window, so it reads as belonging to the section it controls -- more space
+    // above (separating it from the audiogram) than below (flush against the card).
+    bounds.removeFromTop (MODE_GAP_ABOVE);
+    const int modeBtnW = 60, modeBtnH = MODE_ROW_H;
     auto modeRow = bounds.removeFromTop (MODE_ROW_H);
-    basicModeButton.setBounds (modeRow.getX(), modeRow.getY() + (MODE_ROW_H - modeBtnH) / 2, modeBtnW, modeBtnH);
-    advancedModeButton.setBounds (modeRow.getX() + modeBtnW, modeRow.getY() + (MODE_ROW_H - modeBtnH) / 2, modeBtnW, modeBtnH);
-    bounds.removeFromTop (GAP);
+    basicModeButton.setBounds (modeRow.getX(), modeRow.getY(), modeBtnW, modeBtnH);
+    advancedModeButton.setBounds (modeRow.getX() + modeBtnW, modeRow.getY(), modeBtnW, modeBtnH);
+    bounds.removeFromTop (MODE_GAP_BELOW);
 
     // ============ 3. CONTROL SECTION ============
     bounds.removeFromTop (HEADER_H);

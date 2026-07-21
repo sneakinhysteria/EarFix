@@ -74,12 +74,12 @@ private:
     juce::Label        rightEarLabel;
     juce::Label        leftEarLabel;
 
-    // Link toggle: when active, enabling/disabling one ear also does the other.
-    // One shared state, mirrored by a small button in each ear card.
+    // Link toggle: when active, enabling/disabling one ear also does the other. One
+    // shared button sitting in the gap between the two audiogram cards (not one per
+    // card) since it's a single, shared state, not a per-ear control.
     // Text left empty -- CustomLookAndFeel draws a vector chain-link glyph for any
     // TextButton with componentID "linkIcon" instead of relying on an emoji glyph.
-    juce::TextButton   rightLinkButton;
-    juce::TextButton   leftLinkButton;
+    juce::TextButton   earsLinkButton;
     bool earsLinked = false;
     void setEarsLinked (bool linked);
     void onEarEnableClicked (bool isRight);

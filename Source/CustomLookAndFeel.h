@@ -30,6 +30,7 @@ public:
     static inline const juce::Colour meterGreen { 0xff4CAF50 };
     static inline const juce::Colour meterYellow { 0xffFFC107 };
     static inline const juce::Colour meterRed { 0xfff44336 };
+    static inline const juce::Colour midGrey { 0xffa8a8a8 };  // inactive segmented-toggle fill
 
     CustomLookAndFeel()
     {
@@ -361,6 +362,44 @@ public:
 
         g.setColour (borderNeutral);
         g.drawRoundedRectangle (bounds, cornerRadius, 1.0f);
+    }
+
+    // Ear-link button: draws a small chain-link glyph (two overlapping rounded-rect
+    // rings) instead of text, so it doesn't depend on an emoji glyph being available
+    // in the host's font. Coloured by toggle state, same on/off convention as the
+    // segmented Basic/Advanced toggle (white on accent when linked, muted on grey when
+    // not). Any other TextButton falls through to the normal text-drawing behaviour.
+    void drawButtonText (juce::Graphics& g, juce::TextButton& button,
+                         bool isHighlighted, bool isDown) override
+    {
+        if (button.getComponentID() == "linkIcon")
+        {
+            auto bounds = button.getLocalBounds().toFloat();
+            g.setColour (button.getToggleState() ? juce::Colours::white : textMuted);
+
+            const float cx = bounds.getCentreX(), cy = bounds.getCentreY();
+            const float ringW = bounds.getWidth() * 0.5f;
+            const float ringH = bounds.getHeight() * 0.5f;
+            const float thickness = juce::jmax (1.4f, ringH * 0.32f);
+            const float offset = ringW * 0.38f;
+
+            juce::PathStrokeType stroke (thickness, juce::PathStrokeType::curved,
+                                        juce::PathStrokeType::rounded);
+
+            auto ring = [&] (float x, float y)
+            {
+                juce::Path p;
+                p.addRoundedRectangle (x - ringW * 0.5f, y - ringH * 0.5f, ringW, ringH, ringH * 0.5f);
+                p.applyTransform (juce::AffineTransform::rotation (juce::degreesToRadians (-35.0f), x, y));
+                g.strokePath (p, stroke);
+            };
+
+            ring (cx - offset, cy + offset * 0.4f);
+            ring (cx + offset, cy - offset * 0.4f);
+            return;
+        }
+
+        LookAndFeel_V4::drawButtonText (g, button, isHighlighted, isDown);
     }
 
     juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override

@@ -76,8 +76,10 @@ private:
 
     // Link toggle: when active, enabling/disabling one ear also does the other.
     // One shared state, mirrored by a small button in each ear card.
-    juce::TextButton   rightLinkButton { juce::String::fromUTF8 ("\xF0\x9F\x94\x97") };  // chain-link emoji
-    juce::TextButton   leftLinkButton  { juce::String::fromUTF8 ("\xF0\x9F\x94\x97") };
+    // Text left empty -- CustomLookAndFeel draws a vector chain-link glyph for any
+    // TextButton with componentID "linkIcon" instead of relying on an emoji glyph.
+    juce::TextButton   rightLinkButton;
+    juce::TextButton   leftLinkButton;
     bool earsLinked = false;
     void setEarsLinked (bool linked);
     void onEarEnableClicked (bool isRight);

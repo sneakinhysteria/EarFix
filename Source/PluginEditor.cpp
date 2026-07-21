@@ -130,11 +130,15 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     rightEnableButton.onClick = [this]() { onEarEnableClicked (true); };
     leftEnableButton.onClick  = [this]() { onEarEnableClicked (false); };
 
-    // Link toggle: click either to link/unlink both ears' enable state
+    // Link toggle: click either to link/unlink both ears' enable state. componentID
+    // "linkIcon" tells CustomLookAndFeel to draw a vector chain-link glyph instead of
+    // text; colours follow the same on/off convention as the Basic/Advanced toggle
+    // below (mid-grey when off, accent when on).
     for (auto* b : { &rightLinkButton, &leftLinkButton })
     {
+        b->setComponentID ("linkIcon");
         b->setClickingTogglesState (false);  // we manage the visual state ourselves
-        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::midGrey);
         b->setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
         addAndMakeVisible (*b);
     }
@@ -179,14 +183,16 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     savePresetButton.onClick = [this]() { savePreset(); };
     loadPresetButton.onClick = [this]() { loadPreset(); };
 
-    // Basic/Advanced mode toggle (segmented pair, top-left) -- same manual on/off-colour
-    // technique as the ear-link buttons above, since the two states are named, not a
-    // simple boolean switch.
+    // Basic/Advanced mode toggle (segmented pair) -- same toggle-state-driven on/off
+    // colour technique as the ear-link buttons above (mid-grey off, accent on), since
+    // the two states are named, not a simple boolean switch.
     for (auto* b : { &basicModeButton, &advancedModeButton })
     {
-        b->setClickingTogglesState (false);
-        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::panelWhite);
+        b->setClickingTogglesState (false);  // we manage the visual state ourselves
+        b->setColour (juce::TextButton::buttonColourId, CustomLookAndFeel::midGrey);
         b->setColour (juce::TextButton::buttonOnColourId, CustomLookAndFeel::accentBlue);
+        b->setColour (juce::TextButton::textColourOffId, CustomLookAndFeel::textDark);
+        b->setColour (juce::TextButton::textColourOnId, juce::Colours::white);
         addAndMakeVisible (*b);
     }
     basicModeButton.onClick = [this]()
@@ -366,10 +372,8 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateUIModeVisibility()
 {
     const bool basic = (audioProcessor.getUIMode() == "Basic");
 
-    basicModeButton.setColour (juce::TextButton::buttonColourId,
-                               basic ? CustomLookAndFeel::accentBlue : CustomLookAndFeel::panelWhite);
-    advancedModeButton.setColour (juce::TextButton::buttonColourId,
-                                  basic ? CustomLookAndFeel::panelWhite : CustomLookAndFeel::accentBlue);
+    basicModeButton.setToggleState (basic, juce::dontSendNotification);
+    advancedModeButton.setToggleState (! basic, juce::dontSendNotification);
 
     // Advanced-only controls: the full dropdown column + Strength/Max Boost faders.
     modelLabel.setVisible (! basic);
@@ -517,6 +521,13 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
 
     // Universal spacing (must match resized())
     const int MARGIN = 16, HEADER_H = 16, GAP = 6;
+
+    // Version label: top-left corner, in the band above the headphone panel where the
+    // mode toggle used to sit before it moved down to sit above the control section.
+    g.setColour (CustomLookAndFeel::textMuted);
+    g.setFont (juce::FontOptions (10.0f));
+    g.drawText ("v" JucePlugin_VersionString, MARGIN, 0, 100, MARGIN + HEADER_H,
+               juce::Justification::centredLeft);
     auto bounds = getLocalBounds().toFloat().reduced (MARGIN);
 
     // === HEADPHONE CORRECTION header ===
@@ -578,7 +589,11 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
     }
 
     // === HEARING LOSS CORRECTION header ===
-    float hlHeaderY = audiogramPanelBounds.getBottom() + GAP;
+    // Sits directly above the control panel -- there's now a mode-toggle row (drawn via
+    // resized()'s component placement, not paint()) between the audiogram section and
+    // this header, so its position is derived from controlPanelBounds, not the
+    // audiogram bottom, to stay correct regardless of what's in between.
+    float hlHeaderY = controlPanelBounds.getY() - HEADER_H;
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
     g.drawText ("HEARING LOSS CORRECTION MODEL & PARAMETERS", MARGIN, hlHeaderY, getWidth() - 2 * MARGIN, HEADER_H, juce::Justification::centred);
@@ -618,11 +633,6 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
         }
 
     }
-
-    // Version footer
-    g.setColour (CustomLookAndFeel::textMuted);
-    g.setFont (juce::FontOptions (10.0f));
-    g.drawText ("v" JucePlugin_VersionString, 0, getHeight() - 24, getWidth(), 20, juce::Justification::centred);
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, float x, float y,
@@ -655,32 +665,29 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int PANEL_PAD = 10;        // Panel internal padding
     const int HEADER_H = 16;         // Section header height
     const int GAP = 6;               // Gap between sections
-    const int VERSION_H = 20;        // Space for version at bottom
 
     // Preset buttons: top-right corner, centred in the band between the card's top
     // edge (y = 0) and the headphone panel's top (y = MARGIN + HEADER_H), so the
-    // padding above the buttons equals the padding below them.
+    // padding above the buttons equals the padding below them. The version label
+    // (drawn in paint()) occupies the equivalent top-left corner of this same band,
+    // where the mode toggle used to sit before it moved down to sit above the control
+    // ("hearing loss") card.
     const int presetBtnW = 46, presetBtnH = 20, presetGap = 6;
     const int presetBandH = MARGIN + HEADER_H;
     const int presetBtnY = (presetBandH - presetBtnH) / 2;
     loadPresetButton.setBounds (getWidth() - MARGIN - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
     savePresetButton.setBounds (loadPresetButton.getX() - presetGap - presetBtnW, presetBtnY, presetBtnW, presetBtnH);
 
-    // Basic/Advanced mode toggle: same band, top-left corner (mirrors preset buttons).
-    const int modeBtnW = 60, modeBtnH = presetBtnH;
-    basicModeButton.setBounds (MARGIN, presetBtnY, modeBtnW, modeBtnH);
-    advancedModeButton.setBounds (MARGIN + modeBtnW, presetBtnY, modeBtnW, modeBtnH);
-
     // ============ LAYOUT CALCULATION ============
     auto bounds = getLocalBounds().reduced (MARGIN);
-    bounds.removeFromBottom (VERSION_H);  // Reserve for version label
 
     // Fixed heights
     const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
+    const int MODE_ROW_H = 24;       // Basic/Advanced toggle row, above the control card
     const int CTRL_PANEL_H = 200;    // Control panel (4 dropdown rows: Model/Speed/Level/Loudness)
 
     // Calculate audiogram height to fill remaining space
-    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + HEADER_H + CTRL_PANEL_H;
+    int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + MODE_ROW_H + GAP + HEADER_H + CTRL_PANEL_H;
     int audiogramHeight = bounds.getHeight() - usedHeight;
 
     // ============ 1. HEADPHONE SECTION ============
@@ -743,6 +750,15 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     leftAudiogram.setBounds (lPanel.getX(), chartTop,
                              lPanel.getWidth(), lPanel.getBottom() - chartTop);
 
+    bounds.removeFromTop (GAP);
+
+    // ============ MODE TOGGLE ROW ============
+    // Sits directly above the control ("hearing loss") card, not at the very top of
+    // the window, so it reads as belonging to the section it controls.
+    const int modeBtnW = 60, modeBtnH = 20;
+    auto modeRow = bounds.removeFromTop (MODE_ROW_H);
+    basicModeButton.setBounds (modeRow.getX(), modeRow.getY() + (MODE_ROW_H - modeBtnH) / 2, modeBtnW, modeBtnH);
+    advancedModeButton.setBounds (modeRow.getX() + modeBtnW, modeRow.getY() + (MODE_ROW_H - modeBtnH) / 2, modeBtnW, modeBtnH);
     bounds.removeFromTop (GAP);
 
     // ============ 3. CONTROL SECTION ============

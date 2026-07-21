@@ -82,20 +82,10 @@ public:
 
     // Live per-band applied correction gain in dB (read by the audiogram chart overlay).
     // Written each block in updateWDRCCoefficients() from the current model/strength/
-    // maxBoost/loudnessMode -- reflects exactly what's being applied right now.
+    // loudnessMode -- reflects exactly what's being applied right now.
     std::array<std::atomic<float>, numAudiogramBands> leftAppliedGainDb;
     std::array<std::atomic<float>, numAudiogramBands> rightAppliedGainDb;
 
-    // True when Max Boost is actually constraining the curve right now (either ear),
-    // for either loudness mode -- vs. sitting above the curve's natural peak and doing
-    // nothing. Lets the UI dim the control when raising it wouldn't change anything for
-    // the current audiogram/model/strength.
-    std::atomic<bool> maxBoostActive { false };
-
-    // Highest value either ear's curve would need with no ceiling at all -- the point
-    // past which raising Max Boost further stops changing the output. Drives the UI's
-    // active-range marker on the Max Boost fader; updates live with Strength/audiogram.
-    std::atomic<float> maxBoostThresholdDb { 0.0f };
     static constexpr std::array<float, numFilterBands> filterFrequencies = {
         250.0f,    // Audiogram band 0
         354.0f,    // Interpolated (geometric mean of 250 & 500)
@@ -158,11 +148,10 @@ public:
     void setUIMode (const juce::String& mode) { uiMode = mode; }
 
     // Curated quick-start presets for Basic mode. Each sets only modelSelect,
-    // correctionStrength, maxBoost, loudnessMode, compressionSpeed -- never touches
-    // audiogram_*, headphoneName, rightEnable/leftEnable, bypass, or outputGain, so it
-    // can't clobber the user's actual hearing data or ear/output setup. Recipes are
-    // research-grounded (NAL-NL2 prescriptive-formula behavior, published music-fitting
-    // guidance), not personal preference -- see earfix-correction-design memory.
+    // correctionStrength, loudnessMode, compressionSpeed -- never touches audiogram_*,
+    // headphoneName, rightEnable/leftEnable, bypass, or outputGain, so it can't clobber
+    // the user's actual hearing data or ear/output setup. See the recipe rationale at
+    // the tables in PluginProcessor.cpp and the earfix-correction-design memory.
     enum class CuratedPreset { Speech, Music };
     void applyCuratedPreset (CuratedPreset preset);
 
@@ -182,9 +171,7 @@ private:
     std::atomic<float>* outputGainParam       = nullptr;
     std::atomic<float>* modelSelectParam      = nullptr;
     std::atomic<float>* correctionStrengthParam = nullptr;
-    std::atomic<float>* maxBoostParam         = nullptr;
     std::atomic<float>* compressionSpeedParam = nullptr;
-    std::atomic<float>* experienceLevelParam  = nullptr;
     std::atomic<float>* loudnessModeParam     = nullptr;
     std::atomic<float>* leftEnableParam       = nullptr;
     std::atomic<float>* rightEnableParam      = nullptr;

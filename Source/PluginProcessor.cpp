@@ -80,21 +80,18 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         0.0f,
         juce::AudioParameterFloatAttributes().withLabel ("dB")));
 
-    // Correction strength: 0% to 100%
+    // Correction strength: 0% to 100%. The single "how much correction" control --
+    // a uniform multiplier on the model's per-band prescribed gain. (The old separate
+    // "Max Boost" fader was removed: in Boost Only mode it re-normalized the curve to a
+    // dB ceiling, which mathematically cancelled Strength whenever it was active, so the
+    // two were one degree of freedom expressed two ways. The per-band gain is still hard-
+    // limited by each model's own internal clamp -- kCorrectionCeilingDb below.)
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { "correctionStrength", 1 },
         "Correction",
         juce::NormalisableRange<float> (0.0f, 100.0f, 1.0f),
-        50.0f,
+        85.0f,
         juce::AudioParameterFloatAttributes().withLabel ("%")));
-
-    // Max boost: limits per-band gain to prevent distortion with severe losses
-    params.push_back (std::make_unique<juce::AudioParameterFloat> (
-        juce::ParameterID { "maxBoost", 1 },
-        "Max Boost",
-        juce::NormalisableRange<float> (10.0f, 40.0f, 1.0f),
-        25.0f,
-        juce::AudioParameterFloatAttributes().withLabel ("dB")));
 
     // Loudness mode: how the per-band curve is kept from running louder than the input.
     //   Centered   - subtract the K-weighted mean from every band. Exact loudness match,
@@ -112,19 +109,12 @@ HearingCorrectionAUv2AudioProcessor::createParameterLayout()
         juce::StringArray { "Centered", "Boost Only" },
         1));  // Default: Boost Only
 
-    // Compression speed: 0 = Fast, 1 = Slow (only used by NAL model)
+    // Compression speed: 0 = Fast, 1 = Slow (used by NAL and MOSL)
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "compressionSpeed", 1 },
         "Compression",
         juce::StringArray { "Fast", "Slow" },
         0));
-
-    // Experience level: NAL-NL2 reduces gain for new users (0 = New, 1 = Experienced)
-    params.push_back (std::make_unique<juce::AudioParameterChoice> (
-        juce::ParameterID { "experienceLevel", 1 },
-        "Experience",
-        juce::StringArray { "New User", "Some Experience", "Experienced" },
-        2));  // Default to Experienced
 
     // Right ear enable (R before L - audiological convention)
     params.push_back (std::make_unique<juce::AudioParameterBool> (
@@ -188,9 +178,7 @@ HearingCorrectionAUv2AudioProcessor::HearingCorrectionAUv2AudioProcessor()
     modelSelectParam        = parameters.getRawParameterValue ("modelSelect");
     outputGainParam         = parameters.getRawParameterValue ("outputGain");
     correctionStrengthParam = parameters.getRawParameterValue ("correctionStrength");
-    maxBoostParam           = parameters.getRawParameterValue ("maxBoost");
     compressionSpeedParam   = parameters.getRawParameterValue ("compressionSpeed");
-    experienceLevelParam    = parameters.getRawParameterValue ("experienceLevel");
     loudnessModeParam       = parameters.getRawParameterValue ("loudnessMode");
     leftEnableParam         = parameters.getRawParameterValue ("leftEnable");
     rightEnableParam        = parameters.getRawParameterValue ("rightEnable");
@@ -233,17 +221,13 @@ void HearingCorrectionAUv2AudioProcessor::updateCurrentModel()
         nalModel.setCompressionSpeed (fastCompression);
     }
 
-    // MOSL-specific settings
+    // MOSL-specific settings. Brightness/bass emphasis stay at MOSL's own defaults
+    // (the former "Experience" control that drove them was removed -- it shifted gain
+    // by only ~1 dB, below clear audibility next to Model/Strength).
     if (modelIndex == 2)
     {
         bool fastCompression = compressionSpeedParam->load() < 0.5f;
         moslModel.setCompressionSpeed (fastCompression);
-
-        // Use experience level to control brightness boost for MOSL
-        // New users might prefer less brightness, experienced users more
-        int experienceLevel = static_cast<int> (experienceLevelParam->load());
-        moslModel.setBrightnessBoost (experienceLevel >= 1);  // Enable for experienced users
-        moslModel.setBassEmphasis (experienceLevel);          // More bass for experienced
     }
 }
 
@@ -378,9 +362,13 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     // Update target gains for each band based on hearing loss.
     const float strength = correctionStrengthParam->load() / 100.0f;
-    const float maxBoost = maxBoostParam->load();
     const bool  modelComp = currentModel->hasCompression();
     const int   loudnessMode = static_cast<int> (loudnessModeParam->load());  // 0=Centered, 1=Boost Only
+
+    // Fixed per-band ceiling (dB), the silent safety limit that replaced the former
+    // user "Max Boost" fader. Matches each model's own internal calculateGain clamp,
+    // so in Boost Only it effectively never binds -- the curve is just strength*model.
+    constexpr float kCorrectionCeilingDb = 40.0f;
 
     // Perceptual (K-weighted, BS.1770) loudness weight per audiogram band:
     //   weight = octave bandwidth of the crossover band x K-weighting power gain at
@@ -400,18 +388,10 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     static constexpr double wsum = 4.146 + 1.120 + 1.413 + 1.995 + 2.512 + 4.577;
 
-    bool anyMaxBoostActive = false;
-
-    // Highest value either ear's curve would need if Max Boost had no ceiling at all --
-    // i.e. the point past which dragging Max Boost higher stops changing the output.
-    // Drives the UI's active-range marker on the Max Boost fader.
-    float maxNeededBoostDb = 0.0f;
-
     // Builds the loudness-safe target curve for one ear from the model's pure
     // (uncompressed) prescriptive gain, scaled by strength, then shaped per the
     // selected loudness mode (see the parameter comment above).
-    auto computeEar = [this, strength, maxBoost, modelComp, loudnessMode, &kWeightedPowerSum,
-                        &anyMaxBoostActive, &maxNeededBoostDb]
+    auto computeEar = [this, strength, modelComp, loudnessMode, &kWeightedPowerSum]
         (const std::array<std::atomic<float>*, numAudiogramBands>& audioParams,
          std::array<WDRCBandState, numAudiogramBands>& wdrc,
          std::array<std::atomic<float>, numAudiogramBands>& appliedGainDb)
@@ -429,34 +409,17 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
         if (loudnessMode == 1)
         {
             // Boost Only: every band is >= 0 by construction (the model's own gain is
-            // never negative), so no band is ever cut to subsidize another. A curve
-            // that only ever adds gain can't be made loudness-neutral by scaling (any
-            // positive scale strictly increases weighted loudness above flat) -- so
-            // instead of chasing an unreachable target, scale the whole curve down
-            // uniformly (shape preserved) only if needed so its loudest band never
-            // exceeds Max Boost. Net loudness can run a little hotter than the input
-            // as a result; that's inherent to never cutting, and Output Gain is there
-            // to trim it.
-            const float peak = *std::max_element (g.begin(), g.end());
-            const bool  clamped = (peak > maxBoost && peak > 0.0f);
-            const float k = clamped ? (maxBoost / peak) : 1.0f;
-            if (clamped) anyMaxBoostActive = true;
-            maxNeededBoostDb = std::max (maxNeededBoostDb, peak);
+            // never negative), so no band is ever cut to subsidize another. Strength is
+            // the sole scale; the fixed ceiling only guards against a runaway band and
+            // in practice never binds (the model already clamps calculateGain to 40 dB).
             for (int i = 0; i < numAudiogramBands; ++i)
-                shaped[i] = juce::jlimit (0.0f, maxBoost, g[i] * k);
+                shaped[i] = juce::jlimit (0.0f, kCorrectionCeilingDb, g[i]);
         }
         else
         {
             const float offset = 10.0f * std::log10 (static_cast<float> (kWeightedPowerSum (g) / wsum));
-            float bandPeak = 0.0f;
             for (int i = 0; i < numAudiogramBands; ++i)
-            {
-                const float v = g[i] - offset;
-                if (v > maxBoost || v < -maxBoost) anyMaxBoostActive = true;
-                bandPeak = std::max (bandPeak, std::abs (v));
-                shaped[i] = juce::jlimit (-maxBoost, maxBoost, v);
-            }
-            maxNeededBoostDb = std::max (maxNeededBoostDb, bandPeak);
+                shaped[i] = juce::jlimit (-kCorrectionCeilingDb, kCorrectionCeilingDb, g[i] - offset);
         }
 
         for (int i = 0; i < numAudiogramBands; ++i)
@@ -473,9 +436,6 @@ void HearingCorrectionAUv2AudioProcessor::updateWDRCCoefficients()
 
     computeEar (leftAudiogramParams, leftWDRC, leftAppliedGainDb);
     computeEar (rightAudiogramParams, rightWDRC, rightAppliedGainDb);
-
-    maxBoostActive.store (anyMaxBoostActive, std::memory_order_relaxed);
-    maxBoostThresholdDb.store (maxNeededBoostDb, std::memory_order_relaxed);
 }
 
 float HearingCorrectionAUv2AudioProcessor::calculateWDRCGain (float inputLevelDb,
@@ -673,36 +633,33 @@ void HearingCorrectionAUv2AudioProcessor::loadHeadphoneProfile (const juce::Stri
 }
 
 //==============================================================================
-// Curated Basic-mode presets. Grounded in published fitting practice rather than
-// personal preference:
-//   Speech (NAL) -- full-strength (the model's calculateGain already implements the
-//     prescriptive target; scaling it down would under-correct), Max Boost at its
-//     ceiling (a 70-80 dB HL band needs ~35-40 dB under the half-gain rule, so the
-//     ceiling should be a safety backstop, not a routine constraint), Fast compression
-//     (near-universal clinical practice for speech -- faster release preserves
-//     consonant transients), Boost Only loudness mode (closest match to how real
-//     prescriptive formulas behave: NAL-NL2 still applies ~5-10 dB of gain even at
-//     near-normal thresholds, never a hard zero-floor).
-//   Music (MOSL) -- 50% strength / 25 dB Max Boost / Slow speed, the user's own
-//     empirically-found comfortable baseline (music fitting literature treats this as
-//     comfort-driven rather than having one universal numeric target, unlike speech),
-//     Boost Only loudness mode for the same reason as Speech.
+// Curated Basic-mode presets. The only research-supported differentiators between
+// speech and music listening are the Model and the compression Speed -- Strength and
+// the loudness mode are shared:
+//   Speech -- NAL model, Fast compression (near-universal clinical practice for speech;
+//     faster release preserves consonant transients).
+//   Music  -- MOSL model, Slow compression (published music-fitting guidance: slow
+//     time constants + gentle compression avoid pumping and preserve dynamics).
+// Both use Strength 85% and Boost Only. 85% was calibrated against the developer's own
+// real professional Phonak fitting (APD Contrast 3.0, confirmed comfortable): at
+// average input levels EarFix's per-band gain best-fits that clinical target at
+// 79-99% strength across both ears (~85% centre). No fixed number is per-person optimal
+// -- the models already shape per-audiogram, so this is a sensible starting point to
+// refine in Advanced, not a Phonak-Target-style individual prescription.
 namespace
 {
     struct CuratedParamValue { const char* paramId; float rawValue; };
 
     const CuratedParamValue kSpeechPreset[] = {
         { "modelSelect",        1.0f },   // NAL (Speech)
-        { "correctionStrength", 100.0f },
-        { "maxBoost",           40.0f },
+        { "correctionStrength", 85.0f },
         { "loudnessMode",        1.0f },  // Boost Only
         { "compressionSpeed",    0.0f },  // Fast
     };
 
     const CuratedParamValue kMusicPreset[] = {
         { "modelSelect",        2.0f },   // MOSL (Music)
-        { "correctionStrength", 50.0f },
-        { "maxBoost",           25.0f },
+        { "correctionStrength", 85.0f },
         { "loudnessMode",        1.0f },  // Boost Only
         { "compressionSpeed",    1.0f },  // Slow
     };

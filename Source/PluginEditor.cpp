@@ -74,17 +74,6 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     compressionSpeedLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (compressionSpeedLabel);
 
-    // Experience level selector
-    experienceLevelSelector.addItem ("New", 1);
-    experienceLevelSelector.addItem ("Some", 2);
-    experienceLevelSelector.addItem ("Experienced", 3);
-    addAndMakeVisible (experienceLevelSelector);
-    experienceLevelLabel.setText ("LEVEL", juce::dontSendNotification);
-    experienceLevelLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    experienceLevelLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
-    experienceLevelLabel.setJustificationType (juce::Justification::centredLeft);
-    addAndMakeVisible (experienceLevelLabel);
-
     // Loudness mode selector
     loudnessModeSelector.addItem ("Centered", 1);
     loudnessModeSelector.addItem ("Boost Only", 2);
@@ -94,20 +83,6 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
     loudnessModeLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
     loudnessModeLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (loudnessModeLabel);
-
-    // Max boost slider (vertical fader in control section)
-    maxBoostSlider.setSliderStyle (juce::Slider::LinearVertical);
-    maxBoostSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 54, 18);
-    maxBoostSlider.setTextValueSuffix (" dB");
-    maxBoostSlider.setColour (juce::Slider::textBoxTextColourId, CustomLookAndFeel::textDark);
-    maxBoostSlider.setColour (juce::Slider::textBoxBackgroundColourId, CustomLookAndFeel::panelWhite);
-    maxBoostSlider.setColour (juce::Slider::textBoxOutlineColourId, CustomLookAndFeel::borderNeutral);
-    addAndMakeVisible (maxBoostSlider);
-    maxBoostLabel.setText ("MAX BOOST", juce::dontSendNotification);
-    maxBoostLabel.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    maxBoostLabel.setColour (juce::Label::textColourId, CustomLookAndFeel::textMuted);
-    maxBoostLabel.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (maxBoostLabel);
 
     // Meter labels (same style as fader labels for consistency)
     inputMeterLabel.setText ("IN", juce::dontSendNotification);
@@ -257,14 +232,10 @@ HearingCorrectionAUv2AudioProcessorEditor::HearingCorrectionAUv2AudioProcessorEd
         audioProcessor.parameters, "outputGain", outputGainSlider);
     correctionStrengthAttachment = std::make_unique<SliderAttachment> (
         audioProcessor.parameters, "correctionStrength", correctionStrengthSlider);
-    maxBoostAttachment = std::make_unique<SliderAttachment> (
-        audioProcessor.parameters, "maxBoost", maxBoostSlider);
     modelSelectAttachment = std::make_unique<ComboBoxAttachment> (
         audioProcessor.parameters, "modelSelect", modelSelector);
     compressionSpeedAttachment = std::make_unique<ComboBoxAttachment> (
         audioProcessor.parameters, "compressionSpeed", compressionSpeedSelector);
-    experienceLevelAttachment = std::make_unique<ComboBoxAttachment> (
-        audioProcessor.parameters, "experienceLevel", experienceLevelSelector);
     loudnessModeAttachment = std::make_unique<ComboBoxAttachment> (
         audioProcessor.parameters, "loudnessMode", loudnessModeSelector);
     rightEnableAttachment = std::make_unique<ButtonAttachment> (
@@ -318,26 +289,6 @@ void HearingCorrectionAUv2AudioProcessorEditor::timerCallback()
     leftAudiogram.setAppliedCorrection (leftGains);
     rightAudiogram.setAppliedCorrection (rightGains);
 
-    // Dim Max Boost when it isn't currently constraining the curve for the active
-    // audiogram/model/strength/loudness-mode combination -- raising it further
-    // wouldn't change anything right now (though it may start to as those change).
-    const bool maxBoostActive = audioProcessor.maxBoostActive.load (std::memory_order_relaxed);
-    const float maxBoostAlpha = maxBoostActive ? 1.0f : 0.45f;
-    maxBoostSlider.setAlpha (maxBoostAlpha);
-    maxBoostLabel.setAlpha (maxBoostAlpha);
-
-    // Active-range marker: shade/line the part of the fader's travel that's currently
-    // dead (raising Max Boost past this point wouldn't change the output), tracking
-    // Strength/audiogram changes live. The fader itself stays fully draggable across
-    // its whole parameter range -- this is visual context only.
-    const float maxBoostCeiling = audioProcessor.maxBoostThresholdDb.load (std::memory_order_relaxed);
-    if (std::abs (maxBoostCeiling - lastMaxBoostCeiling) > 0.05f)
-    {
-        lastMaxBoostCeiling = maxBoostCeiling;
-        maxBoostSlider.getProperties().set ("rangeCeiling", (double) maxBoostCeiling);
-        maxBoostSlider.repaint();
-    }
-
     updatePresetSummaryLabel();
 
     repaint();
@@ -349,18 +300,15 @@ void HearingCorrectionAUv2AudioProcessorEditor::parameterChanged (const juce::St
         juce::MessageManager::callAsync ([this]() { updateUIModeVisibility(); });
 }
 
-void HearingCorrectionAUv2AudioProcessorEditor::updateNALOptionsVisibility()
+void HearingCorrectionAUv2AudioProcessorEditor::updateModelOptionsVisibility()
 {
+    // Compression Speed applies to NAL and MOSL (both compressive), not Half-Gain.
     auto* modelParam = audioProcessor.parameters.getRawParameterValue ("modelSelect");
     int modelIndex = modelParam != nullptr ? static_cast<int> (modelParam->load()) : 0;
-    bool showCompressionOptions = (modelIndex >= 1);        // NAL or MOSL: Speed is real for both
-    bool showLevel = (modelIndex == 2);                      // MOSL only: Level shapes bass/brightness there;
-                                                              // for NAL it was a redundant Strength preset
+    bool showCompressionOptions = (modelIndex >= 1);
 
     compressionSpeedLabel.setVisible (showCompressionOptions);
     compressionSpeedSelector.setVisible (showCompressionOptions);
-    experienceLevelLabel.setVisible (showLevel);
-    experienceLevelSelector.setVisible (showLevel);
     repaint();
 }
 
@@ -378,22 +326,17 @@ void HearingCorrectionAUv2AudioProcessorEditor::updateUIModeVisibility()
     loudnessModeSelector.setVisible (! basic);
     correctionLabel.setVisible (! basic);
     correctionStrengthSlider.setVisible (! basic);
-    maxBoostLabel.setVisible (! basic);
-    maxBoostSlider.setVisible (! basic);
 
     if (basic)
     {
-        // Compression Speed / Level are also model-conditional in Advanced mode -- in
-        // Basic mode they're always hidden regardless, so don't let a later
-        // updateNALOptionsVisibility() call re-show them.
+        // Compression Speed is model-conditional in Advanced mode -- in Basic mode it's
+        // always hidden, so don't let a later updateModelOptionsVisibility() re-show it.
         compressionSpeedLabel.setVisible (false);
         compressionSpeedSelector.setVisible (false);
-        experienceLevelLabel.setVisible (false);
-        experienceLevelSelector.setVisible (false);
     }
     else
     {
-        updateNALOptionsVisibility();
+        updateModelOptionsVisibility();
     }
 
     // Basic-mode-only controls: curated preset buttons + live summary.
@@ -411,9 +354,8 @@ void HearingCorrectionAUv2AudioProcessorEditor::updatePresetSummaryLabel()
 {
     auto* modelParam    = audioProcessor.parameters.getRawParameterValue ("modelSelect");
     auto* strengthParam = audioProcessor.parameters.getRawParameterValue ("correctionStrength");
-    auto* maxBoostParam = audioProcessor.parameters.getRawParameterValue ("maxBoost");
     auto* speedParam    = audioProcessor.parameters.getRawParameterValue ("compressionSpeed");
-    if (modelParam == nullptr || strengthParam == nullptr || maxBoostParam == nullptr || speedParam == nullptr)
+    if (modelParam == nullptr || strengthParam == nullptr || speedParam == nullptr)
         return;
 
     static const char* modelNames[] = { "Half-Gain", "NAL (Speech)", "MOSL (Music)" };
@@ -422,7 +364,6 @@ void HearingCorrectionAUv2AudioProcessorEditor::updatePresetSummaryLabel()
 
     juce::String summary;
     summary << modelNames[modelIndex] << "   Strength " << (int) strengthParam->load() << "%"
-            << "   Max Boost " << (int) maxBoostParam->load() << " dB"
             << "   " << (fastSpeed ? "Fast" : "Slow");
     presetSummaryLabel.setText (summary, juce::dontSendNotification);
 }
@@ -781,8 +722,9 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     }
     else
     {
+        // Three stacked dropdowns: Model / Speed / Loudness.
         const int ddH = 26, lblH = 14, ddGap = 4;
-        int totalDDH = 4 * (lblH + ddH) + 3 * ddGap;
+        int totalDDH = 3 * (lblH + ddH) + 2 * ddGap;
         int ddStartY = leftArea.getY() + (leftArea.getHeight() - totalDDH) / 2;
 
         modelLabel.setBounds (leftArea.getX(), ddStartY, leftArea.getWidth(), lblH);
@@ -793,18 +735,14 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
         compressionSpeedSelector.setBounds (leftArea.getX(), y2 + lblH, leftArea.getWidth(), ddH);
 
         int y3 = y2 + lblH + ddH + ddGap;
-        experienceLevelLabel.setBounds (leftArea.getX(), y3, leftArea.getWidth(), lblH);
-        experienceLevelSelector.setBounds (leftArea.getX(), y3 + lblH, leftArea.getWidth(), ddH);
-
-        int y4 = y3 + lblH + ddH + ddGap;
-        loudnessModeLabel.setBounds (leftArea.getX(), y4, leftArea.getWidth(), lblH);
-        loudnessModeSelector.setBounds (leftArea.getX(), y4 + lblH, leftArea.getWidth(), ddH);
+        loudnessModeLabel.setBounds (leftArea.getX(), y3, leftArea.getWidth(), lblH);
+        loudnessModeSelector.setBounds (leftArea.getX(), y3 + lblH, leftArea.getWidth(), ddH);
     }
 
     // --- Right side: meter/fader columns ---
-    // Advanced: IN meter | STRENGTH | MAX BOOST | OUTPUT | OUT meter (5 columns).
-    // Basic: IN meter | OUTPUT | OUT meter (3 columns) -- Strength/Max Boost are
-    // preset-managed and hidden, so their columns disappear rather than going empty.
+    // Advanced: IN meter | STRENGTH | OUTPUT | OUT meter (4 columns).
+    // Basic: IN meter | OUTPUT | OUT meter (3 columns) -- Strength is preset-managed
+    // and hidden, so its column disappears rather than going empty.
     // Columns fill the space between the divider and the right edge with equal padding.
     // Each element is horizontally centred on its column; the title/control/value block
     // is vertically centred with equal top/bottom margin.
@@ -826,7 +764,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int meterBottom = faderBottom - valueBoxH - valueGap;     // meter bottom; also the knob's bottom at min
     const int faderTop = barTop;                         // travel is inset inside the look-and-feel
 
-    const int N    = basicUI ? 3 : 5;
+    const int N    = basicUI ? 3 : 4;
     const int colW = mfArea.getWidth() / N;
 
     auto colCentre  = [&] (int i) { return mfArea.getX() + colW * i + colW / 2; };
@@ -855,9 +793,8 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     {
         placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
         placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
-        placeTitle (maxBoostLabel,    2);  placeFader (maxBoostSlider,           2);
-        placeTitle (outputGainLabel,  3);  placeFader (outputGainSlider,         3);
-        placeTitle (outputMeterLabel, 4);  outputMeterBounds = meterRect (4);
+        placeTitle (outputGainLabel,  2);  placeFader (outputGainSlider,         2);
+        placeTitle (outputMeterLabel, 3);  outputMeterBounds = meterRect (3);
     }
 }
 

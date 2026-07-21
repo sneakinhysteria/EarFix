@@ -140,12 +140,14 @@ struct Engine
     }
 
     // normMode: 0 = arithmetic dB mean, 1 = energy (pink-RMS) mean, 2 = perceptual
-    // (K-weighted) centered [shipped as "Centered"], 3 = Boost Only (global scale-down,
-    // never cuts a band -- shipped default)
+    // (K-weighted) centered [shipped as "Centered"], 3 = Boost Only (never cuts a band --
+    // shipped default). The plugin's user "Max Boost" fader was removed; a fixed 40 dB
+    // ceiling (kCeil, matching each model's own calculateGain clamp) is the silent limit.
     void computeTargets (const CorrectionModel& model, const float audiogram[NB],
-                         float strength, float maxBoost, int normMode)
+                         float strength, float /*maxBoost*/, int normMode)
     {
         modelComp = model.hasCompression();
+        constexpr float kCeil = 40.0f;
 
         // Bandwidth (octave) weights for each crossover band over 20 Hz .. 20 kHz
         const float edges[NB + 1] = { 20, 354, 707, 1414, 2828, 5657, 20000 };
@@ -175,16 +177,11 @@ struct Engine
         if (normMode == 3)
         {
             // Boost Only: every band is >= 0 by construction, so no band is ever cut.
-            // A curve that only adds gain can't be scaled to exact loudness parity
-            // (any positive scale strictly increases weighted loudness above flat), so
-            // instead scale the whole curve down (shape preserved) only if needed so
-            // its loudest band never exceeds Max Boost.
-            float peak = g[0];
-            for (int i = 1; i < NB; ++i) peak = std::max (peak, g[i]);
-            const float k = (peak > maxBoost && peak > 0.0f) ? (maxBoost / peak) : 1.0f;
+            // Strength is the sole scale; the fixed ceiling only guards a runaway band
+            // (never binds in practice, since calculateGain already clamps to 40 dB).
             for (int i = 0; i < NB; ++i)
             {
-                wd[i].target = juce::jlimit (0.0f, maxBoost, g[i] * k);
+                wd[i].target = juce::jlimit (0.0f, kCeil, g[i]);
                 const float loss = std::max (0.0f, audiogram[i]);
                 wd[i].ratio = modelComp ? model.getCompressionParams (freqs[i], loss).ratio : 1.0f;
             }
@@ -207,7 +204,7 @@ struct Engine
 
         for (int i = 0; i < NB; ++i)
         {
-            wd[i].target = juce::jlimit (-maxBoost, maxBoost, g[i] - offset);
+            wd[i].target = juce::jlimit (-kCeil, kCeil, g[i] - offset);
             const float loss = std::max (0.0f, audiogram[i]);
             wd[i].ratio = modelComp ? model.getCompressionParams (freqs[i], loss).ratio : 1.0f;
         }

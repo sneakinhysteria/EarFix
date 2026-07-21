@@ -32,8 +32,8 @@ public:
     }
 
     /** Updates the live "applied correction" overlay curve (dB gain per band, from the
-        processor's current model/strength/maxBoost/loudnessMode). Called from the
-        editor's timer, same cadence as the level meters. */
+        processor's current model/strength/loudnessMode). Called from the editor's
+        timer, same cadence as the level meters. */
     void setAppliedCorrection (const std::array<float, 6>& appliedGainDb)
     {
         bool changed = false;

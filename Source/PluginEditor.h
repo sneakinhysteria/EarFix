@@ -30,7 +30,7 @@ public:
 
 private:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
-    void updateNALOptionsVisibility();
+    void updateModelOptionsVisibility();
     void drawMeter (juce::Graphics& g, float x, float y, float w, float h, float level);
 
     // Basic/Advanced UI mode: Basic swaps the full dropdown/fader control set for two
@@ -52,21 +52,13 @@ private:
     juce::ComboBox     modelSelector;
     juce::Label        modelLabel;
 
-    // Left column: Compression speed (NAL model only)
+    // Left column: Compression speed (NAL + MOSL)
     juce::ComboBox     compressionSpeedSelector;
     juce::Label        compressionSpeedLabel;
-
-    // Left column: Experience level (NAL model only)
-    juce::ComboBox     experienceLevelSelector;
-    juce::Label        experienceLevelLabel;
 
     // Left column: Loudness mode (Centered / Boost Only)
     juce::ComboBox     loudnessModeSelector;
     juce::Label        loudnessModeLabel;
-
-    // Fader section: Max boost limiter (correction ceiling)
-    juce::Slider       maxBoostSlider;
-    juce::Label        maxBoostLabel;
 
     // Per-ear enable toggles
     juce::ToggleButton rightEnableButton { "right" };
@@ -106,10 +98,8 @@ private:
 
     std::unique_ptr<SliderAttachment>   outputGainAttachment;
     std::unique_ptr<SliderAttachment>   correctionStrengthAttachment;
-    std::unique_ptr<SliderAttachment>   maxBoostAttachment;
     std::unique_ptr<ComboBoxAttachment> modelSelectAttachment;
     std::unique_ptr<ComboBoxAttachment> compressionSpeedAttachment;
-    std::unique_ptr<ComboBoxAttachment> experienceLevelAttachment;
     std::unique_ptr<ComboBoxAttachment> loudnessModeAttachment;
     std::unique_ptr<ButtonAttachment>   rightEnableAttachment;
     std::unique_ptr<ButtonAttachment>   leftEnableAttachment;
@@ -150,10 +140,6 @@ private:
     // Smoothed meter levels for display
     float displayInputL = 0.0f, displayInputR = 0.0f;
     float displayOutputL = 0.0f, displayOutputR = 0.0f;
-
-    // Last value pushed to maxBoostSlider's "rangeCeiling" property, to avoid
-    // repainting the active-range marker every timer tick when it hasn't moved.
-    float lastMaxBoostCeiling = -1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HearingCorrectionAUv2AudioProcessorEditor)
 };

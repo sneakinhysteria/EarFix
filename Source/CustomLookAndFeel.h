@@ -190,40 +190,6 @@ public:
         g.setColour (sliderFill.withAlpha (0.7f));
         g.fillRoundedRectangle (filledTrack, trackThickness * 0.5f);
 
-        // Active-range marker: sliders can carry a "rangeCeiling" property (set from the
-        // processor's live-computed value) marking the point past which moving the fader
-        // further has no audible effect for the current audiogram/strength. Shade the
-        // dead zone beyond it and draw a boundary line, without restricting the fader's
-        // actual draggable range (that stays the full parameter range, for automation and
-        // preset compatibility).
-        if (slider.getProperties().contains ("rangeCeiling"))
-        {
-            const float ceiling = (float) slider.getProperties()["rangeCeiling"];
-            const auto  range   = slider.getRange();
-
-            if (ceiling < (float) range.getEnd() - 0.5f)
-            {
-                const float ceilingPos = slider.getPositionOfValue (ceiling);
-
-                if (isHorizontal)
-                {
-                    auto dead = bounds.withLeft (ceilingPos);
-                    g.setColour (juce::Colours::black.withAlpha (0.08f));
-                    g.fillRect (dead);
-                    g.setColour (textMuted.withAlpha (0.9f));
-                    g.drawLine (ceilingPos, bounds.getY(), ceilingPos, bounds.getBottom(), 1.5f);
-                }
-                else
-                {
-                    auto dead = bounds.withBottom (ceilingPos);
-                    g.setColour (juce::Colours::black.withAlpha (0.08f));
-                    g.fillRect (dead);
-                    g.setColour (textMuted.withAlpha (0.9f));
-                    g.drawLine (bounds.getX(), ceilingPos, bounds.getRight(), ceilingPos, 1.5f);
-                }
-            }
-        }
-
         // Thumb (rectangular fader style)
         float thumbWidth = 14.0f;
         float thumbHeight = 22.0f;

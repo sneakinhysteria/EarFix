@@ -800,29 +800,30 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
                                        (float) meterW, (float) (meterBottom - barTop));
     };
 
-    // Output column: fader shortened to fit the compact "Auto" trim button beneath its
-    // value box (the fader's own value box stays pinned to the bottom of its bounds).
-    const int autoBtnH = 16, autoBtnGap = 4, autoBtnW = 48;
-    auto placeOutputColumn = [&] (int i)
+    // "Auto" trim button: goes in the empty space beneath the OUT meter (meters have no
+    // value box, so the value-box row below them is free), aligned with where the faders'
+    // value boxes sit. Keeps the Output fader at full height.
+    const int autoBtnW = 52;
+    auto placeAutoUnderMeter = [&] (int meterCol)
     {
-        placeTitle (outputGainLabel, i);
-        const int shortBottom = faderBottom - (autoBtnH + autoBtnGap);
-        outputGainSlider.setBounds (colCentre (i) - faderW / 2, faderTop, faderW, shortBottom - faderTop);
-        autoOutputButton.setBounds (colCentre (i) - autoBtnW / 2, shortBottom + autoBtnGap, autoBtnW, autoBtnH);
+        autoOutputButton.setBounds (colCentre (meterCol) - autoBtnW / 2,
+                                    meterBottom + valueGap, autoBtnW, valueBoxH);
     };
 
     if (basicUI)
     {
         placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
-        placeOutputColumn (1);
+        placeTitle (outputGainLabel,  1);  placeFader (outputGainSlider, 1);
         placeTitle (outputMeterLabel, 2);  outputMeterBounds = meterRect (2);
+        placeAutoUnderMeter (2);
     }
     else
     {
         placeTitle (inputMeterLabel,  0);  inputMeterBounds  = meterRect (0);
         placeTitle (correctionLabel,  1);  placeFader (correctionStrengthSlider, 1);
-        placeOutputColumn (2);
+        placeTitle (outputGainLabel,  2);  placeFader (outputGainSlider,         2);
         placeTitle (outputMeterLabel, 3);  outputMeterBounds = meterRect (3);
+        placeAutoUnderMeter (3);
     }
 }
 

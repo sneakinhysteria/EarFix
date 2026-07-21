@@ -374,28 +374,37 @@ public:
     {
         if (button.getComponentID() == "linkIcon")
         {
+            // Classic hyperlink/chain glyph: two elongated stadium-shaped rings,
+            // both tilted along the same diagonal and strung end-to-end so they
+            // overlap in the middle, like two paperclip loops interlocking.
             auto bounds = button.getLocalBounds().toFloat();
             g.setColour (button.getToggleState() ? juce::Colours::white : textMuted);
 
             const float cx = bounds.getCentreX(), cy = bounds.getCentreY();
-            const float ringW = bounds.getWidth() * 0.5f;
-            const float ringH = bounds.getHeight() * 0.5f;
-            const float thickness = juce::jmax (1.4f, ringH * 0.32f);
-            const float offset = ringW * 0.38f;
+            const float s  = juce::jmin (bounds.getWidth(), bounds.getHeight());
+
+            const float ringW = s * 1.05f;    // long axis of each link
+            const float ringH = s * 0.46f;    // short axis -- elongated, not circular
+            const float thickness = juce::jmax (1.6f, ringH * 0.42f);
+            const float offset = s * 0.24f;   // how far each ring's centre sits from the middle
+
+            const float angle = juce::degreesToRadians (-45.0f);
+            const auto  dir   = juce::Point<float> (1.0f, 0.0f).transformedBy (juce::AffineTransform::rotation (angle));
+            const float dirX = dir.x, dirY = dir.y;
 
             juce::PathStrokeType stroke (thickness, juce::PathStrokeType::curved,
                                         juce::PathStrokeType::rounded);
 
-            auto ring = [&] (float x, float y)
+            auto ring = [&] (float ox, float oy)
             {
                 juce::Path p;
-                p.addRoundedRectangle (x - ringW * 0.5f, y - ringH * 0.5f, ringW, ringH, ringH * 0.5f);
-                p.applyTransform (juce::AffineTransform::rotation (juce::degreesToRadians (-35.0f), x, y));
+                p.addRoundedRectangle (-ringW * 0.5f, -ringH * 0.5f, ringW, ringH, ringH * 0.5f);
+                p.applyTransform (juce::AffineTransform::rotation (angle).translated (ox, oy));
                 g.strokePath (p, stroke);
             };
 
-            ring (cx - offset, cy + offset * 0.4f);
-            ring (cx + offset, cy - offset * 0.4f);
+            ring (cx - offset * dirX, cy - offset * dirY);
+            ring (cx + offset * dirX, cy + offset * dirY);
             return;
         }
 

@@ -526,19 +526,12 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
     const bool rightEnabled = rightEnableParam->load() > 0.5f;
     const bool modelComp    = currentModel->hasCompression();
 
-    // Fully transparent when nothing is being corrected: both ears off AND headphone
-    // EQ off. In that state the buffer is still the untouched input (headphone process
-    // was a no-op, no correction applied yet), so return it as-is -- crucially WITHOUT
-    // the Output Gain trim. That trim exists only to compensate the correction's added
-    // loudness; applying it here would attenuate a signal that has no boost to offset,
-    // making "all correction off" quieter than host bypass. This makes the two match.
-    if (! leftEnabled && ! rightEnabled && ! headphoneEQEnabled)
-    {
-        outputLevelLeft.store  (inputLevelLeft.load  (std::memory_order_relaxed), std::memory_order_relaxed);
-        outputLevelRight.store (inputLevelRight.load (std::memory_order_relaxed), std::memory_order_relaxed);
-        previousGain = 1.0f;   // next active block ramps the Output trim up from unity
-        return;
-    }
+    // Whether anything is actually correcting: either ear, or headphone EQ. When
+    // nothing is, the Output Gain trim is skipped below so the plugin is transparent
+    // (matches host bypass). We keep running the crossover/WDRC per-sample loop
+    // regardless, so those filters stay warm and re-enabling doesn't click from stale
+    // filter state.
+    const bool anyCorrectionActive = leftEnabled || rightEnabled || headphoneEQEnabled;
 
     // Applies the envelope-following WDRC gain for one band and returns the new
     // smoothed linear gain. When the model has no compression the static soft
@@ -617,17 +610,30 @@ void HearingCorrectionAUv2AudioProcessor::processBlock (juce::AudioBuffer<float>
         }
     }
 
-    // Output gain with smoothing
+    // Output gain with smoothing. Applied only while something is being corrected --
+    // the trim compensates the correction's added loudness, so with nothing active the
+    // signal is already the untouched input (both ears passed through, headphone EQ a
+    // no-op) and must stay untrimmed to match host bypass. While inactive we hold
+    // previousGain AT the target so that re-enabling snaps the trim in from sample 0
+    // alongside the correction (they cancel to ~unity loudness) instead of ramping up
+    // from unity, which would let a full un-trimmed correction burst through -> click.
     const float targetGain = juce::Decibels::decibelsToGain (outputGainParam->load());
 
-    if (std::abs (targetGain - previousGain) > 0.0001f)
+    if (anyCorrectionActive)
     {
-        buffer.applyGainRamp (0, numSamples, previousGain, targetGain);
-        previousGain = targetGain;
+        if (std::abs (targetGain - previousGain) > 0.0001f)
+        {
+            buffer.applyGainRamp (0, numSamples, previousGain, targetGain);
+            previousGain = targetGain;
+        }
+        else
+        {
+            buffer.applyGain (targetGain);
+        }
     }
     else
     {
-        buffer.applyGain (targetGain);
+        previousGain = targetGain;
     }
 
     // Measure output levels

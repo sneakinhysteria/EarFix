@@ -4,7 +4,12 @@
 
 EarFix is a free, open-source audio plugin that applies personalized hearing correction to any audio source. Enter your audiogram data (from a hearing test) and EarFix compensates for your specific hearing loss profile in real-time.
 
-![EarFix Screenshot](docs/images/earfix-screenshot.png)
+<table>
+<tr>
+<td align="center"><b>Basic mode</b><br><img src="docs/images/earfix-screenshot-basic.png" alt="EarFix Basic mode"></td>
+<td align="center"><b>Advanced mode</b><br><img src="docs/images/earfix-screenshot-advanced.png" alt="EarFix Advanced mode"></td>
+</tr>
+</table>
 
 ## Download
 

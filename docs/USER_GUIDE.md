@@ -67,29 +67,14 @@ This pattern (worse hearing at high frequencies) is common and well-suited for E
 
 ## Interface Overview
 
-### Headphone Correction (Top Section)
+Cards read top-to-bottom in signal order: your **audiogram** (the input data) feeds **hearing loss correction**, which runs through **headphone correction** last, as a final tone-shaping step.
 
-EarFix includes headphone-specific EQ correction to compensate for your headphones' frequency response, based on measurements from the [AutoEQ](https://github.com/jaakkopasanen/AutoEq) project and [oratory1990](https://www.reddit.com/r/oratory1990/).
+### Top Bar
 
-- **Headphone Selector**: Choose your headphone model from the dropdown
-- **Enable Toggle**: Turn headphone EQ correction on/off
-- **Refresh**: Reload the headphone profiles
+- **Basic / Advanced**: Switch between a simplified view (two preset buttons) and the full control set. Both drive the exact same underlying settings — switching modes never changes or loses your configuration, it only changes what's visible.
+- **Save / Load**: Save or load the plugin's entire state (audiogram, model, all settings) as a standard `.aupreset` file, interchangeable with Logic and other AU hosts.
 
-### Controls Panel (Middle Section)
-
-**Left Column (Model & Options):**
-- **Model**: Select correction algorithm (Half-Gain, NAL Speech, or MOSL Music)
-- **Speed**: Compression speed for NAL/MOSL models (Fast/Slow)
-- **Loudness**: How the curve is kept from running louder than input (Centered / Boost Only)
-
-**Right Column (Signal Flow):**
-- **Input Meters**: Stereo level meters showing input signal
-- **Strength**: Correction intensity fader (0-100%)
-- **Output**: Master output gain fader (-48 to +24 dB). The wide negative range covers the large boosts hearing correction adds — always trim here rather than reducing your source/system volume, which loses quality.
-- **Auto**: Click to set Output automatically so the corrected signal matches the input's loudness — one click, and the fader moves to the computed value (still adjustable afterward).
-- **Output Meters**: Stereo level meters showing output signal
-
-### Audiogram Section (Bottom)
+### Audiogram Section (Top)
 
 **Right Ear (Left Chart):**
 - Red curve and markers
@@ -101,9 +86,40 @@ EarFix includes headphone-specific EQ correction to compensate for your headphon
 - Toggle switch to enable/disable
 - Click markers to adjust values
 
+**Link icon** (between the two charts): links both ears' enable toggles together, so disabling one also disables the other. Click again to unlink.
+
 **Chart Axes:**
 - X-axis: Frequency (250 Hz to 8 kHz)
 - Y-axis: Hearing Level (-20 to 120 dB HL)
+
+The green line and shaded fill show your *aided* threshold — your hearing loss curve after the currently-applied correction — so you always have a visual baseline for what the correction is doing to each band, live as you adjust settings.
+
+### Hearing Loss Correction (Middle Section)
+
+**Basic mode:**
+- **Speech** / **Music**: one-click, research-grounded starting points (see [Correction Models](#correction-models) for what each sets)
+- A summary line under the buttons shows exactly what the active preset set (model, strength, compression speed)
+
+**Advanced mode — left column:**
+- **Model**: Select correction algorithm (Half-Gain, NAL Speech, or MOSL Music)
+- **Speed**: Compression speed for NAL/MOSL models (Fast/Slow)
+- **Loudness**: How the curve is kept from running louder than input (Centered / Boost Only)
+
+**Right column (both modes):**
+- **Input Meters**: Stereo level meters showing input signal
+- **Strength** (Advanced only): Correction intensity fader (0-100%)
+- **Output**: Master output gain fader (-48 to +24 dB). The wide negative range covers the large boosts hearing correction can add — always trim here rather than reducing your source/system volume, which loses quality before the signal reaches EarFix.
+- **Auto**: Click to set Output automatically so the corrected signal matches the input's loudness, measured from the actual audio while it plays — the fader moves to the computed value and stays adjustable afterward.
+- **Output Meters**: Stereo level meters showing output signal
+
+### Headphone Correction (Bottom Section)
+
+Runs last in the signal chain, as a final linear touch-up on the corrected signal for your specific headphones, based on measurements from the [AutoEQ](https://github.com/jaakkopasanen/AutoEq) project, [squig.link](https://squig.link), and [oratory1990](https://www.reddit.com/r/oratory1990/). It's loudness-neutral — enabling it changes tone, not overall volume.
+
+- **Headphone Selector**: Choose your headphone model from the dropdown
+- **Enable Toggle**: Turn headphone EQ correction on/off
+- **Import**: Paste a Parametric EQ profile (AutoEQ, REW, or EqualizerAPO format) to add a headphone not already in the database
+- **Refresh**: Reload the headphone profiles from disk
 
 ---
 
@@ -121,6 +137,8 @@ EarFix includes headphone-specific EQ correction to compensate for your headphon
 
 ### Step 2: Choose a Correction Model
 
+In **Basic** mode, click **Speech** or **Music** for a one-click, research-grounded starting point, then skip to [Step 4](#step-4-set-output-level). To pick the model yourself, switch to **Advanced**:
+
 **Start with Half-Gain** if:
 - You have mild hearing loss (under 40 dB)
 - You want transparent, natural sound
@@ -136,9 +154,9 @@ EarFix includes headphone-specific EQ correction to compensate for your headphon
 - You want to preserve musical dynamics
 - NAL sounds too "compressed" or "pumpy" on music
 
-### Step 3: Adjust Strength
+### Step 3: Adjust Strength (Advanced mode)
 
-Start with the Strength slider at 50% and adjust to taste:
+Strength defaults to 85% — calibrated against real hearing-aid fitting data as a reasonable starting point — and can be adjusted to taste:
 - **Lower (25-50%)**: Subtle correction, more natural
 - **Medium (50-75%)**: Balanced correction
 - **Higher (75-100%)**: Maximum correction, may sound processed
@@ -176,10 +194,12 @@ Applies gain equal to half your hearing threshold at each frequency.
 Based on the National Acoustic Laboratories' Non-Linear 2 prescription formula, which is used clinically for fitting hearing aids.
 
 **Features:**
-- Frequency-dependent compression
-- Loudness normalization
-- Accounts for "recruitment" (abnormal loudness growth)
+- Frequency-dependent gain shaping (reduced bass to avoid muddiness, reduced treble for severe loss)
+- WDRC compression (up to 3:1) that accounts for "recruitment" (abnormal loudness growth)
+- Fast compression speed by default, preserving speech consonant transients
 - Optimized for speech intelligibility
+
+(The **Loudness** setting — Centered or Boost Only — is a separate, shared control that applies to every model, not something specific to NAL; see [Interface Overview](#interface-overview).)
 
 **NAL Options:**
 
@@ -232,10 +252,10 @@ Overall correction amount is set continuously with the **Strength** fader.
 
 ### For Music Listening
 
-- Use the **MOSL (Music)** model for best results
+- Use the **MOSL (Music)** model for best results (or click **Music** in Basic mode)
 - Alternatively, **Half-Gain** for maximum transparency
-- Set **Strength** to 50-75%
-- Use **Auto** to quickly match levels
+- The default 85% Strength is a good starting point; lower it if things feel too processed
+- Play some audio and click **Auto** to quickly match levels
 - Consider using on the master bus or headphone output
 
 ### For Mixing/Mastering
@@ -280,7 +300,7 @@ EarFix implements a simplified version of the NAL-NL2 formula suitable for audio
 
 ### How does Auto work?
 
-Click the **Auto** button next to the Output fader. EarFix computes how much louder the current correction runs than the input (a perceptual, K-weighted measure) and sets the Output gain to cancel exactly that, so corrected and uncorrected audio sit at the same perceived loudness. The fader visibly jumps to the computed value and stays adjustable, so you can fine-tune from there. It works with any audiogram and correction strength, no need to play audio while clicking.
+Play some audio, then click the **Auto** button next to the Output fader. EarFix measures the actual loudness of the processed signal against the input (a short, real-time comparison, not an estimate) and sets the Output gain to cancel the difference, so corrected and uncorrected audio sit at the same perceived loudness. The fader visibly jumps to the computed value and stays adjustable, so you can fine-tune from there. Because it measures the real signal, it needs audio playing to give a meaningful result — clicking it on silence won't change anything useful.
 
 ### Does EarFix add latency?
 

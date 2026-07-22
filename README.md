@@ -86,6 +86,8 @@ See the [User Guide](docs/USER_GUIDE.md) for complete documentation.
 4. Play audio and click **Auto** to match the output loudness to your source
 5. Switch to Advanced any time to fine-tune (model, strength, loudness mode, compression speed)
 
+**Running EarFix on all your system audio:** EarFix is a plugin, so it needs a host to run in — normally a DAW. For applying it system-wide (Spotify, browser, etc.) on macOS, [Curve](https://github.com/tomderham/curve) is a free, open-source, driverless AU/VST3 host that taps your system audio — no separate driver install required. Load EarFix as a Curve node on your system audio output.
+
 ## How It Works
 
 EarFix splits audio into 6 bands (matching the 250Hz-8kHz audiogram frequencies) using a phase-compensated Linkwitz-Riley crossover, then applies gain per band based on your audiogram and chosen correction model. Signal flow is: **hearing correction** (reshapes the signal for your audiogram) → **headphone EQ** (flattens your headphones' own response, if a profile is loaded) → **output gain**. Hearing correction comes first so its level-dependent compression responds to the clean source dynamics rather than to a signal already colored by the headphone-inverse EQ; the net frequency response is the same either way, since the two filter stages combine identically regardless of order. The plugin's own card order (Audiogram → Hearing Loss Correction → Headphone Correction) mirrors this signal flow.

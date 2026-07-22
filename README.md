@@ -86,7 +86,7 @@ See the [User Guide](docs/USER_GUIDE.md) for complete documentation.
 4. Play audio and click **Auto** to match the output loudness to your source
 5. Switch to Advanced any time to fine-tune (model, strength, loudness mode, compression speed)
 
-**Running EarFix on all your system audio:** EarFix is a plugin, so it needs a host to run in — normally a DAW. For applying it system-wide (Spotify, browser, etc.) on macOS, [Curve](https://github.com/tomderham/curve) is a free, open-source, driverless AU/VST3 host that taps your system audio — no separate driver install required. Load EarFix as a Curve node on your system audio output.
+**Running EarFix on all your system audio:** EarFix is a plugin, so it needs a host to run in — normally a DAW. For applying it system-wide (music playback, browser, etc.) on macOS, [Curve](https://github.com/tomderham/curve) is a free, open-source, driverless AU/VST3 host that taps your system audio — no separate driver install required. Load EarFix as a Curve node on your system audio output.
 
 ## How It Works
 

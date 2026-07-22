@@ -475,7 +475,7 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
     // Universal spacing (must match resized())
     const int MARGIN = 16, HEADER_H = 16, GAP = 6;
 
-    // Version label: top-left corner, in the band above the headphone panel where the
+    // Version label: top-left corner, in the band above the audiogram panel where the
     // mode toggle used to sit before it moved down to sit above the control section.
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (10.0f));
@@ -483,30 +483,11 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
                juce::Justification::centredLeft);
     auto bounds = getLocalBounds().toFloat().reduced (MARGIN);
 
-    // === HEADPHONE CORRECTION header ===
-    g.setColour (CustomLookAndFeel::textMuted);
-    g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    g.drawText ("HEADPHONE CORRECTION", bounds.removeFromTop (HEADER_H), juce::Justification::centred);
-
-    // Draw headphone panel
-    if (!headphonePanelBounds.isEmpty())
-    {
-        const int PAD = 10;  // Must match PANEL_PAD
-        CustomLookAndFeel::drawMachinedPanel (g, headphonePanelBounds, 8.0f);
-
-        // Headphone emoji icon (at top-left with padding)
-        g.setFont (juce::FontOptions (18.0f));
-        g.setColour (CustomLookAndFeel::textDark);
-        g.drawText (juce::String::fromUTF8 ("\xF0\x9F\x8E\xA7"),
-                   headphonePanelBounds.getX() + PAD, headphonePanelBounds.getY() + PAD,
-                   28, 26, juce::Justification::centred);
-    }
-
     // === AUDIOGRAM header ===
-    float audiogramHeaderY = headphonePanelBounds.getBottom() + GAP;
+    // First: the audiogram is the input data that drives the correction directly below.
     g.setColour (CustomLookAndFeel::textMuted);
     g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
-    g.drawText ("AUDIOGRAM", MARGIN, audiogramHeaderY, getWidth() - 2 * MARGIN, HEADER_H, juce::Justification::centred);
+    g.drawText ("AUDIOGRAM", bounds.removeFromTop (HEADER_H), juce::Justification::centred);
 
     // Draw audiogram panels with R/L indicators
     if (!audiogramPanelBounds.isEmpty())
@@ -542,7 +523,8 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
     }
 
     // === HEARING LOSS CORRECTION header ===
-    // Sits directly above the control panel -- there's now a mode-toggle row (drawn via
+    // Second: hearing correction, applied directly from the audiogram above it. Sits
+    // directly above the control panel -- there's a mode-toggle row (drawn via
     // resized()'s component placement, not paint()) between the audiogram section and
     // this header, so its position is derived from controlPanelBounds, not the
     // audiogram bottom, to stay correct regardless of what's in between.
@@ -586,6 +568,28 @@ void HearingCorrectionAUv2AudioProcessorEditor::paint (juce::Graphics& g)
         }
 
     }
+
+    // === HEADPHONE CORRECTION header ===
+    // Last: a final linear touch-up on the corrected signal, matching the signal chain.
+    // Position derived from controlPanelBounds' bottom, same pattern as hlHeaderY above.
+    float headphoneHeaderY = controlPanelBounds.getBottom() + GAP;
+    g.setColour (CustomLookAndFeel::textMuted);
+    g.setFont (juce::FontOptions (11.0f).withStyle ("Bold"));
+    g.drawText ("HEADPHONE CORRECTION", MARGIN, headphoneHeaderY, getWidth() - 2 * MARGIN, HEADER_H, juce::Justification::centred);
+
+    // Draw headphone panel
+    if (!headphonePanelBounds.isEmpty())
+    {
+        const int PAD = 10;  // Must match PANEL_PAD
+        CustomLookAndFeel::drawMachinedPanel (g, headphonePanelBounds, 8.0f);
+
+        // Headphone emoji icon (at top-left with padding)
+        g.setFont (juce::FontOptions (18.0f));
+        g.setColour (CustomLookAndFeel::textDark);
+        g.drawText (juce::String::fromUTF8 ("\xF0\x9F\x8E\xA7"),
+                   headphonePanelBounds.getX() + PAD, headphonePanelBounds.getY() + PAD,
+                   28, 26, juce::Justification::centred);
+    }
 }
 
 void HearingCorrectionAUv2AudioProcessorEditor::drawMeter (juce::Graphics& g, float x, float y,
@@ -620,11 +624,9 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
     const int GAP = 6;               // Gap between sections
 
     // Preset buttons: top-right corner, centred in the band between the card's top
-    // edge (y = 0) and the headphone panel's top (y = MARGIN + HEADER_H), so the
+    // edge (y = 0) and the audiogram panel's top (y = MARGIN + HEADER_H), so the
     // padding above the buttons equals the padding below them. The version label
-    // (drawn in paint()) occupies the equivalent top-left corner of this same band,
-    // where the mode toggle used to sit before it moved down to sit above the control
-    // ("hearing loss") card.
+    // (drawn in paint()) occupies the equivalent top-left corner of this same band.
     const int presetBtnW = 46, presetBtnH = 20, presetGap = 6;
     const int presetBandH = MARGIN + HEADER_H;
     const int presetBtnY = (presetBandH - presetBtnH) / 2;
@@ -636,41 +638,14 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
 
     // Fixed heights
     const int HP_PANEL_H = 60;       // Headphone panel (room for dropdown + info)
-    const int CTRL_PANEL_H = 200;    // Control panel (4 dropdown rows: Model/Speed/Level/Loudness)
+    const int CTRL_PANEL_H = 200;    // Control panel (3 dropdown rows: Model/Speed/Loudness)
 
     // Calculate audiogram height to fill remaining space
     int usedHeight = HEADER_H + HP_PANEL_H + GAP + HEADER_H + GAP + HEADER_H + CTRL_PANEL_H;
     int audiogramHeight = bounds.getHeight() - usedHeight;
 
-    // ============ 1. HEADPHONE SECTION ============
-    bounds.removeFromTop (HEADER_H);
-    headphonePanelBounds = bounds.removeFromTop (HP_PANEL_H).toFloat();
-
-    // Content area with PANEL_PAD from all edges
-    int hpX = static_cast<int>(headphonePanelBounds.getX()) + PANEL_PAD;
-    int hpY = static_cast<int>(headphonePanelBounds.getY()) + PANEL_PAD;
-    int hpW = static_cast<int>(headphonePanelBounds.getWidth()) - 2 * PANEL_PAD;
-    int hpH = static_cast<int>(headphonePanelBounds.getHeight()) - 2 * PANEL_PAD;
-
-    // Row 1: icon, dropdown, toggle, import, refresh
-    int iconW = 28, toggleW = 40, refreshW = 50, importW = 50, elemH = 26;
-    int refreshX = hpX + hpW - refreshW;
-    int importX  = refreshX - 6 - importW;
-    int toggleX  = importX - 8 - toggleW;
-    int dropX = hpX + iconW + 8;
-    int dropW = toggleX - 8 - dropX;
-
-    headphoneSelector.setBounds (dropX, hpY, dropW, elemH);
-    headphoneEnableButton.setBounds (toggleX, hpY + 3, toggleW, 20);
-    headphoneImportButton.setBounds (importX, hpY, importW, elemH);
-    headphoneRefreshButton.setBounds (refreshX, hpY, refreshW, elemH);
-
-    // Row 2: info label (with padding from bottom)
-    headphoneInfoLabel.setBounds (dropX, hpY + hpH - 12, dropW, 12);
-
-    bounds.removeFromTop (GAP);
-
-    // ============ 2. AUDIOGRAM SECTION ============
+    // ============ 1. AUDIOGRAM SECTION ============
+    // First: the audiogram is the input data that drives the correction directly below.
     bounds.removeFromTop (HEADER_H);
     audiogramPanelBounds = bounds.removeFromTop (audiogramHeight).toFloat();
 
@@ -705,13 +680,14 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
 
     bounds.removeFromTop (GAP);
 
-    // ============ 3. CONTROL SECTION ============
+    // ============ 2. CONTROL SECTION ============
+    // Second: hearing correction, applied directly from the audiogram above it.
     // Basic/Advanced toggle lives inside the same title row as "HEARING LOSS
     // CORRECTION MODEL & PARAMETERS" (paint()), left-aligned -- it uses exactly the
     // same GAP-then-HEADER_H rhythm as every other card title instead of a separate
     // row, so it reads as part of this card's title, not floating between sections.
     auto controlHeaderRow = bounds.removeFromTop (HEADER_H);
-    controlPanelBounds = bounds.toFloat();
+    controlPanelBounds = bounds.removeFromTop (CTRL_PANEL_H).toFloat();
 
     const int modeBtnW = 54, modeBtnH = HEADER_H;
     basicModeButton.setBounds (controlHeaderRow.getX(), controlHeaderRow.getY(), modeBtnW, modeBtnH);
@@ -825,6 +801,36 @@ void HearingCorrectionAUv2AudioProcessorEditor::resized()
         placeTitle (outputMeterLabel, 3);  outputMeterBounds = meterRect (3);
         placeAutoUnderMeter (3);
     }
+
+    bounds.removeFromTop (GAP);
+
+    // ============ 3. HEADPHONE SECTION ============
+    // Last: a final linear touch-up on the corrected signal, matching the signal chain
+    // (hearing correction -> headphone EQ) in PluginProcessor::processBlock.
+    bounds.removeFromTop (HEADER_H);
+    headphonePanelBounds = bounds.removeFromTop (HP_PANEL_H).toFloat();
+
+    // Content area with PANEL_PAD from all edges
+    int hpX = static_cast<int>(headphonePanelBounds.getX()) + PANEL_PAD;
+    int hpY = static_cast<int>(headphonePanelBounds.getY()) + PANEL_PAD;
+    int hpW = static_cast<int>(headphonePanelBounds.getWidth()) - 2 * PANEL_PAD;
+    int hpH = static_cast<int>(headphonePanelBounds.getHeight()) - 2 * PANEL_PAD;
+
+    // Row 1: icon, dropdown, toggle, import, refresh
+    int iconW = 28, toggleW = 40, refreshW = 50, importW = 50, elemH = 26;
+    int refreshX = hpX + hpW - refreshW;
+    int importX  = refreshX - 6 - importW;
+    int toggleX  = importX - 8 - toggleW;
+    int dropX = hpX + iconW + 8;
+    int dropW = toggleX - 8 - dropX;
+
+    headphoneSelector.setBounds (dropX, hpY, dropW, elemH);
+    headphoneEnableButton.setBounds (toggleX, hpY + 3, toggleW, 20);
+    headphoneImportButton.setBounds (importX, hpY, importW, elemH);
+    headphoneRefreshButton.setBounds (refreshX, hpY, refreshW, elemH);
+
+    // Row 2: info label (with padding from bottom)
+    headphoneInfoLabel.setBounds (dropX, hpY + hpH - 12, dropW, 12);
 }
 
 //==============================================================================

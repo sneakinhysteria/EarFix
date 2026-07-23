@@ -15,14 +15,16 @@
 
 EarFix is a hearing correction plugin that applies personalized equalization based on your audiogram. Unlike generic "hearing enhancement" tools, EarFix uses your actual hearing test results to provide accurate, frequency-specific correction.
 
+**Intended use:** EarFix is meant for hearing loss significant enough that a hearing aid would normally be recommended — the same bar you'd use to decide you need prescription glasses in the first place. It is not a general listening "enhancer" for normal hearing, and it is not meant to address ordinary, mild age-related hearing decline unless that decline has reached a level where a hearing aid would actually be indicated. If you're unsure where your hearing falls, get a professional hearing test. See [Intended Use](../README.md#intended-use) in the main README.
+
 **Who is EarFix for?**
-- Musicians and audio engineers with mild to moderate hearing loss
-- Anyone who wants to enjoy music with personalized correction
-- Those who want to preview how hearing aids might affect their listening experience
+- People with hearing loss significant enough that a hearing aid would normally be recommended
+- Musicians and audio engineers who need that level of correction while working
 
 **What EarFix is NOT:**
 - A replacement for professional hearing aids
 - A medical device
+- A casual listening enhancement, or a way to compensate for normal age-related hearing changes that don't rise to the level of needing a hearing aid
 - Suitable for severe or profound hearing loss
 
 ---
